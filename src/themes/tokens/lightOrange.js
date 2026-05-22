@@ -1,0 +1,61 @@
+export const lightOrangeTheme = {
+  id: "lightOrange", name: "Light Orange", mode: "light",
+  foundation: {
+    primaryColor: "#F69B29", primaryHover: "#ED6E07", primaryDarkHover: "#C85D05",
+    loadingAccent: "#FFB14A", secondaryColor: "#FFF4E9",
+    applicationBackground: "#FFFCF9", loginBackground: "#FFF1DD",
+    surfaceBackground: "#FFFFFF", profilePanelBackground: "#F0F0F0", borderColor: "#FFD4A4",
+  },
+  typography: {
+    headingText: "#000000", bodyText: "rgba(0,0,0,0.80)", primaryText: "#F69B29",
+    accentText: "#ED6E07", helperText: "rgba(0,0,0,0.55)", inverseText: "#FFFFFF",
+  },
+  button: {
+    primary: {
+      default:  { background: "#F69B29", text: "#FFFFFF", border: "transparent" },
+      hover:    { background: "#ED6E07", text: "#FFFFFF", border: "transparent" },
+      active:   { background: "#C85D05", text: "#FFFFFF", border: "transparent" },
+      disabled: { background: "#F3F4F6", text: "#929292", border: "transparent" },
+      loading:  { background: "#FFB14A", text: "#FFFFFF", border: "transparent" },
+    },
+    secondary: {
+      default:  { background: "#FFF4E9", text: "#ED6E07", border: "#FFD4A4" },
+      hover:    { background: "#FFE8CC", text: "#C85D05", border: "#FFC27A" },
+      active:   { background: "#FFD9A6", text: "#C85D05", border: "#FFC27A" },
+      disabled: { background: "#F3F4F6", text: "#929292", border: "#E5E7EB" },
+      loading:  { background: "#FFE8CC", text: "#C85D05", border: "#FFC27A" },
+    },
+    tertiary: {
+      default:  { background: "transparent", text: "#ED6E07", border: "transparent" },
+      hover:    { background: "#FFF8F1",     text: "#C85D05", border: "transparent" },
+      active:   { background: "#FFF0E0",     text: "#C85D05", border: "transparent" },
+      disabled: { background: "transparent", text: "#929292", border: "transparent" },
+      loading:  { background: "#FFF8F1",     text: "#C85D05", border: "transparent" },
+    },
+    ghost: {
+      default:  { background: "#FFFFFF", text: "#ED6E07", border: "#ED6E07" },
+      hover:    { background: "#FFF8F1", text: "#C85D05", border: "#C85D05" },
+      active:   { background: "#FFF0E0", text: "#C85D05", border: "#C85D05" },
+      disabled: { background: "#F3F4F6", text: "#929292", border: "#E5E7EB" },
+      loading:  { background: "#FFF8F1", text: "#C85D05", border: "#FFC27A" },
+    },
+  },
+  input: {
+    default:  { background: "#FFFFFF",  border: "#FFD4A4", text: "#1F2937", placeholder: "rgba(0,0,0,0.40)" },
+    hover:    { background: "#FFFFFF",  border: "#F69B29", text: "#1F2937", placeholder: "rgba(0,0,0,0.40)" },
+    focus:    { background: "#FFFFFF",  border: "#ED6E07", text: "#1F2937", placeholder: "rgba(0,0,0,0.40)", boxShadow: "0px 0px 0px 3px rgba(237,110,7,0.12)" },
+    disabled: { background: "#F3F4F6", border: "#E5E7EB", text: "#929292", placeholder: "#929292" },
+    readonly: { background: "#F9FAFB", border: "#D1D5DB", text: "#4B5563", placeholder: "#4B5563" },
+    error:    { background: "#FFFFFF",  border: "#DC3545", text: "#1F2937", placeholder: "rgba(0,0,0,0.40)", boxShadow: "0px 0px 0px 3px rgba(220,53,69,0.12)" },
+    success:  { background: "#FFFFFF",  border: "#28A745", text: "#1F2937", placeholder: "rgba(0,0,0,0.40)", boxShadow: "0px 0px 0px 3px rgba(40,167,69,0.12)" },
+  },
+  interaction: { secondaryHoverBackground: "#FFE8CC", secondaryHoverBorder: "#FFC27A", tertiaryHoverBackground: "#FFF8F1", focusOutline: "#FFD7B0" },
+  cssVars: {
+    "--color-primary": "#F69B29", "--color-primary-hover": "#ED6E07", "--color-primary-dark": "#C85D05",
+    "--color-secondary": "#FFF4E9", "--color-app-bg": "#FFFCF9", "--color-login-bg": "#FFF1DD",
+    "--color-surface": "#FFFFFF", "--color-profile-panel": "#F0F0F0", "--color-border": "#FFD4A4",
+    "--color-heading": "#000000", "--color-body": "rgba(0,0,0,0.80)", "--color-primary-text": "#F69B29",
+    "--color-accent-text": "#ED6E07", "--color-helper-text": "rgba(0,0,0,0.55)",
+    "--color-inverse-text": "#FFFFFF", "--color-focus-outline": "#FFD7B0", "--color-loading-accent": "#FFB14A",
+  },
+};
