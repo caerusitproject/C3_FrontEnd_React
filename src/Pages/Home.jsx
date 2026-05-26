@@ -1,21 +1,31 @@
 import React from "react";
-import { useTheme, useGlobalTokens, useThemeContext } from "../context/ThemeContext";
+import {
+  useTheme,
+  useGlobalTokens,
+  useThemeContext,
+} from "../context/ThemeContext";
 import { Text, Button, Badge, Spinner } from "../Components/ui";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../store/slices/loginSlice";
 
 export default function Home() {
-  const theme  = useTheme();
+  const theme = useTheme();
   const global = useGlobalTokens();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { themeId, isLoading } = useThemeContext();
 
   const THEME_BADGE = {
-    lightOrange:     { intent: "warning", label: "Light Orange"      },
-    lightOliveGreen: { intent: "success", label: "Light Olive Green"  },
-    darkGreen:       { intent: "neutral", label: "Dark Green"         },
+    lightOrange: { intent: "warning", label: "Light Orange" },
+    lightOliveGreen: { intent: "success", label: "Light Olive Green" },
+    darkGreen: { intent: "neutral", label: "Dark Green" },
   };
 
   function handleLogout() {
     // replace with your real logout logic
     alert("Logged out");
+    dispatch(logout());
   }
 
   // ── Loading splash ───────────────────────────────────────────────────────────
@@ -31,7 +41,14 @@ export default function Home() {
           transition: "background 0.35s ease",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
+          }}
+        >
           <Spinner size="lg" />
           <Text variant="helper">Loading…</Text>
         </div>
@@ -77,7 +94,16 @@ export default function Home() {
               transition: "background 0.35s ease",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </div>
@@ -88,7 +114,11 @@ export default function Home() {
 
         {/* Right side: badge + logout */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Badge intent={THEME_BADGE[themeId]?.intent ?? "neutral"} dot size="sm">
+          <Badge
+            intent={THEME_BADGE[themeId]?.intent ?? "neutral"}
+            dot
+            size="sm"
+          >
             {THEME_BADGE[themeId]?.label ?? themeId}
           </Badge>
           <Button
@@ -96,7 +126,16 @@ export default function Home() {
             size="sm"
             onClick={handleLogout}
             leftIcon={
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
@@ -137,12 +176,9 @@ export default function Home() {
           Welcome Home
         </Text>
 
-        <Text
-          variant="body"
-          style={{ maxWidth: "420px", lineHeight: 1.65 }}
-        >
-          You are successfully logged in. The background, text, and all UI elements
-          adapt automatically to whichever theme is active.
+        <Text variant="body" style={{ maxWidth: "420px", lineHeight: 1.65 }}>
+          You are successfully logged in. The background, text, and all UI
+          elements adapt automatically to whichever theme is active.
         </Text>
 
         {/* Logout button in the center too */}
@@ -151,7 +187,16 @@ export default function Home() {
             variant="primary"
             onClick={handleLogout}
             leftIcon={
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
@@ -176,7 +221,8 @@ export default function Home() {
         }}
       >
         <Text variant="helper">
-          C3 Design System · {THEME_BADGE[themeId]?.label ?? themeId} theme active
+          C3 Design System · {THEME_BADGE[themeId]?.label ?? themeId} theme
+          active
         </Text>
       </footer>
     </div>

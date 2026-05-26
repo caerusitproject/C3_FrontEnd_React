@@ -1,6 +1,19 @@
 import React, { useState } from "react";
-import { useTheme, useGlobalTokens } from "../context/ThemeContext";
-import { Text, Button, Input, Alert, Spinner } from "../Components/ui";
+import {
+  useTheme,
+  useGlobalTokens,
+  useThemeContext,
+} from "../context/ThemeContext";
+import {
+  Text,
+  Button,
+  Input,
+  Card,
+  Alert,
+  Badge,
+  Spinner,
+  ThemeSwitcher,
+} from "../Components/ui";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import { useDispatch } from "react-redux";
@@ -45,6 +58,7 @@ export default function LoginPage() {
   const global = useGlobalTokens();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { themeId, isLoading } = useThemeContext();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
