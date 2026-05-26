@@ -1,70 +1,122 @@
 import { DEFAULT_THEME_ID } from "../../themes/tokens";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// themeService.js
-//
-// In this DEMO, localStorage is used instead of a real API, so you can run
-// the app without any backend. In production, swap the two functions below
-// to real fetch() calls against your API:
-//
-//   GET  /api/settings/theme     → { themeId }
-//   PUT  /api/settings/theme     body: { themeId }
-// ─────────────────────────────────────────────────────────────────────────────
+// STORAGE KEYS
+const LS_KEY = "c3_active_theme";
 
-const LS_KEY     = "c3_active_theme";
-const CACHE_KEY  = "c3_theme_cache";
-const CACHE_TTL  = 5 * 60 * 1000;
+const CACHE_KEY = "c3_theme_cache";
 
+// 5 MIN CACHE
+const CACHE_TTL = 5 * 60 * 1000;
+
+// NETWORK DELAY
+const delay = (ms) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+// CACHE READ
 function readCache() {
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
+
     if (!raw) return null;
-    const { themeId, cachedAt } = JSON.parse(raw);
-    if (Date.now() - cachedAt > CACHE_TTL) { sessionStorage.removeItem(CACHE_KEY); return null; }
-    return themeId;
-  } catch { return null; }
+
+    const parsed = JSON.parse(raw);
+
+    const isExpired =
+      Date.now() - parsed.cachedAt > CACHE_TTL;
+
+    if (isExpired) {
+      sessionStorage.removeItem(CACHE_KEY);
+
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
-function writeCache(themeId) {
-  try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ themeId, cachedAt: Date.now() })); } catch {}
+// CACHE WRITE
+function writeCache(data) {
+  try {
+    sessionStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({
+        ...data,
+        cachedAt: Date.now(),
+      }),
+    );
+  } catch {}
 }
 
+// CLEAR CACHE
 export function clearThemeCache() {
-  try { sessionStorage.removeItem(CACHE_KEY); } catch {}
+  try {
+    sessionStorage.removeItem(CACHE_KEY);
+  } catch {}
 }
 
-// ── DEMO: reads from localStorage (simulates DB) ──────────────────────────────
+// FETCH THEME
 export async function fetchActiveTheme() {
+  // CACHE FIRST
   const cached = readCache();
-  if (cached) return cached;
 
-  // Simulate a small network delay so the loading state is visible
-  await new Promise((r) => setTimeout(r, 400));
+  if (cached?.themeId) {
+    return cached.themeId;
+  }
 
-  const stored = localStorage.getItem(LS_KEY) || DEFAULT_THEME_ID;
-  writeCache(stored);
-  return stored;
+  // SIMULATE API DELAY
+  await delay(1200);
 
-  // ── PRODUCTION: replace the block above with: ────────────────────────────
-  // const res  = await fetch("/api/settings/theme", { credentials: "include" });
-  // const data = await res.json();
-  // writeCache(data.themeId);
-  // return data.themeId;
+  // DUMMY API RESPONSE
+  const response = {
+    success: true,
+
+    data: {
+      themeId:
+        localStorage.getItem(LS_KEY) ||
+        DEFAULT_THEME_ID,
+    },
+  };
+
+  // API FAILURE TEST
+  if (!response.success) {
+    throw new Error("Failed to fetch theme");
+  }
+
+  const themeId = response.data.themeId;
+
+  // WRITE CACHE
+  writeCache({ themeId });
+
+  return themeId;
 }
 
-// ── DEMO: writes to localStorage ──────────────────────────────────────────────
+// UPDATE THEME
 export async function updateActiveTheme(themeId) {
-  await new Promise((r) => setTimeout(r, 300)); // simulate latency
+  // OPTIMISTIC DELAY
+  await delay(500);
+
+  // DUMMY API RESPONSE
+  const response = {
+    success: true,
+  };
+
+  if (!response.success) {
+    throw new Error("Theme update failed");
+  }
+
+  // PERSIST
   localStorage.setItem(LS_KEY, themeId);
+
+  // CLEAR OLD CACHE
   clearThemeCache();
 
-  // ── PRODUCTION: replace with: ────────────────────────────────────────────
-  // await fetch("/api/settings/theme", {
-  //   method: "PUT", credentials: "include",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({ themeId }),
-  // });
-  // clearThemeCache();
+  return response;
 }
 
-export default { fetchActiveTheme, updateActiveTheme, clearThemeCache };
+export default {
+  fetchActiveTheme,
+  updateActiveTheme,
+  clearThemeCache,
+};

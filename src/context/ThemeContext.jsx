@@ -6,150 +6,226 @@ import React, {
   useMemo,
   useState,
 } from "react";
+
 import {
   DEFAULT_THEME_ID,
   getTheme,
   globalTokens,
-  THEME_REGISTRY,
 } from "../themes/tokens";
+
 import {
   fetchActiveTheme,
   updateActiveTheme,
-  clearThemeCache,
 } from "../store/services/themeService";
 
+import GlobalLoader from "../Config/GlobalLoader";
+
 export const ThemeContext = createContext({
-  theme: THEME_REGISTRY[DEFAULT_THEME_ID],
+  theme: getTheme(DEFAULT_THEME_ID),
   global: globalTokens,
   themeId: DEFAULT_THEME_ID,
   isLoading: true,
   error: null,
   setTheme: async () => {},
-  refetch: () => {},
 });
 
 function applyThemeCssVars(tokens) {
   const root = document.documentElement;
-  Object.entries(tokens.cssVars).forEach(([p, v]) =>
-    root.style.setProperty(p, v),
+
+  // theme vars
+  Object.entries(tokens.cssVars).forEach(([prop, value]) => {
+    root.style.setProperty(prop, value);
+  });
+
+  // global state vars
+  root.style.setProperty(
+    "--color-success",
+    globalTokens.state.success,
   );
-  root.style.setProperty("--color-success", globalTokens.state.success);
+
   root.style.setProperty(
     "--color-success-text",
     globalTokens.state.successText,
   );
+
   root.style.setProperty(
     "--color-success-bg",
     globalTokens.state.successBackground,
   );
-  root.style.setProperty("--color-warning", globalTokens.state.warning);
+
+  root.style.setProperty(
+    "--color-warning",
+    globalTokens.state.warning,
+  );
+
   root.style.setProperty(
     "--color-warning-text",
     globalTokens.state.warningText,
   );
+
   root.style.setProperty(
     "--color-warning-bg",
     globalTokens.state.warningBackground,
   );
-  root.style.setProperty("--color-error", globalTokens.state.error);
-  root.style.setProperty("--color-error-text", globalTokens.state.errorText);
+
+  root.style.setProperty(
+    "--color-error",
+    globalTokens.state.error,
+  );
+
+  root.style.setProperty(
+    "--color-error-text",
+    globalTokens.state.errorText,
+  );
+
   root.style.setProperty(
     "--color-error-bg",
     globalTokens.state.errorBackground,
   );
+
   root.style.setProperty(
     "--color-disabled-bg",
     globalTokens.disabled.background,
   );
+
   root.style.setProperty(
     "--color-disabled-border",
     globalTokens.disabled.border,
   );
-  root.style.setProperty("--color-disabled-text", globalTokens.disabled.text);
+
+  root.style.setProperty(
+    "--color-disabled-text",
+    globalTokens.disabled.text,
+  );
+
   root.setAttribute("data-theme", tokens.id);
+
   root.setAttribute("data-theme-mode", tokens.mode);
 }
 
-export function ThemeProvider({ children, overrideThemeId }) {
-  const [themeId, setThemeId] = useState(DEFAULT_THEME_ID);
-  const [isLoading, setIsLoading] = useState(!overrideThemeId);
+export function ThemeProvider({ children }) {
+  const [themeId, setThemeId] = useState(null);
+
+  const [isLoading, setIsLoading] = useState(true);
+
   const [error, setError] = useState(null);
-  const [fetchKey, setFetchKey] = useState(0);
 
+  // INITIAL LOAD
   useEffect(() => {
-    if (!overrideThemeId) return;
-    setThemeId(overrideThemeId);
-    applyThemeCssVars(getTheme(overrideThemeId));
-    setIsLoading(false);
-  }, [overrideThemeId]);
+    let mounted = true;
 
-  useEffect(() => {
-    if (overrideThemeId) return;
-    let cancelled = false;
-    setIsLoading(true);
-    setError(null);
-    fetchActiveTheme()
-      .then((id) => {
-        if (cancelled) return;
-        setThemeId(id);
-        applyThemeCssVars(getTheme(id));
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        console.error("[ThemeProvider]", err.message);
+    async function initializeTheme() {
+      try {
+        setIsLoading(true);
+
+        // 1. instant cached theme
+        const cachedTheme = localStorage.getItem("active-theme");
+
+        if (cachedTheme) {
+          applyThemeCssVars(getTheme(cachedTheme));
+
+          setThemeId(cachedTheme);
+        }
+
+        // 2. API theme
+        const apiTheme = await fetchActiveTheme();
+
+        if (!mounted) return;
+
+        localStorage.setItem("active-theme", apiTheme);
+
+        applyThemeCssVars(getTheme(apiTheme));
+
+        setThemeId(apiTheme);
+      } catch (err) {
+        console.error("[ThemeProvider]", err);
+
+        if (!mounted) return;
+
         setError(err.message);
+
         applyThemeCssVars(getTheme(DEFAULT_THEME_ID));
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+
+        setThemeId(DEFAULT_THEME_ID);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    initializeTheme();
+
     return () => {
-      cancelled = true;
+      mounted = false;
     };
-  }, [fetchKey, overrideThemeId]);
+  }, []);
 
-  console.log("the value of loading____", isLoading);
-
+  // CHANGE THEME
   const setTheme = useCallback(
     async (id) => {
-      const prev = themeId;
-      setThemeId(id);
-      applyThemeCssVars(getTheme(id));
+      const previousTheme = themeId;
+
       try {
+        // instant UI update
+        setThemeId(id);
+
+        applyThemeCssVars(getTheme(id));
+
+        localStorage.setItem("active-theme", id);
+
+        // persist to backend
         await updateActiveTheme(id);
       } catch (err) {
-        console.error("[ThemeProvider] persist failed:", err);
-        setThemeId(prev);
-        applyThemeCssVars(getTheme(prev));
-        throw err;
+        console.error("[ThemeProvider]", err);
+
+        // rollback
+        setThemeId(previousTheme);
+
+        applyThemeCssVars(getTheme(previousTheme));
       }
     },
     [themeId],
   );
 
-  const refetch = useCallback(() => {
-    clearThemeCache();
-    setFetchKey((k) => k + 1);
-  }, []);
-
   const value = useMemo(
     () => ({
-      theme: getTheme(themeId),
+      theme: getTheme(themeId || DEFAULT_THEME_ID),
+
       global: globalTokens,
-      themeId,
+
+      themeId: themeId || DEFAULT_THEME_ID,
+
       isLoading,
+
       error,
+
       setTheme,
-      refetch,
     }),
-    [themeId, isLoading, error, setTheme, refetch],
+    [themeId, isLoading, error, setTheme],
   );
 
+  // BLOCK APP UNTIL THEME LOADS
+  if (isLoading && !themeId) {
+    return <GlobalLoader />;
+  }
+
   return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
   );
 }
 
+// MAIN HOOK
 export const useThemeContext = () => useContext(ThemeContext);
-export const useTheme = () => useContext(ThemeContext).theme;
-export const useGlobalTokens = () => useContext(ThemeContext).global;
+
+// ONLY THEME
+export const useTheme = () => {
+  return useContext(ThemeContext).theme;
+};
+
+// GLOBAL TOKENS
+export const useGlobalTokens = () => {
+  return useContext(ThemeContext).global;
+};

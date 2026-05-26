@@ -38,11 +38,10 @@
 // ];
 
 import { lazy } from "react";
-import { ThemeProvider } from "../context/ThemeContext";
 
 const Counter = lazy(() => import("../Pages/Counter"));
 const ShowcasePage = lazy(() => import("../Pages/ShowcasePage"));
-const Login_Page = lazy(() => import("../Pages/LoginPage"));
+const Login_Page = lazy(() => import("../Pages/Login/LoginPage"));
 const Home_Page = lazy(() => import("../Pages/Home"));
 
 /**
@@ -60,18 +59,17 @@ export const routes = [
     path: "/login",
     publicOnly: true, // ← authenticated users are sent to /home
     element: (
-      <ThemeProvider>
+      
         <Login_Page />
-      </ThemeProvider>
     ),
   },
   {
     path: "/home",
     roles: ["user", "admin"], // ← protected; unauthenticated → /login
     element: (
-      <ThemeProvider>
+    
         <Home_Page />
-      </ThemeProvider>
+     
     ),
   },
   {
@@ -80,9 +78,9 @@ export const routes = [
     // ThemeProvider here means theme switching & persistence work identically
     // whether the user is logged in or not.
     element: (
-      <ThemeProvider>
+      
         <ShowcasePage />
-      </ThemeProvider>
+     
     ),
   },
 ];

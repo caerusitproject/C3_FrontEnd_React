@@ -10,7 +10,7 @@ export const lightOliveGreenTheme = {
     secondaryColor: "#D9E3BF",
     applicationBackground: "#FFFFF9",
     loginBackground: "#FCFFE8",
-    surfaceBackground: "#FFFFFF",
+    surfaceBackground: "#fafaf0",
     profilePanelBackground: "#F0F0F0",
     borderColor: "#CFE3D6",
   },
