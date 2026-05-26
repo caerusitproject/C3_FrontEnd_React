@@ -1,0 +1,15 @@
+export const globalTokens = {
+  state: {
+    success: "#28A745", successText: "#1E7E34", successBackground: "#EAF8EE",
+    warning: "#FFC107", warningText: "#8A6300", warningAccent: "#D39E00", warningBackground: "#FFF6D8",
+    error: "#DC3545", errorText: "#B02A37", errorBackground: "#FDEBEC",
+  },
+  disabled: { background: "#F3F4F6", border: "#E5E7EB", text: "#929292" },
+  readonly: { background: "#F9FAFB", text: "#4B5563", border: "#D1D5DB" },
+  spacing: { xs: "4px", sm: "8px", md: "12px", lg: "16px", xl: "20px", "2xl": "24px", "3xl": "32px", "4xl": "40px", "5xl": "48px" },
+  radius: { sm: "4px", md: "8px", lg: "12px", xl: "16px", full: "9999px" },
+  fontSize: { xs: "11px", sm: "12px", base: "14px", md: "15px", lg: "16px", xl: "18px", "2xl": "20px", "3xl": "24px", "4xl": "28px" },
+  fontWeight: { regular: "400", medium: "500", semibold: "600", bold: "700" },
+  shadow: { sm: "0px 1px 3px rgba(0,0,0,0.08)", md: "0px 4px 12px rgba(0,0,0,0.10)", lg: "0px 8px 24px rgba(0,0,0,0.12)" },
+  transition: { fast: "all 0.15s ease", normal: "all 0.2s ease", slow: "all 0.3s ease" },
+};
