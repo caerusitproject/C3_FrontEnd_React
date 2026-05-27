@@ -9,7 +9,7 @@ import {
 
 import * as actions from "../store/actions";
 
-import { globalLoaderOpen, openSnackbar } from "../store/slices/globalSlice";
+import { globalLoaderOpen } from "../store/slices/globalSlice";
 import GlobalButton from "../Components/GlobalButton";
 
 export default function Counter() {
@@ -193,9 +193,10 @@ export default function Counter() {
           variant="primary"
           onClick={() =>
             dispatch(
-              openSnackbar({
+              actions.showAlert({
+                type: "success",
+                title: "Success",
                 message: "This is a success message",
-                status: "success",
               }),
             )
           }

@@ -1,230 +1,144 @@
 import React from "react";
-import {
-  useTheme,
-  useGlobalTokens,
-  useThemeContext,
-} from "../context/ThemeContext";
-import { Text, Button, Badge, Spinner } from "../Components/ui";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { logout } from "../store/slices/loginSlice";
+import { useSelector } from "react-redux";
+import { Text, Badge, Card } from "../Components/ui";
+import { useTheme, useThemeContext } from "../context/ThemeContext";
+
+const THEME_BADGE = {
+  lightOrange:    { intent: "warning", label: "Light Orange" },
+  lightOliveGreen:{ intent: "success", label: "Light Olive Green" },
+  darkGreen:      { intent: "neutral", label: "Dark Green" },
+};
 
 export default function Home() {
-  const theme = useTheme();
-  const global = useGlobalTokens();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { themeId, isLoading } = useThemeContext();
+  const theme = useThemeContext();
+  const { loggedInUser } = useSelector((state) => state.login);
 
-  const THEME_BADGE = {
-    lightOrange: { intent: "warning", label: "Light Orange" },
-    lightOliveGreen: { intent: "success", label: "Light Olive Green" },
-    darkGreen: { intent: "neutral", label: "Dark Green" },
-  };
-
-  function handleLogout() {
-    // replace with your real logout logic
-    alert("Logged out");
-    dispatch(logout());
-  }
-
-  // ── Loading splash ───────────────────────────────────────────────────────────
-  if (isLoading) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: theme.foundation.applicationBackground,
-          transition: "background 0.35s ease",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "16px",
-          }}
-        >
-          <Spinner size="lg" />
-          <Text variant="helper">Loading…</Text>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Page ─────────────────────────────────────────────────────────────────────
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: theme.foundation.applicationBackground,
-        transition: "background 0.35s ease",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {/* ── Top nav bar ────────────────────────────────────────────────────── */}
-      <nav
-        style={{
-          background: theme.foundation.surfaceBackground,
-          borderBottom: `1px solid ${theme.foundation.borderColor}`,
-          padding: "0 40px",
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          transition: "background 0.35s ease, border-color 0.35s ease",
-        }}
-      >
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "8px",
-              background: theme.foundation.primaryColor,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "background 0.35s ease",
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-          </div>
-          <Text variant="h4" style={{ letterSpacing: "-0.01em" }}>
-            C3 Design System
-          </Text>
-        </div>
+    <div className="p-6 md:p-10 flex flex-col gap-8">
 
-        {/* Right side: badge + logout */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Badge
-            intent={THEME_BADGE[themeId]?.intent ?? "neutral"}
-            dot
-            size="sm"
-          >
-            {THEME_BADGE[themeId]?.label ?? themeId}
-          </Badge>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleLogout}
-            leftIcon={
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-            }
-          >
-            Logout
-          </Button>
-        </div>
-      </nav>
-
-      {/* ── Main content ───────────────────────────────────────────────────── */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "12px",
-          padding: "40px",
-          textAlign: "center",
-        }}
-      >
-        {/* Accent bar above heading */}
-        <div
-          style={{
-            width: "40px",
-            height: "4px",
-            borderRadius: "2px",
-            background: theme.foundation.primaryColor,
-            marginBottom: "8px",
-            transition: "background 0.35s ease",
-          }}
-        />
-
-        <Text variant="h1" style={{ letterSpacing: "-0.02em" }}>
-          Welcome Home
+      {/* PAGE HEADER */}
+      <div className="flex flex-col gap-1">
+        <Text variant="h2">
+          Welcome back{loggedInUser?.name ? `, ${loggedInUser.name}` : ""}
         </Text>
-
-        <Text variant="body" style={{ maxWidth: "420px", lineHeight: 1.65 }}>
-          You are successfully logged in. The background, text, and all UI
-          elements adapt automatically to whichever theme is active.
+        <Text variant="helper" style={{ color: "#6b7280" }}>
+          Here's what's happening today.
         </Text>
-
-        {/* Logout button in the center too */}
-        <div style={{ marginTop: "24px" }}>
-          <Button
-            variant="primary"
-            onClick={handleLogout}
-            leftIcon={
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-            }
-          >
-            Logout
-          </Button>
-        </div>
       </div>
 
-      {/* ── Footer ─────────────────────────────────────────────────────────── */}
-      <footer
-        style={{
-          background: theme.foundation.surfaceBackground,
-          borderTop: `1px solid ${theme.foundation.borderColor}`,
-          padding: "16px 40px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transition: "background 0.35s ease, border-color 0.35s ease",
-        }}
-      >
-        <Text variant="helper">
-          C3 Design System · {THEME_BADGE[themeId]?.label ?? themeId} theme
-          active
-        </Text>
-      </footer>
+      {/* STAT CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Total Users",    value: "2,847",  change: "+12%",  up: true  },
+          { label: "Active Sessions",value: "143",    change: "+5%",   up: true  },
+          { label: "Errors Today",   value: "3",      change: "-80%",  up: false },
+          { label: "Uptime",         value: "99.9%",  change: "stable",up: true  },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="bg-white rounded-xl border border-gray-100 p-5 flex flex-col gap-3 shadow-sm"
+          >
+            <Text variant="helper" style={{ color: "#6b7280" }}>
+              {stat.label}
+            </Text>
+            <Text variant="h2" style={{ lineHeight: 1 }}>
+              {stat.value}
+            </Text>
+            <span
+              className={`text-xs font-medium ${
+                stat.up ? "text-green-600" : "text-red-500"
+              }`}
+            >
+              {stat.change} from last week
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* BOTTOM ROW */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* RECENT ACTIVITY */}
+        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-5 shadow-sm flex flex-col gap-4">
+          <Text variant="h4">Recent Activity</Text>
+          <div className="flex flex-col divide-y divide-gray-50">
+            {[
+              { user: "Alice",   action: "logged in",          time: "2 min ago",  role: "admin"  },
+              { user: "Bob",     action: "updated profile",     time: "18 min ago", role: "user"   },
+              { user: "Charlie", action: "exported a report",   time: "1 hr ago",   role: "user"   },
+              { user: "Diana",   action: "changed theme",       time: "3 hr ago",   role: "admin"  },
+              { user: "Ethan",   action: "reset password",      time: "yesterday",  role: "user"   },
+            ].map((item) => (
+              <div
+                key={item.user}
+                className="flex items-center justify-between py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-semibold shrink-0">
+                    {item.user[0]}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-gray-800">
+                      {item.user}
+                    </span>
+                    <span className="text-xs text-gray-400">{item.action}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    intent={item.role === "admin" ? "warning" : "neutral"}
+                    size="sm"
+                  >
+                    {item.role}
+                  </Badge>
+                  <span className="text-xs text-gray-400 whitespace-nowrap">
+                    {item.time}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ACCOUNT CARD */}
+        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm flex flex-col gap-4">
+          <Text variant="h4">Your Account</Text>
+
+          <div className="flex flex-col items-center gap-3 py-4">
+            <div className="w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-2xl font-bold">
+              {loggedInUser?.name?.[0] ?? "U"}
+            </div>
+            <div className="text-center">
+              <Text variant="body" style={{ fontWeight: 600 }}>
+                {loggedInUser?.name ?? "User"}
+              </Text>
+              <Text variant="helper" style={{ color: "#6b7280" }}>
+                {loggedInUser?.email ?? "—"}
+              </Text>
+            </div>
+            <Badge
+              intent={loggedInUser?.role === "admin" ? "warning" : "neutral"}
+              dot
+            >
+              {loggedInUser?.role ?? "user"}
+            </Badge>
+          </div>
+
+          <div className="border-t border-gray-50 pt-4 flex flex-col gap-2">
+            {[
+              { label: "Member since", value: "Jan 2024" },
+              { label: "Last login",   value: "Just now"  },
+              { label: "Theme",        value: THEME_BADGE[theme.themeId]?.label ?? theme.themeId },
+            ].map((row) => (
+              <div key={row.label} className="flex justify-between text-sm">
+                <span className="text-gray-400">{row.label}</span>
+                <span className="text-gray-700 font-medium">{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

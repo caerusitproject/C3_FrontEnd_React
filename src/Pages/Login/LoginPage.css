@@ -52,7 +52,7 @@
   top: 0;
   bottom: 0;
 
-  width: 40%;
+  width: 46%;
 
   display: flex;
   flex-direction: column;
@@ -88,15 +88,24 @@
 }
 
 .login-heading {
-  margin-top: 40px;
-  max-width: 390px;
-}
+  margin-top: 60px;
 
-.login-heading-text {
+  width: 100%;
+
+  max-width: 560px;
+
+  position: relative;
+
+  z-index: 2;
   font-size: 70px;
-  line-height: 1.05;
-  letter-spacing: -2px;
-  font-weight: 250;
+
+  line-height: 1.02;
+
+  letter-spacing: -3px;
+
+  font-weight: 300;
+
+  word-break: break-word;
 }
 
 .login-footer {
@@ -185,14 +194,99 @@
   .login-branding {
     width: 34%;
   }
-
   .login-heading-text {
-    font-size: 58px;
+    font-size: 70px;
+  }
+  .desktop-break {
+    display: inline;
+  }
+}
+
+@media (min-width: 993px) {
+  .desktop-break {
+    display: block;
+  }
+
+  .login-heading {
+    font-size: 72px;
+
+    line-height: 1.04;
+
+    letter-spacing: -2px;
+
+    font-weight: 300;
   }
 }
 
 @media (max-width: 992px) {
+  .login-page {
+    flex-direction: column;
+
+    justify-content: center;
+
+    padding: 30px 20px;
+    
+  }
+
   .login-branding {
+    position: relative;
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    margin-bottom: 40px;
+
+    left: unset;
+
+    top: unset;
+
+    bottom: unset;
+  }
+
+  .login-logo-wrapper {
+    position: relative;
+
+    top: unset;
+
+    left: unset;
+
+    margin-bottom: 20px;
+  }
+
+  .login-logo {
+    font-size: 140px;
+  }
+
+  .login-logo-subtitle {
+    margin-left: 0;
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .login-heading {
+    font-size: 30px;
+
+    line-height: 1.5;
+
+    font-weight: 400;
+
+    letter-spacing: -0.5px;
+
+    text-align: center;
+
+    margin-top: 12px;
+
+    padding: 0 10px;
+  }
+
+  .login-footer {
     display: none;
   }
 
@@ -200,30 +294,46 @@
     position: relative;
 
     right: unset;
+
     top: unset;
 
     transform: none;
 
+    width: 100%;
+
     max-width: 620px;
   }
 }
-
 @media (max-width: 768px) {
   .login-page {
     padding: 16px;
   }
 
-  .login-card {
-    padding: 40px 28px;
+  .login-logo {
+    font-size: 82px;
+  }
+  .login-heading {
+    font-size: 20px;
 
-    border-radius: 34px;
+    line-height: 1.2;
+
+    font-weight: 500;
+
+    letter-spacing: -0.5px;
+
+    text-align: center;
+
+    margin-top: 12px;
+
+    padding: 0 10px;
   }
 
-  .login-heading-text {
-    font-size: 42px;
+  .login-card {
+    padding: 36px 22px;
+
+    border-radius: 32px;
   }
 }
-
 @media (max-width: 480px) {
   .login-card {
     padding: 28px 20px;

@@ -4,9 +4,9 @@ import "./LoginPage.css";
 
 import { useTheme } from "../../context/ThemeContext";
 
-import { Text, Button, Input, Alert } from "../../Components/ui";
+import { Button, Input } from "../../Components/ui";
 
-import EmailIcon from "@mui/icons-material/Email";
+import BadgeIcon from "@mui/icons-material/Badge";
 import LockIcon from "@mui/icons-material/Lock";
 
 import { useDispatch } from "react-redux";
@@ -68,7 +68,7 @@ export default function LoginPage() {
   // STATES
   // ───────────────────────────────────────────────────────────
 
-  const [email, setEmail] = useState("");
+  const [empId, setEmpId] = useState("");
 
   const [password, setPassword] = useState("");
 
@@ -76,9 +76,8 @@ export default function LoginPage() {
 
   const [submitting, setSubmitting] = useState(false);
 
-  const [error, setError] = useState(null);
 
-  const [emailError, setEmailError] = useState("");
+  const [empIdError, setEmpIdError] = useState("");
 
   const [passwordError, setPasswordError] = useState("");
 
@@ -86,26 +85,22 @@ export default function LoginPage() {
   // LOGIN
   // ───────────────────────────────────────────────────────────
 
-  function handleLogin() {
-    setError(null);
-
-    setEmailError("");
-
+  async function handleLogin() {
+    setEmpIdError("");
     setPasswordError("");
 
     let hasError = false;
 
-    // EMAIL VALIDATION
+    // EMPLOYEE ID VALIDATION
 
-    if (!email) {
-      setEmailError("Please enter your email address.");
-
+    if (!empId?.trim()) {
+      setEmpIdError("Please enter your employee ID.");
       hasError = true;
     }
 
     // PASSWORD VALIDATION
 
-    if (!password) {
+    if (!password?.trim()) {
       setPasswordError("Please enter your password.");
       hasError = true;
     }
@@ -114,18 +109,23 @@ export default function LoginPage() {
 
     setSubmitting(true);
 
-    dispatch(
-      actions.userLogin({
-        email,
-        password,
-      })
-    );
+    try {
+      const res = await dispatch(
+        actions.userLogin({
+          empId: empId.trim(),
+          password,
+        })
+      );
 
-    setTimeout(() => {
       setSubmitting(false);
 
-      navigate("/home");
-    }, 1200);
+      if (res?.success) {
+        setTimeout(() => navigate("/home"), 800);
+      }
+
+    } catch (err) {
+      setSubmitting(false);
+    }
   }
 
   // ───────────────────────────────────────────────────────────
@@ -133,12 +133,16 @@ export default function LoginPage() {
   // ───────────────────────────────────────────────────────────
 
   return (
+    <>
     <div
       className="login-page"
       style={{
-        background: theme.foundation.loginBackground || "#FFF1DD",
+        background:
+          theme.foundation.loginBackground || "#FFF1DD",
       }}
     >
+      
+
       {/* BACKGROUND BLUR */}
 
       <div
@@ -158,9 +162,11 @@ export default function LoginPage() {
       {/* LEFT BRANDING */}
 
       <div className="login-branding">
+
         {/* LOGO */}
 
         <div className="login-logo-wrapper">
+
           <div
             className="login-logo"
             style={{
@@ -183,15 +189,10 @@ export default function LoginPage() {
         {/* HEADING */}
 
         <div className="login-heading">
-          <Text
-            variant="body"
-            className="login-heading-text"
-            style={{
-              color: theme.foundation.primaryColor,
-            }}
-          >
-            Login into Your Account
-          </Text>
+          <span className="desktop-break">
+            Login into
+          </span>{" "}
+          Your Account
         </div>
 
         {/* FOOTER */}
@@ -211,7 +212,8 @@ export default function LoginPage() {
       <div
         className="login-card"
         style={{
-          background: theme.foundation.surfaceBackground,
+          background:
+            theme.foundation.surfaceBackground,
 
           border: `3px solid ${theme.foundation.borderColor}`,
 
@@ -221,49 +223,45 @@ export default function LoginPage() {
           `,
         }}
       >
-        {/* ERROR */}
 
-        {error && (
-          <div className="mb-5">
-            <Alert intent="error" onDismiss={() => setError(null)}>
-              {error}
-            </Alert>
-          </div>
-        )}
-
-        {/* EMAIL */}
+        {/* EMPLOYEE ID */}
 
         <div className="login-form-group">
+
           <label
             className="login-label"
             style={{
               color: theme.typography.bodyText,
             }}
           >
-            Email Address
+            Employee ID
           </label>
 
           <Input
-            type="email"
+            type="text"
             size="lg"
             variant="filled"
-            placeholder="your@email.com"
-            value={email}
+            placeholder="Enter employee ID"
+            value={empId}
             onChange={(e) => {
-              setEmail(e.target.value);
-
-              setEmailError("");
+              setEmpId(e.target.value);
+              setEmpIdError("");
             }}
-            leftIcon={<EmailIcon />}
-            state={emailError ? "error" : "default"}
+            leftIcon={<BadgeIcon />}
+            state={empIdError ? "error" : "default"}
           />
 
-          {emailError && <div className="login-error">{emailError}</div>}
+          {empIdError && (
+            <div className="login-error">
+              {empIdError}
+            </div>
+          )}
         </div>
 
         {/* PASSWORD */}
 
         <div className="login-form-group">
+
           <label
             className="login-label"
             style={{
@@ -274,6 +272,7 @@ export default function LoginPage() {
           </label>
 
           <div className="password-wrapper">
+
             <Input
               type={showPw ? "text" : "password"}
               size="lg"
@@ -282,7 +281,6 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-
                 setPasswordError("");
               }}
               leftIcon={<LockIcon />}
@@ -297,18 +295,28 @@ export default function LoginPage() {
             <button
               type="button"
               className="password-eye-btn"
-              onClick={() => setShowPw((v) => !v)}
+              onClick={() =>
+                setShowPw((v) => !v)
+              }
               style={{
                 color: showPw
                   ? theme.foundation.primaryColor
                   : theme.typography.helperText,
               }}
             >
-              {showPw ? <EyeClosed /> : <EyeOpen />}
+              {showPw ? (
+                <EyeClosed />
+              ) : (
+                <EyeOpen />
+              )}
             </button>
           </div>
 
-          {passwordError && <div className="login-error">{passwordError}</div>}
+          {passwordError && (
+            <div className="login-error">
+              {passwordError}
+            </div>
+          )}
         </div>
 
         {/* LOGIN BUTTON */}
@@ -320,9 +328,12 @@ export default function LoginPage() {
           loading={submitting}
           onClick={handleLogin}
         >
-          {submitting ? "Signing in..." : "Log In"}
+          {submitting
+            ? "Signing in..."
+            : "Log In"}
         </Button>
       </div>
     </div>
+    </>
   );
 }

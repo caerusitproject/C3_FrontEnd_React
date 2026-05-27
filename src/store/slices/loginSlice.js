@@ -1,30 +1,85 @@
 import { createSlice } from "@reduxjs/toolkit";
-import GlobalLoader from "../../Config/GlobalLoader";
 
-const storeuser = JSON.parse(localStorage.getItem("user")) || null;
+const safeParse = (item) => {
+  try {
+    if (!item || item === "undefined" || item === "null") {
+      return null;
+    }
+    return JSON.parse(item);
+  } catch (e) {
+    return null;
+  }
+};
+
+const storedUser = safeParse(localStorage.getItem("user"));
+const storedMenus = safeParse(localStorage.getItem("menus")) || [];
 
 const initialState = {
-  loggedInUser: storeuser,
-  isAuthenticated: storeuser ? true : false,
+  loggedInUser: storedUser,
+  isAuthenticated: !!storedUser,
+  collapsed: true, // tablet starts icon-only by default
+  menus: storedMenus,
+  loading: false,
+  error: null,
 };
 
 export const loginSlice = createSlice({
   name: "login",
   initialState,
   reducers: {
-    loginRequest: (state, action) => {
-      state.loggedInUser = action.payload?.user;
-      state.isAuthenticated = true;
+    // 🔵 API START
+    loginRequest: (state) => {
+      state.loading = true;
+      state.error = null;
     },
-    logout: (state, action) => {
+
+    // 🟢 API SUCCESS
+    loginSuccess: (state, action) => {
+      state.loading = false;
+
+      state.loggedInUser = action.payload.employee;
+      state.isAuthenticated = true;
+      state.menus = action.payload.menus || [];
+
+      localStorage.setItem("user", JSON.stringify(action.payload.employee));
+
+      localStorage.setItem("menus", JSON.stringify(action.payload.menus || []));
+    },
+
+    // 🔴 API FAILURE
+    loginFailure: (state, action) => {
+      state.loading = false;
+
+      state.error =
+        typeof action.payload === "string"
+          ? action.payload
+          : action.payload?.message || "Login failed";
+    },
+
+    // 🚪 LOGOUT
+    logout: (state) => {
       state.loggedInUser = null;
       state.isAuthenticated = false;
+      state.menus = [];
+      state.error = null;
+
       localStorage.removeItem("user");
+      localStorage.removeItem("menus");
+    },
+
+    // UI
+    toggleSidebar: (state) => {
+      state.collapsed = !state.collapsed;
     },
   },
 });
 
-// Action creators are generated for each case reducer function
-export const { loginRequest, logout } = loginSlice.actions;
+export const {
+  loginRequest,
+  loginSuccess,
+  loginFailure,
+  logout,
+  toggleSidebar,
+} = loginSlice.actions;
 
 export default loginSlice.reducer;
