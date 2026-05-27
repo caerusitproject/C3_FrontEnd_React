@@ -6,7 +6,16 @@ import { logout, toggleSidebar } from "../../store/slices/loginSlice";
 
 const MODULE_ICONS = {
   Home: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
@@ -14,7 +23,16 @@ const MODULE_ICONS = {
 };
 
 const DEFAULT_ICON = (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <line x1="12" y1="8" x2="12" y2="12" />
     <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -22,7 +40,16 @@ const DEFAULT_ICON = (
 );
 
 const HAMBURGER_ICON = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <line x1="3" y1="6" x2="21" y2="6" />
     <line x1="3" y1="12" x2="21" y2="12" />
     <line x1="3" y1="18" x2="21" y2="18" />
@@ -37,6 +64,7 @@ export default function SideNavbar({
   isMobile,
   isTablet,
   onToggleMobile,
+  onToggleSidebar,
 }) {
   const theme = useTheme();
   const globalTokens = useGlobalTokens();
@@ -55,19 +83,18 @@ export default function SideNavbar({
     <nav
       style={{
         height: "100%",
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
         padding: "12px 8px",
         gap: "4px",
-        overflowX: "hidden",
-        overflowY: "hidden",
+        overflow: "hidden",
         boxSizing: "border-box",
       }}
     >
-
-      {/* ── TABLET COLLAPSED: hamburger sits at top of sidebar above menus ── */}
-      {/* Only renders when: tablet mode AND sidebar is icon-only (collapsed) */}
-      {isTablet && collapsed && (
+      {/* ── COLLAPSED HEADER: hamburger at top in place of employee details ── */}
+      {/* Tablet icon-only OR desktop collapsed */}
+      {collapsed && !isMobile && (
         <div
           style={{
             display: "flex",
@@ -81,7 +108,7 @@ export default function SideNavbar({
           }}
         >
           <button
-            onClick={() => dispatch(toggleSidebar())}
+            onClick={() => onToggleSidebar?.()}
             style={{
               display: "flex",
               alignItems: "center",
@@ -96,7 +123,8 @@ export default function SideNavbar({
               transition: "background 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = theme.foundation.secondaryColor;
+              e.currentTarget.style.background =
+                theme.foundation.secondaryColor;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
@@ -149,83 +177,89 @@ export default function SideNavbar({
             </div>
           </div>
 
-          {/* Collapse/close button — only on mobile & tablet (not desktop) */}
-          {(isMobile || isTablet) && (
-            <button
-              onClick={() => {
-                if (isMobile) {
-                  onToggleMobile?.();
-                } else if (isTablet) {
-                  dispatch(toggleSidebar());
-                }
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                width: "32px",
-                height: "32px",
-                borderRadius: "8px",
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                color: theme.typography.bodyText,
-                transition: "background 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = theme.foundation.secondaryColor;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-              }}
-            >
-              {HAMBURGER_ICON}
-            </button>
-          )}
+          {/* Collapse button — always visible when sidebar is expanded (all breakpoints) */}
+          <button
+            onClick={() => {
+              if (isMobile) {
+                onToggleMobile?.();
+              } else {
+                // tablet & desktop both dispatch toggleSidebar
+                onToggleSidebar?.();
+              }
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              color: theme.typography.bodyText,
+              transition: "background 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                theme.foundation.secondaryColor;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            {HAMBURGER_ICON}
+          </button>
         </div>
       )}
 
       {/* ── MENU ITEMS ── */}
-      <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-      {menuList.map((item) => (
-        <NavLink
-          key={item.url}
-          to={item.url}
-          onClick={onNavClick}
-          style={({ isActive }) => ({
-            display: "flex",
-            alignItems: "center",
-            justifyContent: collapsed ? "center" : "flex-start",
-            gap: "10px",
-            padding: "10px 12px",
-            borderRadius: "10px",
-            textDecoration: "none",
-            fontWeight: "500",
-            fontSize: "14px",
-            whiteSpace: "nowrap",
-            transition: "all 0.2s ease",
-            color: isActive
-              ? theme.foundation.primaryColor
-              : theme.typography.bodyText,
-            background: isActive
-              ? theme.foundation.secondaryColor
-              : "transparent",
-          })}
-        >
-          <span style={{ flexShrink: 0 }}>
-            {MODULE_ICONS[item.moduleName] ?? DEFAULT_ICON}
-          </span>
-          {!collapsed && (
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-              {item.moduleName}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          overflowX: "hidden",
+        }}
+      >
+        {menuList.map((item) => (
+          <NavLink
+            key={item.url}
+            to={item.url}
+            onClick={onNavClick}
+            style={({ isActive }) => ({
+              display: "flex",
+              alignItems: "center",
+              justifyContent: collapsed ? "center" : "flex-start",
+              gap: "10px",
+              padding: "10px 12px",
+              borderRadius: "10px",
+              textDecoration: "none",
+              fontWeight: "500",
+              fontSize: "14px",
+              whiteSpace: "nowrap",
+              transition: "all 0.2s ease",
+              color: isActive
+                ? theme.foundation.primaryColor
+                : theme.typography.bodyText,
+              background: isActive
+                ? theme.foundation.secondaryColor
+                : "transparent",
+            })}
+          >
+            <span style={{ flexShrink: 0 }}>
+              {MODULE_ICONS[item.moduleName] ?? DEFAULT_ICON}
             </span>
-          )}
-        </NavLink>
-      ))}
+            {!collapsed && (
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                {item.moduleName}
+              </span>
+            )}
+          </NavLink>
+        ))}
       </div>
 
-     
       {/* ── LOGOUT ── */}
       <button
         onClick={handleLogout}
@@ -256,13 +290,22 @@ export default function SideNavbar({
         }}
       >
         <span style={{ flexShrink: 0 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
         </span>
-        {!collapsed && <span>Logout</span>}
+        <span>Logout</span>
       </button>
     </nav>
   );

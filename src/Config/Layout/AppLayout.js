@@ -15,7 +15,7 @@ export default function AppLayout() {
   const dispatch = useDispatch();
   const [width, setWidth] = useState(window.innerWidth);
   const [mobileOpen, setMobileOpen] = useState(false);
-
+  const [tabletCollapsed, setTabletCollapsed] = useState(true);
   useEffect(() => {
     const handleResize = () => {
       setWidth(window.innerWidth);
@@ -34,6 +34,7 @@ export default function AppLayout() {
   }, []);
 
   const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1024;
 
   return (
     <div
@@ -52,13 +53,15 @@ export default function AppLayout() {
       <TopNavbar
         isMobile={isMobile}
         isTablet={width >= 768 && width < 1024}
-        collapsed={collapsed}
         mobileOpen={mobileOpen}
+        collapsed={isTablet ? tabletCollapsed : collapsed}
         onMobileToggle={() => {
-          if (width >= 768 && width < 1024) {
-            dispatch(toggleSidebar());
-          } else {
+          if (isMobile) {
             setMobileOpen((prev) => !prev);
+          } else if (isTablet) {
+            setTabletCollapsed((prev) => !prev); // tablet uses local state
+          } else {
+            dispatch(toggleSidebar()); // desktop uses Redux
           }
         }}
       />
@@ -98,23 +101,26 @@ export default function AppLayout() {
             position: isMobile ? "fixed" : "sticky",
             top: 0,
             left: 0,
-            display: "flex",
-            flexDirection: "column",
             // 100vh works for all modes:
             // Mobile: covers navbar too (high zIndex lifts it above everything)
             // Tablet/Desktop: sticky needs explicit viewport height — height:100% has no resolved parent in a flex row
             height: "100vh",
-            width:
-              width >= 768 && width < 1024
-                ? collapsed
-                  ? "72px"
-                  : "256px"
-                : "256px",
+            display: "flex",
+            flexDirection: "column",
+            width: isMobile
+              ? "256px"
+              : isTablet
+              ? tabletCollapsed
+                ? "72px"
+                : "256px"
+              : collapsed
+              ? "72px"
+              : "256px",
             background: theme.foundation.surfaceBackground,
             borderRight: `1px solid ${theme.foundation.borderColor}`,
             zIndex: 9999,
             flexShrink: 0,
-            overflow: "visible",
+            overflow: "hidden",
 
             transform: isMobile
               ? mobileOpen
@@ -136,8 +142,12 @@ export default function AppLayout() {
         >
           <SideNavbar
             collapsed={
-              width >= 768 && width < 1024 ? collapsed : isMobile && !mobileOpen
+              isMobile ? false : isTablet ? tabletCollapsed : collapsed
             }
+            onToggleSidebar={() => {
+              if (isTablet) setTabletCollapsed((prev) => !prev);
+              else dispatch(toggleSidebar());
+            }}
             isMobile={isMobile}
             isTablet={width >= 768 && width < 1024}
             onNavClick={() => setMobileOpen(false)}

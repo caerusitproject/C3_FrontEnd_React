@@ -17,7 +17,7 @@ const storedMenus = safeParse(localStorage.getItem("menus")) || [];
 const initialState = {
   loggedInUser: storedUser,
   isAuthenticated: !!storedUser,
-  collapsed: true, // tablet starts icon-only by default
+  collapsed: false, // tablet starts icon-only by default
   menus: storedMenus,
   loading: false,
   error: null,

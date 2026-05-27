@@ -76,7 +76,6 @@ export default function LoginPage() {
 
   const [submitting, setSubmitting] = useState(false);
 
-
   const [empIdError, setEmpIdError] = useState("");
 
   const [passwordError, setPasswordError] = useState("");
@@ -122,7 +121,6 @@ export default function LoginPage() {
       if (res?.success) {
         setTimeout(() => navigate("/home"), 800);
       }
-
     } catch (err) {
       setSubmitting(false);
     }
@@ -134,206 +132,179 @@ export default function LoginPage() {
 
   return (
     <>
-    <div
-      className="login-page"
-      style={{
-        background:
-          theme.foundation.loginBackground || "#FFF1DD",
-      }}
-    >
-      
-
-      {/* BACKGROUND BLUR */}
-
       <div
-        className="login-blur-1"
+        className="login-page"
         style={{
-          background: theme.foundation.primaryColor,
+          background: theme.foundation.loginBackground || "#FFF1DD",
         }}
-      />
+      >
+        {/* BACKGROUND BLUR */}
 
-      <div
-        className="login-blur-2"
-        style={{
-          background: theme.foundation.primaryColor,
-        }}
-      />
+        <div
+          className="login-blur-1"
+          style={{
+            background: theme.foundation.primaryColor,
+          }}
+        />
 
-      {/* LEFT BRANDING */}
+        <div
+          className="login-blur-2"
+          style={{
+            background: theme.foundation.primaryColor,
+          }}
+        />
 
-      <div className="login-branding">
+        {/* LEFT BRANDING */}
 
-        {/* LOGO */}
+        <div className="login-branding">
+          {/* LOGO */}
 
-        <div className="login-logo-wrapper">
+          <div className="login-logo-wrapper">
+            <div
+              className="login-logo"
+              style={{
+                color: theme.foundation.primaryColor,
+              }}
+            >
+              C3
+            </div>
 
-          <div
-            className="login-logo"
-            style={{
-              color: theme.foundation.primaryColor,
-            }}
-          >
-            C3
+            <div
+              className="login-logo-subtitle"
+              style={{
+                color: theme.typography.helperText,
+              }}
+            >
+              By CaerusIT
+            </div>
           </div>
 
+          {/* HEADING */}
+
+          <div className="login-heading">
+            <span className="desktop-break">Login into</span> Your Account
+          </div>
+
+          {/* FOOTER */}
+
           <div
-            className="login-logo-subtitle"
+            className="login-footer"
             style={{
               color: theme.typography.helperText,
             }}
           >
-            By CaerusIT
+            ©CaerusIT All Rights Reserved 2026-2028
           </div>
         </div>
 
-        {/* HEADING */}
-
-        <div className="login-heading">
-          <span className="desktop-break">
-            Login into
-          </span>{" "}
-          Your Account
-        </div>
-
-        {/* FOOTER */}
+        {/* LOGIN CARD */}
 
         <div
-          className="login-footer"
+          className="login-card"
           style={{
-            color: theme.typography.helperText,
-          }}
-        >
-          ©CaerusIT All Rights Reserved 2026-2028
-        </div>
-      </div>
+            background: theme.foundation.surfaceBackground,
 
-      {/* LOGIN CARD */}
+            border: `3px solid ${theme.foundation.borderColor}`,
 
-      <div
-        className="login-card"
-        style={{
-          background:
-            theme.foundation.surfaceBackground,
-
-          border: `3px solid ${theme.foundation.borderColor}`,
-
-          boxShadow: `
+            boxShadow: `
             0 8px 30px rgba(0,0,0,0.04),
             0 40px 80px rgba(0,0,0,0.08)
           `,
-        }}
-      >
+          }}
+        >
+          {/* EMPLOYEE ID */}
 
-        {/* EMPLOYEE ID */}
-
-        <div className="login-form-group">
-
-          <label
-            className="login-label"
-            style={{
-              color: theme.typography.bodyText,
-            }}
-          >
-            Employee ID
-          </label>
-
-          <Input
-            type="text"
-            size="lg"
-            variant="filled"
-            placeholder="Enter employee ID"
-            value={empId}
-            onChange={(e) => {
-              setEmpId(e.target.value);
-              setEmpIdError("");
-            }}
-            leftIcon={<BadgeIcon />}
-            state={empIdError ? "error" : "default"}
-          />
-
-          {empIdError && (
-            <div className="login-error">
-              {empIdError}
-            </div>
-          )}
-        </div>
-
-        {/* PASSWORD */}
-
-        <div className="login-form-group">
-
-          <label
-            className="login-label"
-            style={{
-              color: theme.typography.bodyText,
-            }}
-          >
-            Password
-          </label>
-
-          <div className="password-wrapper">
-
-            <Input
-              type={showPw ? "text" : "password"}
-              size="lg"
-              variant="filled"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordError("");
-              }}
-              leftIcon={<LockIcon />}
-              state={passwordError ? "error" : "default"}
+          <div className="login-form-group">
+            <label
+              className="login-label"
               style={{
-                paddingRight: "54px",
-              }}
-            />
-
-            {/* EYE BUTTON */}
-
-            <button
-              type="button"
-              className="password-eye-btn"
-              onClick={() =>
-                setShowPw((v) => !v)
-              }
-              style={{
-                color: showPw
-                  ? theme.foundation.primaryColor
-                  : theme.typography.helperText,
+                color: theme.typography.bodyText,
               }}
             >
-              {showPw ? (
-                <EyeClosed />
-              ) : (
-                <EyeOpen />
-              )}
-            </button>
+              Employee ID
+            </label>
+
+            <Input
+              type="text"
+              size="lg"
+              variant="filled"
+              placeholder="Enter employee ID"
+              value={empId}
+              onChange={(e) => {
+                setEmpId(e.target.value);
+                setEmpIdError("");
+              }}
+              leftIcon={<BadgeIcon />}
+              state={empIdError ? "error" : "default"}
+            />
+
+            {empIdError && <div className="login-error">{empIdError}</div>}
           </div>
 
-          {passwordError && (
-            <div className="login-error">
-              {passwordError}
+          {/* PASSWORD */}
+
+          <div className="login-form-group">
+            <label
+              className="login-label"
+              style={{
+                color: theme.typography.bodyText,
+              }}
+            >
+              Password
+            </label>
+
+            <div className="password-wrapper">
+              <Input
+                type={showPw ? "text" : "password"}
+                size="lg"
+                variant="filled"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                leftIcon={<LockIcon />}
+                state={passwordError ? "error" : "default"}
+                style={{
+                  paddingRight: "54px",
+                }}
+              />
+
+              {/* EYE BUTTON */}
+
+              <button
+                type="button"
+                className="password-eye-btn"
+                onClick={() => setShowPw((v) => !v)}
+                style={{
+                  color: showPw
+                    ? theme.foundation.primaryColor
+                    : theme.typography.helperText,
+                }}
+              >
+                {showPw ? <EyeClosed /> : <EyeOpen />}
+              </button>
             </div>
-          )}
+
+            {passwordError && (
+              <div className="login-error">{passwordError}</div>
+            )}
+          </div>
+
+          {/* LOGIN BUTTON */}
+
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={submitting}
+            onClick={handleLogin}
+          >
+            {submitting ? "Logging in..." : "Log In"}
+          </Button>
         </div>
-
-        {/* LOGIN BUTTON */}
-
-        <Button
-          variant="primary"
-          size="lg"
-          fullWidth
-          loading={submitting}
-          onClick={handleLogin}
-        >
-          {submitting
-            ? "Signing in..."
-            : "Log In"}
-        </Button>
       </div>
-    </div>
     </>
   );
 }
