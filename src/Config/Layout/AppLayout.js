@@ -117,7 +117,7 @@ export default function AppLayout() {
               ? "72px"
               : "256px",
             background: theme.foundation.surfaceBackground,
-            borderRight: `1px solid ${theme.foundation.borderColor}`,
+            //borderRight: `1px solid ${theme.foundation.borderColor}`,
             zIndex: 9999,
             flexShrink: 0,
             overflow: "hidden",
@@ -166,7 +166,7 @@ export default function AppLayout() {
             overflow: isMobile ? "hidden" : "auto",
             // Constrain height so footer stays at bottom of content, not page
             minHeight: 0,
-            background: theme.foundation.applicationBackground,
+            background: theme.foundation.base,
           }}
         >
           {/* MAIN */}
@@ -175,7 +175,7 @@ export default function AppLayout() {
               flex: 1,
               // Parent column scrolls on desktop; on mobile parent is hidden so main scrolls
               overflowY: isMobile ? "auto" : "visible",
-              background: theme.foundation.applicationBackground,
+              background: theme.foundation.base,
               transition: "background 0.3s ease",
             }}
           >

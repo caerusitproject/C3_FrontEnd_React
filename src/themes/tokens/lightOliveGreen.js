@@ -13,6 +13,7 @@ export const lightOliveGreenTheme = {
     surfaceBackground: "#fafaf0",
     profilePanelBackground: "#F0F0F0",
     borderColor: "#CFE3D6",
+    base: "#FFFFFF",
   },
   typography: {
     headingText: "#000000",

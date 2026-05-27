@@ -94,6 +94,7 @@
 
   max-width: 560px;
 
+  color: var(--color-primary);
   position: relative;
 
   z-index: 2;

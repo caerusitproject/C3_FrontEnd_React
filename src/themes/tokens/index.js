@@ -17,7 +17,7 @@ export const THEME_REGISTRY = {
   darkGreen: darkGreenTheme,
 };
 
-export const DEFAULT_THEME_ID = THEME_IDS.LIGHT_OLIVE_GREEN;
+export const DEFAULT_THEME_ID = THEME_IDS.LIGHT_ORANGE;
 
 export const getTheme = (id) =>
   THEME_REGISTRY[id] ?? THEME_REGISTRY[DEFAULT_THEME_ID];

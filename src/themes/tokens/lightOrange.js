@@ -8,11 +8,12 @@ export const lightOrangeTheme = {
     primaryDarkHover: "#C85D05",
     loadingAccent: "#FFB14A",
     secondaryColor: "#FFF4E9",
-    applicationBackground: "#FFFCF9",
+    applicationBackground: "#fffdf9",
     loginBackground: "#FFF1DD",
     surfaceBackground: "#fcfcfc",
     profilePanelBackground: "#F0F0F0",
     borderColor: "#FFD4A4",
+    base: "#FFFFFF",
   },
   typography: {
     headingText: "#000000",

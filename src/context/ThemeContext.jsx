@@ -7,18 +7,12 @@ import React, {
   useState,
 } from "react";
 
-import {
-  DEFAULT_THEME_ID,
-  getTheme,
-  globalTokens,
-} from "../themes/tokens";
+import { DEFAULT_THEME_ID, getTheme, globalTokens } from "../themes/tokens";
 
-import {
-  fetchActiveTheme,
-  updateActiveTheme,
-} from "../store/services/themeService";
+import { themeService } from "../store/services/themeService";
 
 import GlobalLoader from "../Config/GlobalLoader";
+import themeData from "../data/theme";
 
 export const ThemeContext = createContext({
   theme: getTheme(DEFAULT_THEME_ID),
@@ -38,65 +32,50 @@ function applyThemeCssVars(tokens) {
   });
 
   // global state vars
-  root.style.setProperty(
-    "--color-success",
-    globalTokens.state.success,
-  );
+  root.style.setProperty("--color-success", globalTokens.state.success);
 
   root.style.setProperty(
     "--color-success-text",
-    globalTokens.state.successText,
+    globalTokens.state.successText
   );
 
   root.style.setProperty(
     "--color-success-bg",
-    globalTokens.state.successBackground,
+    globalTokens.state.successBackground
   );
 
-  root.style.setProperty(
-    "--color-warning",
-    globalTokens.state.warning,
-  );
+  root.style.setProperty("--color-warning", globalTokens.state.warning);
 
   root.style.setProperty(
     "--color-warning-text",
-    globalTokens.state.warningText,
+    globalTokens.state.warningText
   );
 
   root.style.setProperty(
     "--color-warning-bg",
-    globalTokens.state.warningBackground,
+    globalTokens.state.warningBackground
   );
 
-  root.style.setProperty(
-    "--color-error",
-    globalTokens.state.error,
-  );
+  root.style.setProperty("--color-error", globalTokens.state.error);
 
-  root.style.setProperty(
-    "--color-error-text",
-    globalTokens.state.errorText,
-  );
+  root.style.setProperty("--color-error-text", globalTokens.state.errorText);
 
   root.style.setProperty(
     "--color-error-bg",
-    globalTokens.state.errorBackground,
+    globalTokens.state.errorBackground
   );
 
   root.style.setProperty(
     "--color-disabled-bg",
-    globalTokens.disabled.background,
+    globalTokens.disabled.background
   );
 
   root.style.setProperty(
     "--color-disabled-border",
-    globalTokens.disabled.border,
+    globalTokens.disabled.border
   );
 
-  root.style.setProperty(
-    "--color-disabled-text",
-    globalTokens.disabled.text,
-  );
+  root.style.setProperty("--color-disabled-text", globalTokens.disabled.text);
 
   root.setAttribute("data-theme", tokens.id);
 
@@ -118,25 +97,18 @@ export function ThemeProvider({ children }) {
       try {
         setIsLoading(true);
 
-        // 1. instant cached theme
-        const cachedTheme = localStorage.getItem("active-theme");
-
-        if (cachedTheme) {
-          applyThemeCssVars(getTheme(cachedTheme));
-
-          setThemeId(cachedTheme);
-        }
-
-        // 2. API theme
-        const apiTheme = await fetchActiveTheme();
+        //const response = await themeService.getThemes();
+         const response =  themeData;
+        // console.log(```"Fetched themes from backend:", data```);
+        // console.log(```"Fetched themes from local data:", response```);
 
         if (!mounted) return;
 
-        localStorage.setItem("active-theme", apiTheme);
+        const activeThemeId = response?.defaultThemeId || DEFAULT_THEME_ID;
 
-        applyThemeCssVars(getTheme(apiTheme));
+        applyThemeCssVars(getTheme(activeThemeId));
 
-        setThemeId(apiTheme);
+        setThemeId(activeThemeId);
       } catch (err) {
         console.error("[ThemeProvider]", err);
 
@@ -175,7 +147,7 @@ export function ThemeProvider({ children }) {
         localStorage.setItem("active-theme", id);
 
         // persist to backend
-        await updateActiveTheme(id);
+        await themeService.updateTheme(id);
       } catch (err) {
         console.error("[ThemeProvider]", err);
 
@@ -185,7 +157,7 @@ export function ThemeProvider({ children }) {
         applyThemeCssVars(getTheme(previousTheme));
       }
     },
-    [themeId],
+    [themeId]
   );
 
   const value = useMemo(
@@ -202,18 +174,16 @@ export function ThemeProvider({ children }) {
 
       setTheme,
     }),
-    [themeId, isLoading, error, setTheme],
+    [themeId, isLoading, error, setTheme]
   );
 
   // BLOCK APP UNTIL THEME LOADS
-  if (isLoading && !themeId) {
+  if (isLoading) {
     return <GlobalLoader />;
   }
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 }
 

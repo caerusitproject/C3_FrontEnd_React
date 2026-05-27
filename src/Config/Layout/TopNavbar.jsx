@@ -48,7 +48,7 @@ export default function TopNavbar({
         justifyContent: "space-between",
         padding: "0 20px",
         background: theme.foundation.surfaceBackground,
-        borderBottom: `1px solid ${theme.foundation.borderColor}`,
+        //borderBottom: `1px solid ${theme.foundation.borderColor}`,
         flexShrink: 0,
         zIndex: 10,
         // Smooth background transition when theme changes

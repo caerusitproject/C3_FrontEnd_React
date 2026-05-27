@@ -13,6 +13,7 @@ export const darkGreenTheme = {
     surfaceBackground: "#2a2c29",
     profilePanelBackground: "#3E4138",
     borderColor: "#5B6152",
+    bse: "#050505",
   },
   typography: {
     headingText: "#FFFFFF",
