@@ -4,7 +4,7 @@ import { logout } from "../store/slices/loginSlice";
 import { showAlert } from "../store/slices/alertSlice";
 
 const api = axios.create({
-  baseURL: "https://plenty-constant-residual.ngrok-free.dev/api",
+  baseURL: process.env.REACT_APP_API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

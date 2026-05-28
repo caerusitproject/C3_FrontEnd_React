@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import GlobalLoader from "../../Config/GlobalLoader";
+import GlobalLoader from "../../Components/ui/Loader/GlobalLoader";
 
 const initialState = {
   globalloader: {

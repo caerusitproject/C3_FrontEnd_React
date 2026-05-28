@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import GlobalLoader from "../GlobalLoader";
+import GlobalLoader from "../../Components/ui/Loader/GlobalLoader";
 import { GlobalAlert } from "../../Components/ui/Alert/GlobalAlert";
 
 export default function PublicLayout() {

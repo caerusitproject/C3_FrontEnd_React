@@ -13,8 +13,7 @@ import PublicLayout from "./Config/Layout/PublicLayout";
 import AppLayout from "./Config/Layout/AppLayout";
 
 const Login = lazy(() => import("./Pages/Login/LoginPage"));
-const Home = lazy(() => import("./Pages/Home"));
-const ShowcasePage = lazy(() => import("./Pages/ShowcasePage"));
+const Home = lazy(() => import("./Pages/Home/Home"));
 
 export default function App() {
   const isAuthenticated = useSelector((state) => state.login.isAuthenticated);
@@ -44,7 +43,7 @@ export default function App() {
 
               {/* Admin-only */}
               <Route element={<ProtectedRoute roles={["admin"]} />}>
-                <Route path="/showcase" element={<ShowcasePage />} />
+                {/* <Route path="/showcase" element={<ShowcasePage />} /> */}
               </Route>
 
             </Route>

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { logout } from "../../store/slices/loginSlice";
+import { Button } from "../../Components/ui/Button/Button";
 
 export default function TopNavbar({
   isMobile,
@@ -140,7 +141,7 @@ export default function TopNavbar({
               transition: "background 0.3s ease",
             }}
           >
-            {loggedInUser?.name?.[0]?.toUpperCase() ?? "U"}
+            {loggedInUser?.employeeName?.[0]?.toUpperCase() ?? "U"}
           </div>
 
           {profileOpen && (
@@ -150,89 +151,214 @@ export default function TopNavbar({
                 onClick={() => setProfileOpen(false)}
                 style={{
                   position: "fixed",
-                  top: 0,
-                  left: 0,
-                  width: "100vw",
-                  height: "100vh",
+                  inset: 0,
                   background: "rgba(0,0,0,0.15)",
                   zIndex: 998,
                 }}
               />
 
-              {/* Profile card */}
+              {/* Profile Card */}
               <div
                 style={{
                   position: "absolute",
                   right: 0,
-                  top: "45px",
-                  width: "260px",
+                  top: "54px",
+                  width: "300px",
                   background: theme.foundation.surfaceBackground,
-                  border: `1px solid ${theme.foundation.borderColor}`,
-                  borderRadius: "12px",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-                  padding: "16px",
+                  borderRadius: "22px",
+                  boxShadow:
+                    "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
                   zIndex: 999,
-                  transition: "background 0.3s ease",
+                  overflow: "hidden",
+                  transition: "all 0.3s ease",
                 }}
               >
+                {/* Header */}
                 <div
                   style={{
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    color: theme.typography.bodyText,
+                    padding: "24px 20px 18px",
+                    background: `linear-gradient(
+            135deg,
+            ${theme.foundation.secondaryColor},
+            ${theme.foundation.applicationBackground}
+          )`,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "12px",
                   }}
                 >
-                  {loggedInUser?.name}
+                  {/* Avatar */}
+                  <div
+                    style={{
+                      width: "68px",
+                      height: "68px",
+                      borderRadius: "50%",
+                      background: theme.foundation.primaryColor,
+                      color: theme.typography.inverseText,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "24px",
+                      fontWeight: "700",
+                      //boxShadow: "0 8px 18px rgba(246,155,41,0.35)",
+                    }}
+                  >
+                    {loggedInUser?.employeeName?.[0]?.toUpperCase() ?? "U"}
+                  </div>
+
+                  {/* User Info */}
+                  <div
+                    style={{
+                      textAlign: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                    }}
+                  >
+                    {/* Status */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        padding: "10px 14px",
+                        borderRadius: "999px",
+                        background:
+                          loggedInUser?.status === true ||
+                          loggedInUser?.status === "true"
+                            ? "rgba(40,167,69,0.12)"
+                            : "rgba(220,53,69,0.12)",
+                        width: "fit-content",
+                        alignSelf: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "50%",
+                          background:
+                            loggedInUser?.status === true ||
+                            loggedInUser?.status === "true"
+                              ? "#28A745"
+                              : "#DC3545",
+                          boxShadow:
+                            loggedInUser?.status === true ||
+                            loggedInUser?.status === "true"
+                              ? "0 0 12px rgba(40,167,69,0.6)"
+                              : "0 0 12px rgba(220,53,69,0.6)",
+                        }}
+                      />
+
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          color:
+                            loggedInUser?.status === true ||
+                            loggedInUser?.status === "true"
+                              ? "#28A745"
+                              : "#DC3545",
+                        }}
+                      >
+                        {loggedInUser?.status === true ||
+                        loggedInUser?.status === "true"
+                          ? "Available"
+                          : "Unavailable"}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: "17px",
+                        fontWeight: "700",
+                        color: theme.typography.headingText,
+                      }}
+                    >
+                      {loggedInUser?.employeeName}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: theme.typography.helperText,
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {loggedInUser?.email}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Body */}
                 <div
                   style={{
-                    fontSize: "12px",
-                    color: theme.typography.helperText,
-                    marginTop: "2px",
+                    padding: "20px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
                   }}
                 >
-                  {loggedInUser?.email}
+                  {/* Actions */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "17px",
+                    }}
+                  >
+                    <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                      <Button variant="primary" size="md" width="fit-content">
+                        View Profile
+                      </Button>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: "5px",
+                      }}
+                    >
+                      <div
+                        onClick={handleLogout}
+                        style={{
+                          width: "38px",
+                          height: "38px",
+                          borderRadius: "12px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          background: "rgba(220,53,69,0.10)",
+                          transition: "all 0.25s ease",
+                        }}
+                      >
+                        <svg
+                          width="17"
+                          height="17"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#DC3545"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                          <polyline points="16 17 21 12 16 7" />
+                          <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div
-                  style={{
-                    margin: "10px 0",
-                    fontSize: "12px",
-                    color: theme.typography.bodyText,
-                  }}
-                >
-                  🟢 Available
-                </div>
-                <button
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    marginBottom: "8px",
-                    borderRadius: "8px",
-                    border: `1px solid ${theme.foundation.borderColor}`,
-                    background: "transparent",
-                    cursor: "pointer",
-                    fontSize: "13px",
-                    color: theme.typography.bodyText,
-                  }}
-                >
-                  View Profile
-                </button>
-                <button
-                  onClick={handleLogout}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    borderRadius: "8px",
-                    border: "none",
-                    background: "#e53935",
-                    color: "white",
-                    cursor: "pointer",
-                    fontSize: "13px",
-                    fontWeight: "500",
-                  }}
-                >
-                  Logout
-                </button>
               </div>
             </>
           )}
