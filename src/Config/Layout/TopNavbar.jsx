@@ -11,6 +11,8 @@ export default function TopNavbar({
   onMobileToggle,
   isTablet,
   collapsed,
+  onOpenProfile,
+  showProfile,
 }) {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -110,13 +112,13 @@ export default function TopNavbar({
           style={{
             height: isMobile ? "36px" : "60px",
             width: isMobile ? "auto" : "140px",
-            maxWidth: isMobile ? "100px" : "140px",
-            objectFit: "contain",
-            flexShrink: 0,
-            // Shift left on tablet & desktop, center on mobile
-            marginLeft: isMobile ? "auto" : "-12px",
-            marginRight: isMobile ? "auto" : "0",
-            display: "block",
+
+            filter: `
+      drop-shadow(0.8px 0 white)
+      drop-shadow(-0.8px 0 white)
+      drop-shadow(0 0.8px white)
+      drop-shadow(0 -0.8px white)
+    `,
           }}
         />
       </div>
@@ -124,25 +126,27 @@ export default function TopNavbar({
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <div ref={profileRef} style={{ position: "relative" }}>
           {/* Avatar */}
-          <div
-            onClick={() => setProfileOpen((prev) => !prev)}
-            style={{
-              width: "34px",
-              height: "34px",
-              borderRadius: "50%",
-              background: theme.foundation.primaryColor,
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: "600",
-              cursor: "pointer",
-              userSelect: "none",
-              transition: "background 0.3s ease",
-            }}
-          >
-            {loggedInUser?.employeeName?.[0]?.toUpperCase() ?? "U"}
-          </div>
+          {!profileOpen && !showProfile && (
+            <div
+              onClick={() => setProfileOpen((prev) => !prev)}
+              style={{
+                width: "34px",
+                height: "34px",
+                borderRadius: "50%",
+                background: theme.foundation.primaryColor,
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "600",
+                cursor: "pointer",
+                userSelect: "none",
+                transition: "background 0.3s ease",
+              }}
+            >
+              {loggedInUser?.employeeName?.[0]?.toUpperCase() ?? "U"}
+            </div>
+          )}
 
           {profileOpen && (
             <>
@@ -162,9 +166,11 @@ export default function TopNavbar({
                 style={{
                   position: "absolute",
                   right: 0,
-                  top: "54px",
+                  top: "0px",
                   width: "300px",
-                  background: theme.foundation.surfaceBackground,
+                  background: `${theme.foundation.surfaceBackground}cc`, // cc = 80% opacity
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
                   borderRadius: "22px",
                   boxShadow:
                     "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
@@ -179,9 +185,10 @@ export default function TopNavbar({
                     padding: "24px 20px 18px",
                     background: `linear-gradient(
             135deg,
-            ${theme.foundation.secondaryColor},
-            ${theme.foundation.applicationBackground}
+            ${theme.foundation.applicationBackground},
+            ${theme.foundation.base}
           )`,
+                    // background: theme.foundation.secondaryColor,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -299,6 +306,8 @@ export default function TopNavbar({
                     display: "flex",
                     flexDirection: "column",
                     gap: "16px",
+                    background: `${theme.foundation.surfaceBackground}88`,
+                    borderTop: `3px solid ${theme.foundation.borderColor}`,
                   }}
                 >
                   {/* Actions */}
@@ -310,12 +319,17 @@ export default function TopNavbar({
                     }}
                   >
                     <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                      <Button variant="primary" size="md" width="fit-content">
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Button
+                        onClick={() => {
+                          setProfileOpen(false);
+                          onOpenProfile();
+                        }}
+                      >
                         View Profile
                       </Button>
                     </div>
@@ -339,6 +353,9 @@ export default function TopNavbar({
                           cursor: "pointer",
                           background: "rgba(220,53,69,0.10)",
                           transition: "all 0.25s ease",
+                          background: "rgba(220,53,69,0.08)",
+                          border: "1px solid rgba(220,53,69,0.2)",
+                          backdropFilter: "blur(6px)",
                         }}
                       >
                         <svg

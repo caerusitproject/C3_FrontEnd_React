@@ -181,7 +181,10 @@ export default function LoginPage() {
 
           {/* HEADING */}
 
-          <div className="login-heading">
+          <div className="login-heading"
+          style={{
+                color: theme.foundation.primaryColor,
+              }}>
             <span className="desktop-break">Login into</span> Your Account
           </div>
 

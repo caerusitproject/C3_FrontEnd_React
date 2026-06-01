@@ -1,3 +1,5 @@
+// ThemeContext.jsx
+
 import React, {
   createContext,
   useCallback,
@@ -8,15 +10,22 @@ import React, {
 } from "react";
 
 import { DEFAULT_THEME_ID, getTheme, globalTokens } from "../themes/tokens";
+
+// Uncomment when API integration is needed
 import { themeService } from "../store/services/themeService";
+
 import themeData from "../data/theme";
+
+// Uncomment when API integration is needed
 import { store } from "../store";
 import { showAlert } from "../store/slices/alertSlice";
 
-// ─── Cache key ────────────────────────────────────────────────────────────────
+// Cache key used to remember selected theme
 const CACHE_KEY = "active-theme";
 
-// ─── Apply CSS vars to :root ──────────────────────────────────────────────────
+/**
+ * Apply all theme CSS variables to :root
+ */
 function applyThemeCssVars(tokens) {
   const root = document.documentElement;
 
@@ -27,59 +36,89 @@ function applyThemeCssVars(tokens) {
   const g = globalTokens.state;
   const d = globalTokens.disabled;
 
-  root.style.setProperty("--color-success",         g.success);
-  root.style.setProperty("--color-success-text",    g.successText);
-  root.style.setProperty("--color-success-bg",      g.successBackground);
-  root.style.setProperty("--color-warning",         g.warning);
-  root.style.setProperty("--color-warning-text",    g.warningText);
-  root.style.setProperty("--color-warning-bg",      g.warningBackground);
-  root.style.setProperty("--color-error",           g.error);
-  root.style.setProperty("--color-error-text",      g.errorText);
-  root.style.setProperty("--color-error-bg",        g.errorBackground);
-  root.style.setProperty("--color-disabled-bg",     d.background);
-  root.style.setProperty("--color-disabled-border", d.border);
-  root.style.setProperty("--color-disabled-text",   d.text);
+  root.style.setProperty("--color-success", g.success);
+  root.style.setProperty("--color-success-text", g.successText);
+  root.style.setProperty("--color-success-bg", g.successBackground);
 
-  root.setAttribute("data-theme",      tokens.id);
+  root.style.setProperty("--color-warning", g.warning);
+  root.style.setProperty("--color-warning-text", g.warningText);
+  root.style.setProperty("--color-warning-bg", g.warningBackground);
+
+  root.style.setProperty("--color-error", g.error);
+  root.style.setProperty("--color-error-text", g.errorText);
+  root.style.setProperty("--color-error-bg", g.errorBackground);
+
+  root.style.setProperty("--color-disabled-bg", d.background);
+  root.style.setProperty("--color-disabled-border", d.border);
+  root.style.setProperty("--color-disabled-text", d.text);
+
+  root.setAttribute("data-theme", tokens.id);
   root.setAttribute("data-theme-mode", tokens.mode);
 }
 
-// ─── Resolve theme ID ─────────────────────────────────────────────────────────
-// Priority: localStorage → API → local theme.js → hard fallback
+/**
+ * Resolve initial theme
+ *
+ * Current Flow:
+ * 1. Check localStorage
+ * 2. Use themeData default theme
+ * 3. Use hardcoded fallback
+ *
+ * Future API Flow:
+ * 1. Check localStorage
+ * 2. Call Theme API
+ * 3. Use themeData fallback
+ * 4. Use hardcoded fallback
+ */
 async function resolveInitialThemeId() {
-  // 1. Check localStorage — instant, no network needed
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached && getTheme(cached)) return cached;
+  // Step 1: Check cached theme
+  const cachedTheme = localStorage.getItem(CACHE_KEY);
 
-  // 2. Call API
-  try {
-    const response = await themeService.getThemes();
-    const apiDefault = response?.defaultThemeId;
-    if (apiDefault && getTheme(apiDefault)) {
-      // Cache it so next load skips the API
-      localStorage.setItem(CACHE_KEY, apiDefault);
-      return apiDefault;
-    }
-  } catch (err) {
-    // API failed — show global alert, then fall through to local data
-    store.dispatch(
-      showAlert({
-        type: "success",
-        title: "Theme Error",
-        message: "Using default theme.",
-      })
-    );
+  if (cachedTheme && getTheme(cachedTheme)) {
+    return cachedTheme;
   }
 
-  // 3. Fall back to local theme.js
-  const localDefault = themeData?.defaultThemeId;
-  if (localDefault && getTheme(localDefault)) return localDefault;
+  /**
+   * ==========================================================
+   * FUTURE API IMPLEMENTATION
+   * ==========================================================
+   */
 
-  // 4. Hard fallback
+ 
+  // try {
+  //   const response = await themeService.getThemes();
+
+  //   const apiDefaultTheme = response?.defaultThemeId;
+
+  //   if (apiDefaultTheme && getTheme(apiDefaultTheme)) {
+  //     localStorage.setItem(CACHE_KEY, apiDefaultTheme);
+  //     return apiDefaultTheme;
+  //   }
+  // } catch (error) {
+  //   store.dispatch(
+  //     showAlert({
+  //       type: "error",
+  //       title: "Theme Error",
+  //       message: "Failed to load theme from server."
+  //     })
+  //   );
+  // }
+  
+
+  // Step 2: Use local theme configuration
+  const localDefaultTheme = themeData?.defaultThemeId;
+
+  if (localDefaultTheme && getTheme(localDefaultTheme)) {
+    return localDefaultTheme;
+  }
+
+  // Step 3: Hard fallback
   return DEFAULT_THEME_ID;
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
+/**
+ * Theme Context
+ */
 export const ThemeContext = createContext({
   theme: getTheme(DEFAULT_THEME_ID),
   global: globalTokens,
@@ -89,25 +128,33 @@ export const ThemeContext = createContext({
   setTheme: () => {},
 });
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
+/**
+ * Theme Provider
+ */
 export function ThemeProvider({ children }) {
-  // Apply local default synchronously — no flicker, no blocking loader
+  // Load local default theme immediately
   const [themeId, setThemeId] = useState(() => {
-    const id = themeData?.defaultThemeId || DEFAULT_THEME_ID;
-    applyThemeCssVars(getTheme(id));
-    return id;
+    const initialTheme =
+      themeData?.defaultThemeId || DEFAULT_THEME_ID;
+
+    applyThemeCssVars(getTheme(initialTheme));
+
+    return initialTheme;
   });
 
-  const [error, setError] = useState(null);
+  const [error] = useState(null);
 
-  // Resolve real theme in background after first render
+  /**
+   * Resolve actual theme after app loads
+   */
   useEffect(() => {
     let mounted = true;
 
-    resolveInitialThemeId().then((id) => {
+    resolveInitialThemeId().then((resolvedThemeId) => {
       if (!mounted) return;
-      applyThemeCssVars(getTheme(id));
-      setThemeId(id);
+
+      applyThemeCssVars(getTheme(resolvedThemeId));
+      setThemeId(resolvedThemeId);
     });
 
     return () => {
@@ -115,18 +162,34 @@ export function ThemeProvider({ children }) {
     };
   }, []);
 
-  // ── Public setTheme — instant UI + cache ─────────────────────────────────
+  /**
+   * Change theme instantly
+   */
   const setTheme = useCallback((id) => {
     if (!getTheme(id)) {
-      console.warn("[ThemeProvider] Unknown theme id:", id);
+      console.warn("[ThemeProvider] Unknown theme:", id);
       return;
     }
-    // 1. Apply CSS vars instantly
+
+    // Apply CSS variables immediately
     applyThemeCssVars(getTheme(id));
-    // 2. Update React state
+
+    // Update state
     setThemeId(id);
-    // 3. Cache for next app load
+
+    // Save selection
     localStorage.setItem(CACHE_KEY, id);
+
+    /**
+     * Future API save call
+     */
+    /*
+    try {
+      await themeService.updateTheme(id);
+    } catch (error) {
+      console.error("Failed to save theme");
+    }
+    */
   }, []);
 
   const value = useMemo(
@@ -142,11 +205,15 @@ export function ThemeProvider({ children }) {
   );
 
   return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
   );
 }
 
-// ─── Hooks ───────────────────────────────────────────────────────────────────
-export const useThemeContext  = () => useContext(ThemeContext);
-export const useTheme         = () => useContext(ThemeContext).theme;
-export const useGlobalTokens  = () => useContext(ThemeContext).global;
+/**
+ * Custom Hooks
+ */
+export const useThemeContext = () => useContext(ThemeContext);
+export const useTheme = () => useContext(ThemeContext).theme;
+export const useGlobalTokens = () => useContext(ThemeContext).global;

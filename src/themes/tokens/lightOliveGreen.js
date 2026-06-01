@@ -18,7 +18,7 @@ export const lightOliveGreenTheme = {
   typography: {
     headingText: "#000000",
     bodyText: "rgba(0,0,0,0.80)",
-    primaryText: "#022511",
+    primaryText: "#067937",
     accentText: "#03602B",
     helperText: "rgba(0,0,0,0.65)",
     inverseText: "#FFFFFF",
@@ -67,6 +67,37 @@ export const lightOliveGreenTheme = {
         background: "#F3FAF5",
         text: "#03602B",
         border: "transparent",
+      },
+    },
+    surface: {
+      default: {
+        background: "#F3F4F6",
+        text: "#000000",
+        border: "none",
+      },
+
+      hover: {
+        background: "#E5E7EB",
+        text: "#000000",
+        border: "none",
+      },
+
+      active: {
+        background: "#D1D5DB",
+        text: "#000000",
+        border: "none",
+      },
+
+      disabled: {
+        background: "#F9FAFB",
+        text: "#9CA3AF",
+        border: "none",
+      },
+
+      loading: {
+        background: "#E5E7EB",
+        text: "#000000",
+        border: "none",
       },
     },
     ghost: {

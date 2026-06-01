@@ -5,11 +5,30 @@ import {
 } from "../../context/ThemeContext";
 
 export default function Footer() {
-const theme = useTheme();
+  const theme = useTheme();
+  const global = useGlobalTokens();
+
   return (
-    <></>
-    // <footer className="h-[35px] flex items-center justify-center border-t bg-white text-sm text-gray-500">
-    //   © {new Date().getFullYear()} C3 Design System
-    // </footer>
+    <>
+    
+     {/* <footer
+      style={{
+        height: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        background: theme.foundation.borderColor,
+        borderTop: `1px solid ${theme.foundation.borderColor}`,
+
+        color: theme.typography.helperText,
+        fontSize: global.fontSize.sm,
+
+        padding: "0 16px",
+      }}
+    >
+      © {new Date().getFullYear()} Caerus Control Center (C3)
+    </footer> */}
+    </>
   );
 }

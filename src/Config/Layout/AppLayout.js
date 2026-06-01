@@ -8,7 +8,7 @@ import TopNavbar from "./TopNavbar";
 import SideNavbar from "./SideNavbar";
 import Footer from "./Footer";
 import { GlobalAlert } from "../../Components/ui/Alert/GlobalAlert";
-
+import ProfileView from "../../Pages/Profile/ProfileView";
 export default function AppLayout() {
   const theme = useTheme();
   const collapsed = useSelector((state) => state.login.collapsed);
@@ -16,6 +16,7 @@ export default function AppLayout() {
   const [width, setWidth] = useState(window.innerWidth);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [tabletCollapsed, setTabletCollapsed] = useState(true);
+  const [showProfile, setShowProfile] = useState(false);
   useEffect(() => {
     const handleResize = () => {
       setWidth(window.innerWidth);
@@ -54,6 +55,8 @@ export default function AppLayout() {
         isMobile={isMobile}
         isTablet={width >= 768 && width < 1024}
         mobileOpen={mobileOpen}
+        onOpenProfile={() => setShowProfile(true)}
+        showProfile={showProfile}
         collapsed={isTablet ? tabletCollapsed : collapsed}
         onMobileToggle={() => {
           if (isMobile) {
@@ -179,7 +182,13 @@ export default function AppLayout() {
               transition: "background 0.3s ease",
             }}
           >
-            <Outlet />
+            <div style={{ position: "relative", flex: 1 }}>
+              <Outlet />
+
+              {showProfile && (
+                <ProfileView onClose={() => setShowProfile(false)} />
+              )}
+            </div>
           </main>
 
           {/* FOOTER */}

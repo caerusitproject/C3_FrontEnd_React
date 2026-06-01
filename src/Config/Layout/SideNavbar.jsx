@@ -3,24 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useTheme, useGlobalTokens } from "../../context/ThemeContext";
 import { logout, toggleSidebar } from "../../store/slices/loginSlice";
-
-const MODULE_ICONS = {
-  Home: (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  ),
-};
+import MODULE_ICONS from "../../data/MODULE_ICONS";
 
 const DEFAULT_ICON = (
   <svg
@@ -78,6 +61,8 @@ export default function SideNavbar({
     dispatch(logout());
     navigate("/login", { replace: true });
   };
+
+  
 
   return (
     <nav
@@ -144,7 +129,7 @@ export default function SideNavbar({
             alignItems: "center",
             justifyContent: "space-between",
             padding: "4px 4px 12px",
-           borderBottom: `1px solid ${theme.foundation.borderColor}`,
+            borderBottom: `3px solid ${theme.foundation.borderColor}`,
             marginBottom: "4px",
             gap: "8px",
             minHeight: "52px",
@@ -168,12 +153,28 @@ export default function SideNavbar({
             <div
               style={{
                 fontSize: "11px",
-                color: theme.typography.helperText,
-                whiteSpace: "nowrap",
                 marginTop: "1px",
               }}
             >
-              {loggedInUser?.employeeId || ""}
+              <span
+                style={{
+                  color: theme.typography.primaryText,
+                  fontWeight: 500,
+                }}
+              >
+                {loggedInUser?.employeeId}
+              </span>
+
+              {loggedInUser?.designation && (
+                <span
+                  style={{
+                    color: theme.typography.helperText,
+                  }}
+                >
+                  {" • "}
+                  {loggedInUser.designation}
+                </span>
+              )}
             </div>
           </div>
 

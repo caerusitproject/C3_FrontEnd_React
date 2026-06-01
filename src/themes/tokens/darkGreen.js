@@ -3,7 +3,7 @@ export const darkGreenTheme = {
   name: "Dark Green",
   mode: "dark",
   foundation: {
-    primaryColor: "#1B7C41",
+    primaryColor: "#26B75F",
     primaryHover: "#145E31",
     primaryDarkHover: "#0F4825",
     loadingAccent: "#26B75F",
@@ -13,7 +13,7 @@ export const darkGreenTheme = {
     surfaceBackground: "#2a2c29",
     profilePanelBackground: "#3E4138",
     borderColor: "#5B6152",
-    bse: "#050505",
+    base: "#050505",
   },
   typography: {
     headingText: "#FFFFFF",
@@ -26,7 +26,7 @@ export const darkGreenTheme = {
   button: {
     primary: {
       default: {
-        background: "#1B7C41",
+        background: "#26B75F",
         text: "#FFFFFF",
         border: "transparent",
       },
@@ -49,6 +49,37 @@ export const darkGreenTheme = {
       active: { background: "#555950", text: "#FFFFFF", border: "#6B7063" },
       disabled: { background: "#2C2F31", text: "#8A8F93", border: "#44474A" },
       loading: { background: "#4B4F45", text: "#FFFFFF", border: "#5B6152" },
+    },
+    surface: {
+      default: {
+        background: "#2F3236",
+        text: "#F3F4F6",
+        border: "none",
+      },
+
+      hover: {
+        background: "#3A3E43",
+        text: "#FFFFFF",
+        border: "none",
+      },
+
+      active: {
+        background: "#454A50",
+        text: "#FFFFFF",
+        border: "none",
+      },
+
+      disabled: {
+        background: "#26292D",
+        text: "#7A7F87",
+        border: "none",
+      },
+
+      loading: {
+        background: "#3A3E43",
+        text: "#F3F4F6",
+        border: "none",
+      },
     },
     tertiary: {
       default: {

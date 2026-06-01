@@ -22,6 +22,7 @@ export const lightOrangeTheme = {
     accentText: "#ED6E07",
     helperText: "rgba(0,0,0,0.55)",
     inverseText: "#FFFFFF",
+    
   },
   button: {
     primary: {
@@ -49,6 +50,37 @@ export const lightOrangeTheme = {
       active: { background: "#FFD9A6", text: "#C85D05", border: "#FFC27A" },
       disabled: { background: "#F3F4F6", text: "#929292", border: "#E5E7EB" },
       loading: { background: "#FFE8CC", text: "#C85D05", border: "#FFC27A" },
+    },
+    surface: {
+      default: {
+        background: "#F3F4F6",
+        text: "#000000",
+        border: "none",
+      },
+
+      hover: {
+        background: "#E5E7EB",
+        text: "#000000",
+        border: "none",
+      },
+
+      active: {
+        background: "#D1D5DB",
+        text: "#000000",
+        border: "none",
+      },
+
+      disabled: {
+        background: "#F9FAFB",
+        text: "#9CA3AF",
+        border: "none",
+      },
+
+      loading: {
+        background: "#E5E7EB",
+        text: "#000000",
+        border: "none",
+      },
     },
     tertiary: {
       default: {
