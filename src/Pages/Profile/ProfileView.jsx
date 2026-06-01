@@ -16,7 +16,7 @@ export default function ProfileView({ onClose }) {
       style={{
         position: "absolute",
         inset: 0,
-        background: theme.foundation.applicationBackground,
+        background: theme.foundation.base,
         overflow: "auto",
         zIndex: 100,
         padding: "24px",

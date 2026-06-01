@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
 import { useDevice } from "../../hooks/useDevice";
 import { Card } from "../../Components/ui/Card/Card";
-
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 const broadcastData = [
   {
     id: 1,
@@ -85,7 +85,7 @@ export default function Home() {
   const current = broadcastData[activeSlide];
   const SHOW_READ_MORE_LIMIT = 120;
 
-  const shouldShowReadMore = current.description.length > SHOW_READ_MORE_LIMIT;
+  const shouldShowReadMore = current?.description?.length > SHOW_READ_MORE_LIMIT;
 
   return (
     <div
@@ -109,9 +109,9 @@ export default function Home() {
             : ""}
           !
         </Text>
-        <Text variant="helper" style={{ color: theme.foundation.borderColor }}>
+        {/* <Text variant="helper" style={{ color: theme.foundation.borderColor }}>
           Here's what's happening today.
-        </Text>
+        </Text> */}
       </div>
 
       {/* ── MAIN GRID ── */}
@@ -157,16 +157,27 @@ export default function Home() {
               <Button
                 key={id}
                 variant="surface"
-                //size="md"
                 width="fit-content"
                 leftIcon={<span>{icon}</span>}
+                title={url}
                 style={{
                   borderRadius: "12px",
                   justifyContent: "flex-start",
                 }}
                 onClick={() => handleOpenLink(url)}
               >
-                {label} →
+                {label}
+
+                <ArrowBackIcon
+                  fontSize="inherit"
+                  style={{
+                    marginLeft: "6px",
+                    transform: "rotate(180deg)",
+                    fontSize: "16px",
+                    flexShrink: 0,
+                    color: theme.typography.primaryText,
+                  }}
+                />
               </Button>
             ))}
           </div>
@@ -182,9 +193,9 @@ export default function Home() {
           }}
         >
           {/* Label + Card aligned together, card offset 20% from left to match right-shifted card */}
-          <div style={{ marginLeft: isMobile ? "0" : "20%" }}>
+          <div style={{ marginLeft: isMobile ? "0" : "12%" }}>
             <Text
-              variant="h3"
+              variant="h2"
               style={{
                 color: theme.typography.helperText,
                 // textTransform: "uppercase",
@@ -194,7 +205,7 @@ export default function Home() {
                 display: "block",
               }}
             >
-              Broadcasts
+              Here's what's happening today
             </Text>
           </div>
 
@@ -204,7 +215,7 @@ export default function Home() {
               borderRadius: "20px",
               overflow: "hidden",
               width: isMobile ? "100%" : "80%",
-              marginLeft: "auto",
+              marginLeft: isMobile ? "0" : "12%",
             }}
           >
             {/* Image with crossfade */}
@@ -217,20 +228,43 @@ export default function Home() {
               }}
             >
               {broadcastData.map((item, i) => (
-                <img
-                  key={item.id}
-                  src={item.image}
-                  alt={item.title}
+                <div
+                  key={item.id || i}
                   style={{
                     position: "absolute",
                     inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
                     opacity: i === activeSlide ? 1 : 0,
                     transition: "opacity 0.7s ease",
                   }}
-                />
+                >
+                  {!item.image ? (
+                    <div
+                      style={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: theme.foundation.surfaceBackground,
+                        color: theme.typography.helperText,
+                      }}
+                    >
+                      <span style={{ fontSize: "40px", color: theme.typography.helperText }}>📢</span>
+                      <span style={{ color: theme.typography.helperText }}>No Preview Available</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={item.image}
+                      alt={item.title || "broadcast"}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
+                    />
+                  )}
+                </div>
               ))}
 
               {/* Bottom gradient */}
@@ -288,7 +322,7 @@ export default function Home() {
                 gap: "6px",
               }}
             >
-              <Text variant="h3">{current.title}</Text>
+              <Text variant="h3">{current?.title}</Text>
 
               <Text
                 variant="bodySmall"
@@ -300,7 +334,7 @@ export default function Home() {
                   overflow: isExpanded ? "visible" : "hidden",
                 }}
               >
-                {current.description}
+                {current?.description}
               </Text>
 
               {shouldShowReadMore && (
