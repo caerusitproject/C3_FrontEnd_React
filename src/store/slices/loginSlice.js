@@ -20,6 +20,7 @@ const initialState = {
   collapsed: false, // tablet starts icon-only by default
   menus: storedMenus,
   loading: false,
+  publicKey: "",
   error: null,
 };
 
@@ -31,6 +32,10 @@ export const loginSlice = createSlice({
     loginRequest: (state) => {
       state.loading = true;
       state.error = null;
+    },
+
+    setPublicKey: (state, action) => {
+      state.publicKey = action.payload;
     },
 
     // 🟢 API SUCCESS
@@ -80,6 +85,7 @@ export const {
   loginFailure,
   logout,
   toggleSidebar,
+  setPublicKey,
 } = loginSlice.actions;
 
 export default loginSlice.reducer;

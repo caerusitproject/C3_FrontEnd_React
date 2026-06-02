@@ -6,7 +6,8 @@ import {
 } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
-
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import ProtectedRoute from "./Config/ProtectedRoute";
 import PublicRoute from "./Config/PublicRoute";
 import PublicLayout from "./Config/Layout/PublicLayout";
@@ -17,16 +18,27 @@ const Home = lazy(() => import("./Pages/Home/Home"));
 
 export default function App() {
   const isAuthenticated = useSelector((state) => state.login.isAuthenticated);
+  const ScrollToTop = () => {
+    const { pathname } = useLocation();
 
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [pathname]);
+
+    return null;
+  };
   return (
     <Router>
       <Suspense fallback={null}>
         <Routes>
+          <Route element={<ScrollToTop />} />
 
           {/* ROOT REDIRECT */}
           <Route
             path="/"
-            element={<Navigate to={isAuthenticated ? "/home" : "/login"} replace />}
+            element={
+              <Navigate to={isAuthenticated ? "/home" : "/login"} replace />
+            }
           />
 
           {/* PUBLIC ROUTES — authenticated users bounced to /home */}
@@ -45,16 +57,16 @@ export default function App() {
               <Route element={<ProtectedRoute roles={["admin"]} />}>
                 {/* <Route path="/showcase" element={<ShowcasePage />} /> */}
               </Route>
-
             </Route>
           </Route>
 
           {/* CATCH-ALL */}
           <Route
             path="*"
-            element={<Navigate to={isAuthenticated ? "/home" : "/login"} replace />}
+            element={
+              <Navigate to={isAuthenticated ? "/home" : "/login"} replace />
+            }
           />
-
         </Routes>
       </Suspense>
     </Router>

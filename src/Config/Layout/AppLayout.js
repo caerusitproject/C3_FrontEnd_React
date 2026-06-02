@@ -9,6 +9,9 @@ import SideNavbar from "./SideNavbar";
 import Footer from "./Footer";
 import { GlobalAlert } from "../../Components/ui/Alert/GlobalAlert";
 import ProfileView from "../../Pages/Profile/ProfileView";
+import GlobalLoader from "../../Components/ui/Loader/GlobalLoader";
+
+
 export default function AppLayout() {
   const theme = useTheme();
   const collapsed = useSelector((state) => state.login.collapsed);
@@ -170,8 +173,10 @@ export default function AppLayout() {
             // Constrain height so footer stays at bottom of content, not page
             minHeight: 0,
             background: theme.foundation.base,
+            position: "relative", 
           }}
         >
+          <GlobalLoader contained />
           {/* MAIN */}
           <main
             style={{

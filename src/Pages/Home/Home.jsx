@@ -1,37 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../../Components/ui/Button/Button";
 import { Text } from "../../Components/ui";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
 import { useDevice } from "../../hooks/useDevice";
 import { Card } from "../../Components/ui/Card/Card";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-const broadcastData = [
-  {
-    id: 1,
-    title: "Happy Holi!",
-    description:
-      "May your life be filled with vibrant colours of happiness, love and success.",
-    image:
-      "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=1200",
-  },
-  {
-    id: 2,
-    title: "Company Townhall",
-    description:
-      "Join the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM ISTJoin the monthly townhall meeting this Friday at 4 PM IST.",
-    image:
-      "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=1200",
-  },
-  {
-    id: 3,
-    title: "Wellness Week",
-    description:
-      "Participate in our wellness activities and earn reward points.",
-    image:
-      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200",
-  },
-];
+import {
+  globalLoaderOpen,
+  globalLoaderClose,
+} from "../../store/slices/globalSlice";
 
 const links = [
   {
@@ -49,18 +27,123 @@ const links = [
   {
     id: 3,
     label: "Important Contacts",
-    icon: "�",
+    icon: " ",
     url: "https://contacts.company.com",
   },
 ];
 
+const fetchBroadcasts = async () => {
+  const response = await fetch("/api/broadcasts", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch broadcasts");
+  }
+
+  return response.json();
+};
+
 export default function Home() {
   const theme = useTheme();
   const { isMobile } = useDevice();
+  const dispatch = useDispatch();
+
   const { loggedInUser } = useSelector((state) => state.login);
+
+  const [broadcasts, setBroadcasts] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
   const [expandedSlide, setExpandedSlide] = useState(null);
+  const [error, setError] = useState(null);
+
   const isExpanded = expandedSlide === activeSlide;
+
+  // Fetch broadcasts with loader
+  useEffect(() => {
+    const loadBroadcasts = async () => {
+      dispatch(globalLoaderOpen());
+      setError(null);
+
+      try {
+        const data = [
+          {
+            id: 1,
+            title: "Happy Holi!",
+            description:
+              "May your life be filled with vibrant colours of happiness, love and success.",
+            image: "",
+          },
+          {
+            id: 2,
+            title: "Company Townhall",
+            description:
+              "Join the monthly townhall meeting this Friday at 4 PM ISTMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and success.",
+            image:
+              "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=1200",
+          },
+          {
+            id: 3,
+            title: "Wellness Week",
+            description:
+              "Participate in our wellness activities and earn reward points.",
+            image:
+              "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200",
+          },
+        ];
+
+        const fallbackData = [
+          {
+            id: 1,
+            title: "Happy Holi!",
+            description:
+              "May your life be filled with vibrant colours of happiness, love and success.",
+            image:
+              "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=1200",
+          },
+          {
+            id: 2,
+            title: "Company Townhall",
+            description:
+              "Join the monthly townhall meeting this Friday at 4 PM IST.",
+            image:
+              "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=1200",
+          },
+          {
+            id: 3,
+            title: "Wellness Week",
+            description:
+              "Participate in our wellness activities and earn reward points.",
+            image:
+              "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200",
+          },
+        ];
+
+        const broadcastData =
+          Array.isArray(data) && data.length > 0
+            ? data.map((item) => ({
+                ...item,
+                image: item.image || item.imageUrl || item.bannerImage || "",
+              }))
+            : fallbackData;
+
+        setBroadcasts(broadcastData);
+
+        if (broadcastData.length > 0) {
+          setActiveSlide(0);
+        }
+      } catch (err) {
+        console.error("Broadcast fetch error:", err);
+        setBroadcasts([]);
+      } finally {
+        dispatch(globalLoaderClose());
+      }
+    };
+
+    loadBroadcasts();
+  }, [dispatch]);
 
   const handleReadMore = () => {
     setExpandedSlide((prev) => (prev === activeSlide ? null : activeSlide));
@@ -68,24 +151,24 @@ export default function Home() {
 
   const handleOpenLink = (url) => {
     if (!url) return;
-
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  // Auto slide
   useEffect(() => {
-    if (isExpanded) return;
+    if (isExpanded || broadcasts.length === 0) return;
 
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % broadcastData.length);
+      setActiveSlide((prev) => (prev + 1) % broadcasts.length);
     }, 3500);
 
     return () => clearInterval(timer);
-  }, [isExpanded]);
+  }, [isExpanded, broadcasts.length]);
 
-  const current = broadcastData[activeSlide];
+  const current = broadcasts[activeSlide];
   const SHOW_READ_MORE_LIMIT = 120;
-
-  const shouldShowReadMore = current?.description?.length > SHOW_READ_MORE_LIMIT;
+  const shouldShowReadMore =
+    current?.description?.length > SHOW_READ_MORE_LIMIT;
 
   return (
     <div
@@ -96,7 +179,7 @@ export default function Home() {
         gap: "28px",
       }}
     >
-      {/* ── GREETING ── */}
+      {/* Greeting */}
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <Text variant="h1" style={{ color: theme.foundation.primaryColor }}>
           Welcome back
@@ -109,12 +192,9 @@ export default function Home() {
             : ""}
           !
         </Text>
-        {/* <Text variant="helper" style={{ color: theme.foundation.borderColor }}>
-          Here's what's happening today.
-        </Text> */}
       </div>
 
-      {/* ── MAIN GRID ── */}
+      {/* Main Grid */}
       <div
         style={{
           display: "grid",
@@ -123,7 +203,7 @@ export default function Home() {
           alignItems: "stretch",
         }}
       >
-        {/* ── LEFT: Important Links ── */}
+        {/* Important Links */}
         <div
           style={{
             display: "flex",
@@ -137,9 +217,6 @@ export default function Home() {
             style={{
               color: theme.typography.helperText,
               opacity: 0.7,
-              //textTransform: "uppercase",
-              // letterSpacing: "0.08em",
-              // fontSize: "11px",
               marginBottom: isMobile ? "8px" : "12px",
             }}
           >
@@ -147,11 +224,7 @@ export default function Home() {
           </Text>
 
           <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "23px",
-            }}
+            style={{ display: "flex", flexDirection: "column", gap: "23px" }}
           >
             {links.map(({ id, label, icon, url }) => (
               <Button
@@ -160,14 +233,10 @@ export default function Home() {
                 width="fit-content"
                 leftIcon={<span>{icon}</span>}
                 title={url}
-                style={{
-                  borderRadius: "12px",
-                  justifyContent: "flex-start",
-                }}
+                style={{ borderRadius: "12px", justifyContent: "flex-start" }}
                 onClick={() => handleOpenLink(url)}
               >
                 {label}
-
                 <ArrowBackIcon
                   fontSize="inherit"
                   style={{
@@ -183,7 +252,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── RIGHT: Broadcast ── */}
+        {/* Broadcast Section */}
         <div
           style={{
             display: "flex",
@@ -192,15 +261,11 @@ export default function Home() {
             order: isMobile ? 1 : 2,
           }}
         >
-          {/* Label + Card aligned together, card offset 20% from left to match right-shifted card */}
           <div style={{ marginLeft: isMobile ? "0" : "12%" }}>
             <Text
               variant="h2"
               style={{
                 color: theme.typography.helperText,
-                // textTransform: "uppercase",
-                // letterSpacing: "0.08em",
-                // fontSize: "11px",
                 marginBottom: "4px",
                 display: "block",
               }}
@@ -208,6 +273,12 @@ export default function Home() {
               Here's what's happening today
             </Text>
           </div>
+
+          {error && (
+            <Text style={{ color: "#ff6b6b", textAlign: "center" }}>
+              {error}
+            </Text>
+          )}
 
           <Card
             padding="none"
@@ -218,7 +289,7 @@ export default function Home() {
               marginLeft: isMobile ? "0" : "12%",
             }}
           >
-            {/* Image with crossfade */}
+            {/* Image Section */}
             <div
               style={{
                 position: "relative",
@@ -227,140 +298,188 @@ export default function Home() {
                 overflow: "hidden",
               }}
             >
-              {broadcastData.map((item, i) => (
-                <div
-                  key={item.id || i}
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    opacity: i === activeSlide ? 1 : 0,
-                    transition: "opacity 0.7s ease",
-                  }}
-                >
-                  {!item.image ? (
-                    <div
-                      style={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: theme.foundation.surfaceBackground,
-                        color: theme.typography.helperText,
-                      }}
-                    >
-                      <span style={{ fontSize: "40px", color: theme.typography.helperText }}>📢</span>
-                      <span style={{ color: theme.typography.helperText }}>No Preview Available</span>
-                    </div>
-                  ) : (
-                    <img
-                      src={item.image}
-                      alt={item.title || "broadcast"}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
-                  )}
-                </div>
-              ))}
-
-              {/* Bottom gradient */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: "55%",
-                  background:
-                    "linear-gradient(to top, rgba(0,0,0,0.55), transparent)",
-                  pointerEvents: "none",
-                }}
-              />
-
-              {/* Dot indicators on image */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "14px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  display: "flex",
-                  gap: "6px",
-                  zIndex: 2,
-                }}
-              >
-                {broadcastData.map((_, index) => (
+              {broadcasts.length > 0 ? (
+                broadcasts.map((item, i) => (
                   <div
-                    key={index}
-                    onClick={() => setActiveSlide(index)}
+                    key={item.id || i}
                     style={{
-                      width: activeSlide === index ? "24px" : "7px",
-                      height: "7px",
-                      borderRadius: "999px",
-                      background:
-                        activeSlide === index
-                          ? "#fff"
-                          : "rgba(255,255,255,0.45)",
-                      transition: "all 0.3s ease",
-                      cursor: "pointer",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Content row */}
-            <div
-              style={{
-                padding: isMobile ? "16px" : "20px 24px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-              }}
-            >
-              <Text variant="h3">{current?.title}</Text>
-
-              <Text
-                variant="bodySmall"
-                style={{
-                  color: theme.typography.helperText,
-                  display: "-webkit-box",
-                  WebkitLineClamp: isExpanded ? "unset" : 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: isExpanded ? "visible" : "hidden",
-                }}
-              >
-                {current?.description}
-              </Text>
-
-              {shouldShowReadMore && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    marginTop: "4px",
-                  }}
-                >
-                  <Text
-                    variant="primary"
-                    onClick={() =>
-                      setExpandedSlide(isExpanded ? null : activeSlide)
-                    }
-                    style={{
-                      cursor: "pointer",
-                      color: theme.typography.primaryText,
-                      fontWeight: 600,
+                      position: "absolute",
+                      inset: 0,
+                      opacity: i === activeSlide ? 1 : 0,
+                      transition: "opacity 0.7s ease",
                     }}
                   >
-                    {isExpanded ? "Show less" : "Read more"}
+                    {item.image &&
+                    typeof item.image === "string" &&
+                    item.image.trim() !== "" ? (
+                      <img
+                        src={item.image}
+                        alt={item.title || "broadcast"}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          display: "block",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: theme.foundation.surfaceBackground,
+                          color: theme.typography.helperText,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "40px",
+                            color: theme.typography.helperText,
+                          }}
+                        >
+                          📢
+                        </span>
+                        <span style={{ color: theme.typography.helperText }}>
+                          No Preview Available
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div
+                  style={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: theme.foundation.surfaceBackground,
+                    color: theme.typography.helperText,
+                  }}
+                >
+                  <span style={{ fontSize: "48px", marginBottom: "12px" }}>
+                    📭
+                  </span>
+                  <Text
+                    variant="h3"
+                    style={{
+                      color: theme.typography.helperText,
+                      marginBottom: "8px",
+                    }}
+                  >
+                    No Broadcast for today
+                  </Text>
+                  <Text
+                    variant="bodySmall"
+                    style={{ color: theme.typography.helperText, opacity: 0.7 }}
+                  >
+                    Check back later for updates
                   </Text>
                 </div>
               )}
+
+              {/* Bottom gradient - only show when there are broadcasts */}
+              {broadcasts.length > 0 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "55%",
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.55), transparent)",
+                    pointerEvents: "none",
+                  }}
+                />
+              )}
+
+              {/* Dot indicators - only show when there are broadcasts */}
+              {broadcasts.length > 0 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "14px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    display: "flex",
+                    gap: "6px",
+                    zIndex: 2,
+                  }}
+                >
+                  {broadcasts.map((_, index) => (
+                    <div
+                      key={index}
+                      onClick={() => setActiveSlide(index)}
+                      style={{
+                        width: activeSlide === index ? "24px" : "7px",
+                        height: "7px",
+                        borderRadius: "999px",
+                        background:
+                          activeSlide === index
+                            ? "#fff"
+                            : "rgba(255,255,255,0.45)",
+                        transition: "all 0.3s ease",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Content Section */}
+            {broadcasts.length > 0 && current && (
+              <div
+                style={{
+                  padding: isMobile ? "16px" : "20px 24px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "6px",
+                }}
+              >
+                <Text variant="h3">{current.title}</Text>
+
+                <Text
+                  variant="bodySmall"
+                  style={{
+                    color: theme.typography.helperText,
+                    display: "-webkit-box",
+                    WebkitLineClamp: isExpanded ? "unset" : 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: isExpanded ? "visible" : "hidden",
+                  }}
+                >
+                  {current.description}
+                </Text>
+
+                {shouldShowReadMore && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <Text
+                      variant="primary"
+                      onClick={handleReadMore}
+                      style={{
+                        cursor: "pointer",
+                        color: theme.typography.primaryText,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {isExpanded ? "Show less" : "Read more"}
+                    </Text>
+                  </div>
+                )}
+              </div>
+            )}
           </Card>
         </div>
       </div>
