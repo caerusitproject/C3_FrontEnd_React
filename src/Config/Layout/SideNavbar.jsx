@@ -56,13 +56,49 @@ export default function SideNavbar({
   const menus = useSelector((state) => state.login.menus);
   const loggedInUser = useSelector((state) => state.login.loggedInUser);
   const menuList = menus?.length > 0 ? menus : DEFAULT_MENUS;
+//   const menuList = [
+//   {
+//     moduleName: "Home",
+//     url: "/home",
+//   },
+//   {
+//     moduleName: "Attendance",
+//     url: "/attendance",
+//     indicator: {
+//       pending: 3,
+//       total: 5,
+//     },
+//   },
+//   {
+//     moduleName: "LMS",
+//     url: "/lms",
+//   },
+//   {
+//     moduleName: "HR Policies",
+//     url: "/hr-policies",
+//   },
+//   {
+//     moduleName: "Assessments",
+//     url: "/assessments",
+//     indicator: {
+//       pending: 2,
+//       total: 6,
+//     },
+//   },
+//   {
+//     moduleName: "Payroll",
+//     url: "/payroll",
+//   },
+//   {
+//     moduleName: "Agreements & Contracts",
+//     url: "/agreements",
+//   },
+// ];
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login", { replace: true });
   };
-
-  
 
   return (
     <nav
@@ -253,9 +289,32 @@ export default function SideNavbar({
               {MODULE_ICONS[item.moduleName] ?? DEFAULT_ICON}
             </span>
             {!collapsed && (
-              <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                {item.moduleName}
-              </span>
+              <>
+                <span
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {item.moduleName}
+                </span>
+
+                {item.indicator?.pending > 0 && (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      padding: "2px 6px",
+                      borderRadius: "999px",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      background: theme.foundation.primaryColor,
+                      color: "#fff",
+                    }}
+                  >
+                    {item.indicator.pending}/{item.indicator.total}
+                  </span>
+                )}
+              </>
             )}
           </NavLink>
         ))}

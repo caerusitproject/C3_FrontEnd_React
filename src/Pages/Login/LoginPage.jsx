@@ -111,7 +111,7 @@ export default function LoginPage() {
     try {
       const res = await dispatch(
         actions.userLogin({
-          empId: empId.trim(),
+          samAccountName: empId.trim(),
           password,
         })
       );
@@ -125,6 +125,11 @@ export default function LoginPage() {
       setSubmitting(false);
     }
   }
+
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent page refresh
+    handleLogin();
+  };
 
   // ───────────────────────────────────────────────────────────
   // UI
@@ -181,10 +186,12 @@ export default function LoginPage() {
 
           {/* HEADING */}
 
-          <div className="login-heading"
-          style={{
-                color: theme.foundation.primaryColor,
-              }}>
+          <div
+            className="login-heading"
+            style={{
+              color: theme.foundation.primaryColor,
+            }}
+          >
             <span className="desktop-break">Login into</span> Your Account
           </div>
 
@@ -202,7 +209,8 @@ export default function LoginPage() {
 
         {/* LOGIN CARD */}
 
-        <div
+        <form
+          onSubmit={handleSubmit}
           className="login-card"
           style={{
             background: theme.foundation.surfaceBackground,
@@ -298,15 +306,16 @@ export default function LoginPage() {
           {/* LOGIN BUTTON */}
 
           <Button
+            type="submit"
             variant="primary"
             size="lg"
             fullWidth
             loading={submitting}
-            onClick={handleLogin}
+            disabled={submitting}
           >
             {submitting ? "Logging in..." : "Log In"}
           </Button>
-        </div>
+        </form>
       </div>
     </>
   );
