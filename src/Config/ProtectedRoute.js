@@ -10,9 +10,7 @@ import { useSelector } from "react-redux";
  *   <Route element={<ProtectedRoute roles={["admin"]} />}>  // role guard
  */
 const ProtectedRoute = ({ roles = [] }) => {
-  const { loggedInUser, isAuthenticated } = useSelector(
-    (state) => state.login
-  );
+  const { loggedInUser, isAuthenticated } = useSelector((state) => state.login);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

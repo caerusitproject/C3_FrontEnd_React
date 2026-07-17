@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { logout } from "../../store/slices/loginSlice";
 import { Button } from "../../Components/ui/Button/Button";
+import * as actions from "../../store/actions";
 
 export default function TopNavbar({
   isMobile,
@@ -22,7 +23,7 @@ export default function TopNavbar({
   const profileRef = useRef(null);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(actions.userLogout());
     navigate("/login", { replace: true });
   };
 

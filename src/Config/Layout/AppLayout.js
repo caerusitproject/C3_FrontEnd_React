@@ -11,7 +11,6 @@ import { GlobalAlert } from "../../Components/ui/Alert/GlobalAlert";
 import ProfileView from "../../Pages/Profile/ProfileView";
 import GlobalLoader from "../../Components/ui/Loader/GlobalLoader";
 
-
 export default function AppLayout() {
   const theme = useTheme();
   const collapsed = useSelector((state) => state.login.collapsed);
@@ -116,12 +115,12 @@ export default function AppLayout() {
             width: isMobile
               ? "256px"
               : isTablet
-              ? tabletCollapsed
-                ? "72px"
-                : "256px"
-              : collapsed
-              ? "72px"
-              : "256px",
+                ? tabletCollapsed
+                  ? "72px"
+                  : "256px"
+                : collapsed
+                  ? "72px"
+                  : "256px",
             background: theme.foundation.surfaceBackground,
             //borderRight: `1px solid ${theme.foundation.borderColor}`,
             zIndex: 9999,
@@ -173,7 +172,7 @@ export default function AppLayout() {
             // Constrain height so footer stays at bottom of content, not page
             minHeight: 0,
             background: theme.foundation.base,
-            position: "relative", 
+            position: "relative",
           }}
         >
           <GlobalLoader contained />

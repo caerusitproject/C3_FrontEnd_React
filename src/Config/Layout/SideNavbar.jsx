@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useTheme, useGlobalTokens } from "../../context/ThemeContext";
 import { logout, toggleSidebar } from "../../store/slices/loginSlice";
 import MODULE_ICONS from "../../data/MODULE_ICONS";
+import * as actions from "../../store/actions";
 
 const DEFAULT_ICON = (
   <svg
@@ -56,49 +57,51 @@ export default function SideNavbar({
   const menus = useSelector((state) => state.login.menus);
   const loggedInUser = useSelector((state) => state.login.loggedInUser);
   const menuList = menus?.length > 0 ? menus : DEFAULT_MENUS;
-//   const menuList = [
-//   {
-//     moduleName: "Home",
-//     url: "/home",
-//   },
-//   {
-//     moduleName: "Attendance",
-//     url: "/attendance",
-//     indicator: {
-//       pending: 3,
-//       total: 5,
-//     },
-//   },
-//   {
-//     moduleName: "LMS",
-//     url: "/lms",
-//   },
-//   {
-//     moduleName: "HR Policies",
-//     url: "/hr-policies",
-//   },
-//   {
-//     moduleName: "Assessments",
-//     url: "/assessments",
-//     indicator: {
-//       pending: 2,
-//       total: 6,
-//     },
-//   },
-//   {
-//     moduleName: "Payroll",
-//     url: "/payroll",
-//   },
-//   {
-//     moduleName: "Agreements & Contracts",
-//     url: "/agreements",
-//   },
-// ];
+  //   const menuList = [
+  //   {
+  //     moduleName: "Home",
+  //     url: "/home",
+  //   },
+  //   {
+  //     moduleName: "Attendance",
+  //     url: "/attendance",
+  //     indicator: {
+  //       pending: 3,
+  //       total: 5,
+  //     },
+  //   },
+  //   {
+  //     moduleName: "LMS",
+  //     url: "/lms",
+  //   },
+  //   {
+  //     moduleName: "HR Policies",
+  //     url: "/hr-policies",
+  //   },
+  //   {
+  //     moduleName: "Assessments",
+  //     url: "/assessments",
+  //     indicator: {
+  //       pending: 2,
+  //       total: 6,
+  //     },
+  //   },
+  //   {
+  //     moduleName: "Payroll",
+  //     url: "/payroll",
+  //   },
+  //   {
+  //     moduleName: "Agreements & Contracts",
+  //     url: "/agreements",
+  //   },
+  // ];
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login", { replace: true });
+    // dispatch(actions.userLogout());
+    // navigate("/login", { replace: true });
   };
+
+  console.log("menu_list___", menuList);
 
   return (
     <nav
@@ -155,7 +158,6 @@ export default function SideNavbar({
           </button>
         </div>
       )}
-
       {/* ── EXPANDED HEADER: user info + collapse button (mobile & tablet open, desktop) ── */}
       {/* Renders when sidebar is expanded — mobile open, tablet open, or desktop always */}
       {!collapsed && (
@@ -250,7 +252,6 @@ export default function SideNavbar({
           </button>
         </div>
       )}
-
       {/* ── MENU ITEMS ── */}
       <div
         style={{
@@ -319,7 +320,6 @@ export default function SideNavbar({
           </NavLink>
         ))}
       </div>
-
       {/* ── LOGOUT ── */}
       <button
         onClick={handleLogout}

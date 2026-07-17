@@ -80,7 +80,7 @@ export default function Home() {
             id: 2,
             title: "Company Townhall",
             description:
-              "Join the monthly townhall meeting this Friday at 4 PM ISTMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with vibrant colours of happiness, love and success.",
+              "Join the monthly townhall meeting this Friday at 4 PM ISTMay your life be filled with vibrant colours of happiness, love and successMay your life be filled with joy.",
             image:
               "https://images.unsplash.com/photo-1515169067868-5387ec356754?w=1200",
           },
@@ -317,6 +317,7 @@ export default function Home() {
                         alt={item.title || "broadcast"}
                         style={{
                           width: "100%",
+                          maxWidth: "100%",
                           height: "100%",
                           objectFit: "cover",
                           display: "block",

@@ -15,6 +15,12 @@ import AppLayout from "./Config/Layout/AppLayout";
 
 const Login = lazy(() => import("./Pages/Login/LoginPage"));
 const Home = lazy(() => import("./Pages/Home/Home"));
+const Attendance = lazy(() => import("./Pages/Attendance/Attendance"));
+const AssetRequest = lazy(() => import("./Pages/RequestAsset/AssetTable.jsx"));
+const FormBuilder = lazy(() => import("./Pages/FormBuilder/FormBuilder.jsx"));
+const ProjectMappingTable = lazy(
+  () => import("./Pages/ProjectMapping/ProjectMappingTable.jsx"),
+);
 
 export default function App() {
   const isAuthenticated = useSelector((state) => state.login.isAuthenticated);
@@ -52,11 +58,16 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/home" element={<Home />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/request-asset" element={<AssetRequest />} />
+              <Route path="/form-builder" element={<FormBuilder />} />
+              <Route
+                path="/project-mapping"
+                element={<ProjectMappingTable />}
+              />
 
               {/* Admin-only */}
-              <Route element={<ProtectedRoute roles={["admin"]} />}>
-                {/* <Route path="/showcase" element={<ShowcasePage />} /> */}
-              </Route>
+              <Route element={<ProtectedRoute roles={["admin"]} />}></Route>
             </Route>
           </Route>
 

@@ -1,0 +1,71 @@
+.asset-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 600;
+  color: #303030;
+}
+
+.asset-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff944d;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-active {
+  background: #dff5df;
+  color: #228b22;
+}
+
+.status-maintenance {
+  background: #dde8f5;
+  color: #4b647f;
+}
+
+.asset-life {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.life-progress {
+  width: 70px;
+  height: 3px;
+  background: #d6d6d6;
+  border-radius: 20px;
+}
+
+.life-progress-fill {
+  width: 60%;
+  height: 100%;
+  background: #a05b22;
+  border-radius: 20px;
+}
+
+.action-required {
+  color: #d9534f;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.action-subtitle {
+  color: #d9534f;
+  font-size: 11px;
+  margin-top: 2px;
+}

@@ -46,6 +46,9 @@ export const loginSlice = createSlice({
       state.isAuthenticated = true;
       state.menus = action.payload.menus || [];
 
+      localStorage.setItem("access-token", action.payload.accessToken);
+
+      localStorage.setItem("refresh-token", action.payload.refreshToken);
       localStorage.setItem("user", JSON.stringify(action.payload.employee));
 
       localStorage.setItem("menus", JSON.stringify(action.payload.menus || []));
@@ -70,6 +73,7 @@ export const loginSlice = createSlice({
 
       localStorage.removeItem("user");
       localStorage.removeItem("menus");
+      // localStorage.clear();
     },
 
     // UI

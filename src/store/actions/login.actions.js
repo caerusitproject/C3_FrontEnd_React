@@ -1,4 +1,4 @@
-import { authService } from "../services/authService";
+import { authService, logoutService } from "../services/authService";
 import { showAlert } from "../slices/alertSlice";
 import {
   loginRequest,
@@ -9,79 +9,74 @@ import {
   setPublicKey,
 } from "../slices/loginSlice";
 import JSEncrypt from "jsencrypt";
-import { globalLoaderOpen, globalLoaderClose} from "../slices/globalSlice";
+import { globalLoaderOpen, globalLoaderClose } from "../slices/globalSlice";
 export const userLogin = (data) => async (dispatch) => {
   dispatch(loginRequest());
   dispatch(globalLoaderOpen());
 
   try {
+    //     // ==========================================
+    //     // STEP 1 : Get Public Key from Login Service
+    //     // ==========================================
 
+    //     const response = await authService.getPublicKey();
 
-//     // ==========================================
-//     // STEP 1 : Get Public Key from Login Service
-//     // ==========================================
+    //     const publicKey = response.data;
 
-//     const response = await authService.getPublicKey();
+    //     // ==========================================
+    //     // STEP 2 : Convert Base64 Key to PEM Format
+    //     // JSEncrypt expects PEM format
+    //     // ==========================================
 
-//     const publicKey = response.data;
+    //     const pemPublicKey = `-----BEGIN PUBLIC KEY-----
+    // ${publicKey}
+    // -----END PUBLIC KEY-----`;
 
-//     // ==========================================
-//     // STEP 2 : Convert Base64 Key to PEM Format
-//     // JSEncrypt expects PEM format
-//     // ==========================================
+    //     // ==========================================
+    //     // STEP 3 : Encrypt Password
+    //     // ==========================================
 
-//     const pemPublicKey = `-----BEGIN PUBLIC KEY-----
-// ${publicKey}
-// -----END PUBLIC KEY-----`;
+    //     const encrypt = new JSEncrypt();
 
-//     // ==========================================
-//     // STEP 3 : Encrypt Password
-//     // ==========================================
+    //     encrypt.setPublicKey(pemPublicKey);
 
-//     const encrypt = new JSEncrypt();
+    //     const encryptedPassword = encrypt.encrypt(data.password);
 
-//     encrypt.setPublicKey(pemPublicKey);
+    //     if (!encryptedPassword) {
+    //       throw new Error("Password encryption failed");
+    //     }
 
-//     const encryptedPassword = encrypt.encrypt(data.password);
+    //     // ==========================================
+    //     // STEP 4 : Create Login Payload
+    //     // ==========================================
 
-//     if (!encryptedPassword) {
-//       throw new Error("Password encryption failed");
-//     }
+    //     const loginPayload = {
+    //       ...data,
+    //       password: encryptedPassword,
+    //     };
 
-//     // ==========================================
-//     // STEP 4 : Create Login Payload
-//     // ==========================================
+    //     // ==========================================
+    //     // STEP 5 : Call Existing Login API
+    //     // ==========================================
 
-//     const loginPayload = {
-//       ...data,
-//       password: encryptedPassword,
-//     };
+    //     const loginResponse = await authService.login(loginPayload);
 
-//     // ==========================================
-//     // STEP 5 : Call Existing Login API
-//     // ==========================================
+    //     dispatch(loginSuccess(loginResponse));
 
-//     const loginResponse = await authService.login(loginPayload);
+    //     dispatch(
+    //       showAlert({
+    //         type: "success",
+    //         title: "Login Successful",
+    //         message: `Welcome back, ${loginResponse.employee?.employeeName || ""}!`,
+    //       })
+    //     );
 
-//     dispatch(loginSuccess(loginResponse));
+    //     return {
+    //       success: true,
+    //       data: loginResponse,
+    //     };
 
-//     dispatch(
-//       showAlert({
-//         type: "success",
-//         title: "Login Successful",
-//         message: `Welcome back, ${loginResponse.employee?.employeeName || ""}!`,
-//       })
-//     );
-
-//     return {
-//       success: true,
-//       data: loginResponse,
-//     };
-
-
-
-
-   // response shape: { employee: {...}, menus: [...] }
+    // response shape: { employee: {...}, menus: [...] }
     const response = await authService.login(data);
 
     dispatch(loginSuccess(response));
@@ -90,11 +85,10 @@ export const userLogin = (data) => async (dispatch) => {
         type: "success",
         title: "Login Successful",
         message: `Welcome back, ${response.employee?.employeeName || ""}!`,
-      })
+      }),
     );
 
     return { success: true, data: response };
-
   } catch (err) {
     // err shape from API: { timestamp, status, error, message }
     const message = err?.message || "Login failed";
@@ -105,13 +99,30 @@ export const userLogin = (data) => async (dispatch) => {
         type: "error",
         title: err?.error || "Login Failed",
         message,
-      })
+      }),
     );
 
     return { success: false, message };
-  }
-  finally {
+  } finally {
     dispatch(globalLoaderClose());
   }
 };
 
+export const userLogout = () => {
+  return (dispatch) => {
+    logoutService()
+      .then((res) => {
+        alert("logout");
+        dispatch(logout());
+        dispatch(
+          showAlert({
+            type: "success",
+            title: "Logged Out Successfully",
+          }),
+        );
+      })
+      .catch((err) => {
+        console.log("error_message", err.message);
+      });
+  };
+};

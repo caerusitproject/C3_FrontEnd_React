@@ -22,7 +22,6 @@ export const lightOrangeTheme = {
     accentText: "#ED6E07",
     helperText: "rgba(0,0,0,0.55)",
     inverseText: "#FFFFFF",
-    
   },
   button: {
     primary: {
