@@ -10,6 +10,8 @@ import {
 } from "../slices/loginSlice";
 import JSEncrypt from "jsencrypt";
 import { globalLoaderOpen, globalLoaderClose } from "../slices/globalSlice";
+
+
 export const userLogin = (data) => async (dispatch) => {
   dispatch(loginRequest());
   dispatch(globalLoaderOpen());

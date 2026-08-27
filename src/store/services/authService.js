@@ -1,4 +1,4 @@
-import api from "../../Config/axiosInstance";
+import { api } from "../../Config/axiosInstance";
 const baseURl = "https://plenty-constant-residual.ngrok-free.dev";
 
 let token = localStorage.getItem("access-token");

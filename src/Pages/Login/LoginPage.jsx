@@ -113,7 +113,7 @@ export default function LoginPage() {
         actions.userLogin({
           samAccountName: empId.trim(),
           password,
-        })
+        }),
       );
 
       setSubmitting(false);
@@ -128,6 +128,7 @@ export default function LoginPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault(); // Prevent page refresh
+    // navigate("/home");
     handleLogin();
   };
 

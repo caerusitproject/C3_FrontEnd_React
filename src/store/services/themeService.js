@@ -1,4 +1,4 @@
-import api from "../../Config/axiosInstance";
+import { api } from "../../Config/axiosInstance";
 
 const THEME_URL = "auth/theme";
 
@@ -25,8 +25,8 @@ export const themeService = {
         `${THEME_URL}/active`,
         { themeId },
         {
-         // headers: getAuthHeaders(),
-        }
+          // headers: getAuthHeaders(),
+        },
       )
       .then((r) => r.data),
 };

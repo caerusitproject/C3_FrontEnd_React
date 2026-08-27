@@ -33,7 +33,7 @@ export const addProjectMapping = (selectedProjectedMapping, setPagination) => {
           ...prev,
           pageIndex: 0,
         }));
-        // dispatch(fetchAllProjectsMappings(0, 5));
+        dispatch(fetchAllProjectsMappings(0, 5));
         dispatch(
           showAlert({
             type: "success",
@@ -66,7 +66,7 @@ export const updateProjectMapping = (projectData, setPagination) => {
           ...prev,
           pageIndex: 0,
         }));
-        // dispatch(fetchAllProjectsMappings(0, 5));
+        dispatch(fetchAllProjectsMappings(0, 5));
         dispatch(globalLoaderClose());
         dispatch(
           showAlert({
@@ -216,12 +216,12 @@ export const addProject = (projectData, setPagination) => {
     dispatch(globalLoaderOpen());
     additionProjectService(projectData)
       .then((res) => {
-        // dispatch(showAllProjects(0, 5));
         dispatch(globalLoaderClose());
         setPagination((prev) => ({
           ...prev,
           pageIndex: 0,
         }));
+        dispatch(showAllProjects(0, 5));
         dispatch(
           showAlert({
             type: "success",
@@ -250,12 +250,12 @@ export const updateProject = (projectData, setPagination) => {
     dispatch(globalLoaderOpen());
     updateProjectService(projectData)
       .then((res) => {
+        dispatch(globalLoaderClose());
         setPagination((prev) => ({
           ...prev,
           pageIndex: 0,
         }));
-        // dispatch(showAllProjects(0, 5));
-        dispatch(globalLoaderClose());
+        dispatch(showAllProjects(0, 5));
         dispatch(
           showAlert({
             type: "success",
@@ -314,12 +314,12 @@ export const addSoftware = (softwareData, setPagination) => {
     dispatch(globalLoaderOpen());
     addSoftwareService(softwareData)
       .then((res) => {
-        // dispatch(showAllSoftware());
+        dispatch(globalLoaderClose());
         setPagination((prev) => ({
           ...prev,
           pageIndex: 0,
         }));
-        dispatch(globalLoaderClose());
+        dispatch(showAllSoftware(0, 5));
         dispatch(
           showAlert({
             type: "success",
@@ -348,12 +348,12 @@ export const updateSoftware = (softwareData, setPagination) => {
     dispatch(globalLoaderOpen());
     updateSoftwareService(softwareData)
       .then((res) => {
+        dispatch(globalLoaderClose());
         setPagination((prev) => ({
           ...prev,
           pageIndex: 0,
         }));
-        // dispatch(showAllSoftware());
-        dispatch(globalLoaderClose());
+        dispatch(showAllSoftware(0, 5));
         dispatch(
           showAlert({
             type: "success",

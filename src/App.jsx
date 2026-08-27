@@ -14,10 +14,24 @@ import PublicLayout from "./Config/Layout/PublicLayout";
 import AppLayout from "./Config/Layout/AppLayout";
 
 const Login = lazy(() => import("./Pages/Login/LoginPage"));
+const Leave = lazy(() => import("./Pages/Leave/Leave.jsx"));
+const Payroll = lazy(() => import("./Pages/Payroll/Payroll.jsx"));
 const Home = lazy(() => import("./Pages/Home/Home"));
-const Attendance = lazy(() => import("./Pages/Attendance/Attendance"));
-const AssetRequest = lazy(() => import("./Pages/RequestAsset/AssetTable.jsx"));
+const LeaveRequest = lazy(() => import("./Pages/LeaveRequest/LeaveReq.jsx"));
+// const Attendance = lazy(() => import("./Pages/Attendance/Attendance"));
+const AttendanceNew = lazy(
+  () => import("./Pages/Attendance/AttendanceNew.jsx"),
+);
+const RequestAsset = lazy(
+  () => import("./Pages/RequestAsset/RequestAssetTable.jsx"),
+);
+const AssetRequest = lazy(
+  () => import("./Pages/AssetRequest/AssetRequestMain.jsx"),
+);
 const FormBuilder = lazy(() => import("./Pages/FormBuilder/FormBuilder.jsx"));
+const AssetManagement = lazy(
+  () => import("./Pages/AssetManagement/AssetManagementTable.jsx"),
+);
 const ProjectMappingTable = lazy(
   () => import("./Pages/ProjectMapping/ProjectMappingTable.jsx"),
 );
@@ -47,6 +61,8 @@ export default function App() {
             }
           />
 
+          {/* <Route path="/" element={<Navigate to={"/home"} replace />} /> */}
+
           {/* PUBLIC ROUTES — authenticated users bounced to /home */}
           <Route element={<PublicRoute />}>
             <Route element={<PublicLayout />}>
@@ -58,9 +74,15 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/home" element={<Home />} />
-              <Route path="/attendance" element={<Attendance />} />
-              <Route path="/request-asset" element={<AssetRequest />} />
+              <Route path="/attendance" element={<AttendanceNew />} />
+              <Route path="/lms" element={<Leave />} />
+              <Route path="/leave-requests" element={<LeaveRequest />} />
+              <Route path="/payroll" element={<Payroll />} />
+              {/* <Route path="/attendance" element={<AttendanceNew />} /> */}
               <Route path="/form-builder" element={<FormBuilder />} />
+              <Route path="/request-asset" element={<RequestAsset />} />
+              <Route path="/asset-requests" element={<AssetRequest />} />
+              <Route path="/asset-management" element={<AssetManagement />} />
               <Route
                 path="/project-mapping"
                 element={<ProjectMappingTable />}
@@ -78,6 +100,7 @@ export default function App() {
               <Navigate to={isAuthenticated ? "/home" : "/login"} replace />
             }
           />
+          {/* <Route path="*" element={<Navigate to={"/home"} replace />} /> */}
         </Routes>
       </Suspense>
     </Router>

@@ -4,49 +4,64 @@ import { logout } from "../store/slices/loginSlice";
 import { showAlert } from "../store/slices/alertSlice";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL,
+  baseURL: process.env.REACT_APP_API_BASE_URL_LOGIN,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     const status = error?.response?.status;
-//     const errData = error?.response?.data;
-//     console.log("status data", status, errData);
+const leaveApi = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL_LEAVE,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-//     if (status === 401) {
-//       store.dispatch(logout());
-//       return Promise.reject(errData);
-//     }
+/* ============================================================
+   REQUEST INTERCEPTOR
+   Attach access token to BOTH api and leaveApi
+   ============================================================ */
 
-//     if (status >= 500) {
-//       store.dispatch(
-//         showAlert({
-//           type: "error",
-//           title: "Server Error",
-//           message:
-//             errData?.message || "Something went wrong. Please try again.",
-//         }),
-//       );
-//     }
+const attachAccessToken = (config) => {
+  if (config.skipAuth) {
+    return config;
+  }
 
-//     // shape the rejection to match your API error format:
-//     // { timestamp, status, error, message }
-//     return Promise.reject(errData || error);
-//   },
-// );
+  const accessToken = localStorage.getItem("access-token");
 
-//  New Addition for refresh token call and setting of the accessToken
+  if (accessToken) {
+    config.headers = config.headers || {};
+
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return config;
+};
+
+/* api */
+api.interceptors.request.use(attachAccessToken, (error) =>
+  Promise.reject(error),
+);
+
+/* leaveApi */
+leaveApi.interceptors.request.use(attachAccessToken, (error) =>
+  Promise.reject(error),
+);
+
+/* ============================================================
+   TOKEN REFRESH
+   ============================================================ */
 
 let isRefreshing = false;
-// Queue to hold requests while refreshing
+
 let failedQueue = [];
 
-// Process queued requests after token refresh
+/* ============================================================
+   PROCESS QUEUED REQUESTS
+   ============================================================ */
+
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
     if (token) {
@@ -55,27 +70,18 @@ const processQueue = (error, token = null) => {
       prom.reject(error);
     }
   });
+
   failedQueue = [];
 };
 
-// Add request interceptor to attach access token
-api.interceptors.request.use(
-  (config) => {
-    if (config.skipAuth) {
-      return config; // no tokens attached
-    }
-    const accessToken = localStorage.getItem("access-token");
-    if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+/* ============================================================
+   RESPONSE INTERCEPTOR
+   api
+   ============================================================ */
 
-// Add response interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,
+
   async (error) => {
     const originalRequest = error.config;
 
@@ -83,18 +89,20 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Check if error is 401 and request hasn't been retried
     if (
       error.response?.status === 401 ||
       (error.response?.status === 404 && !originalRequest._retry)
     ) {
       if (isRefreshing) {
-        // Queue the request if refresh is in progress
         return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
+          failedQueue.push({
+            resolve,
+            reject,
+          });
         })
           .then((token) => {
-            originalRequest.headers["Authorization"] = `Bearer ${token}`;
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+
             return api(originalRequest);
           })
           .catch((err) => Promise.reject(err));
@@ -105,33 +113,46 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refresh-token");
-        // Make request to refresh token endpoint
+
         const response = await axios.post(
           `${process.env.REACT_APP_API_BASE_URL}/auth/refresh`,
           {
-            refreshToken: refreshToken,
+            refreshToken,
           },
         );
-        console.log("axios instance__", response?.data);
-        const newAccessToken = response?.data.accessToken;
+
+        const newAccessToken = response?.data?.accessToken;
+
         localStorage.setItem("access-token", newAccessToken);
 
-        // Update authorization header for original request
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-        // Process queued requests
         processQueue(null, newAccessToken);
 
-        // Retry original request
         return api(originalRequest);
       } catch (refreshError) {
-        // Handle refresh token failure (e.g., invalid refresh token)
-        // processQueue(refreshError);
-        // console.error('Refresh token error:', refreshError);
-        // localStorage.removeItem("access-token");
-        // localStorage.removeItem("refresh-token");
-        // Optionally redirect to login page
-        // window.location.href = "/login";
+        processQueue(refreshError, null);
+
+        if (
+          refreshError.response?.status === 401 ||
+          refreshError.response?.status === 404
+        ) {
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("refresh-token");
+
+          store.dispatch(logout());
+
+          store.dispatch(
+            showAlert({
+              type: "error",
+              title: "Session Expired",
+              message: "Your session has expired. Please login again.",
+            }),
+          );
+
+          window.location.href = "/login";
+        }
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -142,4 +163,93 @@ api.interceptors.response.use(
   },
 );
 
-export default api;
+/* ============================================================
+   RESPONSE INTERCEPTOR
+   leaveApi
+   ============================================================ */
+
+leaveApi.interceptors.response.use(
+  (response) => response,
+
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (originalRequest?.skipAuth) {
+      return Promise.reject(error);
+    }
+
+    if (
+      error.response?.status === 401 ||
+      (error.response?.status === 404 && !originalRequest._retry)
+    ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve,
+            reject,
+          });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+
+            return leaveApi(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = localStorage.getItem("refresh-token");
+
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/auth/refresh`,
+          {
+            refreshToken,
+          },
+        );
+
+        const newAccessToken = response?.data?.accessToken;
+
+        localStorage.setItem("access-token", newAccessToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        processQueue(null, newAccessToken);
+
+        return leaveApi(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+
+        if (
+          refreshError.response?.status === 401 ||
+          refreshError.response?.status === 404
+        ) {
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("refresh-token");
+
+          store.dispatch(logout());
+
+          store.dispatch(
+            showAlert({
+              type: "error",
+              title: "Session Expired",
+              message: "Your session has expired. Please login again.",
+            }),
+          );
+
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+export { api, leaveApi };

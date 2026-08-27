@@ -5,6 +5,8 @@ import alertReducer from "./slices/alertSlice";
 import employeeReducer from "./slices/employeeSlice";
 import projectMappingReducer from "./slices/projectMappingSlice";
 import assetRequestReducer from "./slices/assetRequestSlice";
+import assetManagementReducer from "./slices/assetManagementSlice";
+import leaveManagementReducer from "./slices/leaveManagementSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +16,7 @@ export const store = configureStore({
     employee: employeeReducer,
     projectMapping: projectMappingReducer,
     assetRequest: assetRequestReducer,
+    assetManagement: assetManagementReducer,
+    leaveManagement: leaveManagementReducer,
   },
 });

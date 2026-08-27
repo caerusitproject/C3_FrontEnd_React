@@ -1,4 +1,4 @@
-import api from "../../Config/axiosInstance";
+import { api } from "../../Config/axiosInstance";
 
 // fetchAllProjectMappingService
 

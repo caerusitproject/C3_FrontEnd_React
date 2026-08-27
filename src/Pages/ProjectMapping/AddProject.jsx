@@ -1,11 +1,33 @@
-import React, { useState } from "react";
-import "./AddProject.css";
-import * as actions from "../../store/actions";
+import React, { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  Typography,
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
+import CloseIcon from "@mui/icons-material/Close";
+
+import { Input } from "../../Components/ui/Input/Input";
+import { Button } from "../../Components/ui/Button/Button";
+import { useTheme } from "../../context/ThemeContext";
+
 import { useDispatch } from "react-redux";
-import Switch from "@mui/material/Switch";
+import * as actions from "../../store/actions";
 import { showAlert } from "../../store/slices/alertSlice";
 
-const label = { slotProps: { input: { "aria-label": "Switch demo" } } };
+const statusOptions = [
+  { value: "Y", label: "Y" },
+  { value: "N", label: "N" },
+  { value: "Archive", label: "Archive" },
+];
 
 export default function AddProject({
   selectedProjectObj,
@@ -17,72 +39,46 @@ export default function AddProject({
   setPagination,
 }) {
   const dispatch = useDispatch();
-  const [projectName, setProjectName] = useState("");
-  const [projectCode, setProjectCode] = useState("");
-  const [projectDescription, setProjectDescription] = useState("");
-  const [projectStatus, setProjectStatus] = useState("");
+  const theme = useTheme();
+  const [formData, setFormData] = useState({
+    projectName: "",
+    projectCode: "",
+    projectDescription: "",
+    projectStatus: "",
+  });
 
-  const statusOptions = [
-    { value: "1", label: "Y" },
-    { value: "2", label: "N" },
-    { value: "3", label: "Archive" },
-  ];
-
-  React.useEffect(() => {
-    if (selectedProjectObj && editMode) {
-      setProjectName(selectedProjectObj?.projectName);
-      setProjectCode(selectedProjectObj?.projectCode);
-      setProjectDescription(selectedProjectObj?.projectDescription);
-      setProjectStatus(selectedProjectObj?.projectStatus?.code);
+  useEffect(() => {
+    if (selectedProjectObj) {
+      setFormData({
+        projectName: selectedProjectObj.projectName || "",
+        projectCode: selectedProjectObj.projectCode || "",
+        projectDescription: selectedProjectObj.projectDescription || "",
+        projectStatus: selectedProjectObj.projectStatus?.code || "",
+      });
     }
   }, [selectedProjectObj]);
 
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   const reset = () => {
-    setProjectName("");
-    setProjectCode("");
-    setProjectDescription("");
+    setFormData({
+      projectName: "",
+      projectCode: "",
+      projectDescription: "",
+      projectStatus: "",
+    });
+
     setSelectedProjectObj(null);
-    setProjectStatus("");
     setEditMode(false);
   };
 
-  const handleCreateProject = () => {
-    let obj = {
-      projectName: projectName,
-      projectCode: projectCode,
-      projectDescription: projectDescription,
-    };
-    console.log("Creating project:", obj);
-    if (editMode) {
-      alert(
-        "Edit mode is enabled. Update functionality is not implemented yet.",
-      );
-      let updatedObj = {
-        ...obj,
-        projectName: projectName,
-        projectCode: projectCode,
-        projectDescription: projectDescription,
-        projectStatus: statusOptions.find(
-          (status) => status.label === projectStatus,
-        )?.value,
-      };
-      console.log("Updating project:", updatedObj);
-      const validateFunc = validate();
-      if (!validateFunc) return;
-      // dispatch(actions.updateProject(updatedObj, setPagination));
-      dispatch(actions.updateProject(updatedObj, setPagination));
-    } else {
-      const validateFunc = validate();
-      console.log("validator", validateFunc);
-      if (!validateFunc) return;
-      dispatch(actions.addProject(obj, setPagination));
-    }
-    reset();
-    onClose();
-  };
-
   const validate = () => {
-    if (!projectName || projectName.trim() === "") {
+    if (!formData.projectName.trim()) {
       dispatch(
         showAlert({
           type: "error",
@@ -91,7 +87,8 @@ export default function AddProject({
       );
       return false;
     }
-    if (!projectCode || projectCode.trim() === "") {
+
+    if (!formData.projectCode.trim()) {
       dispatch(
         showAlert({
           type: "error",
@@ -100,131 +97,206 @@ export default function AddProject({
       );
       return false;
     }
-    if (editMode) {
-      if (!projectStatus || projectStatus.trim() === "") {
-        dispatch(
-          showAlert({
-            type: "error",
-            title: "Please select project status",
-          }),
-        );
-        return false;
-      }
-    } else {
-      return true;
+
+    if (editMode && !formData.projectStatus) {
+      dispatch(
+        showAlert({
+          type: "error",
+          title: "Please select project status",
+        }),
+      );
+      return false;
     }
 
     return true;
   };
 
-  if (!isOpen) return null;
+  const onSave = () => {
+    if (!validate()) return;
+
+    const obj = {
+      projectName: formData.projectName,
+      projectCode: formData.projectCode,
+      projectDescription: formData.projectDescription,
+    };
+
+    if (editMode) {
+      dispatch(
+        actions.updateProject(
+          {
+            ...obj,
+            projectStatus: formData.projectStatus,
+          },
+          setPagination,
+        ),
+      );
+    } else {
+      dispatch(actions.addProject(obj, setPagination));
+    }
+
+    reset();
+    onClose();
+  };
 
   return (
-    <div
-      className="modal-overlay"
-      onClick={() => {
+    <Dialog
+      open={isOpen}
+      onClose={() => {
         reset();
         onClose();
       }}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          overflow: "hidden",
+        },
+      }}
     >
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="mapping-header">
-          <div>
-            <div className="config-title">CONFIGURATION UTILITY</div>
-            <h1 className="mapping-title">Add New Project</h1>
-          </div>
+      {/* Header */}
 
-          <button
-            className="close-btn"
-            onClick={() => {
-              reset();
-              onClose();
+      <DialogTitle
+        sx={{
+          px: 3,
+          py: 3,
+          borderBottom: "1px solid #ececec",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: theme.foundation.applicationBackground,
+        }}
+      >
+        <Box display="flex" gap={2} alignItems="center">
+          <Box
+            sx={{
+              width: 46,
+              height: 46,
+              borderRadius: "12px",
+              background: theme.foundation.surfaceBackground,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
             }}
           >
-            ✕
-          </button>
-        </div>
+            <FolderRoundedIcon />
+          </Box>
 
-        {/* Body */}
-        <div className="mapping-body">
-          <div className="form-group">
-            <label className="form-label">PROJECT NAME</label>
-
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Enter Project Name"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">PROJECT CODE</label>
-
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Enter Project Code"
-              value={projectCode}
-              onChange={(e) => setProjectCode(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">PROJECT DESCRIPTION</label>
-
-            <textarea
-              rows={6}
-              className="form-textarea"
-              placeholder="Describe this project..."
-              value={projectDescription}
-              onChange={(e) => setProjectDescription(e.target.value)}
-            />
-          </div>
-          {selectedProjectObj && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                alignItems: "center",
+          <Box>
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: 18,
               }}
-              className="form-group"
             >
-              <label className="form-label">PROJECT STATUS</label>
-              <select
-                value={projectStatus}
-                onChange={(e) => setProjectStatus(e.target.value)}
-                className="form-select"
+              {editMode ? "Update Project" : "Create Project"}
+            </Typography>
+
+            <Typography
+              sx={{
+                color: "#777",
+                fontSize: 13,
+              }}
+            >
+              Fill in the project information below
+            </Typography>
+          </Box>
+        </Box>
+
+        <IconButton
+          onClick={() => {
+            reset();
+            onClose();
+          }}
+          sx={{
+            bgcolor: theme.foundation.surfaceBackground,
+            border: `1px solid ${theme.foundation.primaryColor}`,
+          }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
+
+      {/* Body */}
+
+      <DialogContent sx={{ p: 0 }}>
+        <Box
+          sx={{
+            p: 3,
+            display: "grid",
+            rowGap: 3,
+          }}
+        >
+          <Input
+            label="PROJECT NAME"
+            fullWidth
+            size="sm"
+            value={formData.projectName}
+            onChange={(e) => handleChange("projectName", e.target.value)}
+          />
+
+          <Input
+            label="PROJECT CODE"
+            fullWidth
+            size="sm"
+            disabled={editMode}
+            value={formData.projectCode}
+            onChange={(e) => handleChange("projectCode", e.target.value)}
+          />
+
+          <Input
+            label="PROJECT DESCRIPTION"
+            fullWidth
+            multiline
+            rows={5}
+            value={formData.projectDescription}
+            onChange={(e) => handleChange("projectDescription", e.target.value)}
+          />
+
+          {editMode && (
+            <FormControl fullWidth size="small">
+              <InputLabel>PROJECT STATUS</InputLabel>
+
+              <Select
+                value={formData.projectStatus}
+                label="PROJECT STATUS"
+                onChange={(e) => handleChange("projectStatus", e.target.value)}
               >
-                <option value="">Select Project Status</option>
-                <option value="Y">Y</option>
-                <option value="N">N</option>
-                <option value="Archive">Archive</option>
-              </select>
-            </div>
+                {statusOptions.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           )}
-        </div>
+        </Box>
+      </DialogContent>
 
-        {/* Footer */}
-        <div className="mapping-footer">
-          <button
-            className="btn-cancel"
-            onClick={() => {
-              reset();
-              onClose();
-            }}
-          >
-            Cancel
-          </button>
+      {/* Footer */}
 
-          <button className="btn-create" onClick={handleCreateProject}>
-            {editMode ? "Update" : "Create"} Project
-          </button>
-        </div>
-      </div>
-    </div>
+      <DialogActions
+        sx={{
+          px: 3,
+          py: 3,
+          borderTop: "1px solid #ececec",
+          gap: 2,
+        }}
+      >
+        <Button
+          onClick={() => {
+            reset();
+            onClose();
+          }}
+        >
+          Cancel
+        </Button>
+
+        <Button onClick={onSave}>
+          {editMode ? "Update" : "Create"} Project
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

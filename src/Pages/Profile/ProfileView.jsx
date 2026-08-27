@@ -275,13 +275,22 @@ export default function ProfileView({ onClose }) {
             onClick={() => {
               if (edit) {
                 if (!isFormValid) return;
-
+                let firstName = personalInfo.fullName.split(" ")[0];
+                let lastName = personalInfo.fullName.split(" ")[1];
                 // call save API here
                 let updatedProfile = {
-                  fullName: personalInfo.fullName,
+                  firstName: firstName,
+                  lastName: lastName,
                   dateOfBirth: personalInfo.dob,
-                  gender: personalInfo.gender,
-                  contactNumber: personalInfo.contactNumber,
+                  genderCdid:
+                    personalInfo.gender.toLowerCase() == "male"
+                      ? "1414"
+                      : "1415",
+                  contacts: [
+                    {
+                      contactValue: personalInfo.contactNumber,
+                    },
+                  ],
                   officialEmail: personalInfo.personalEmail,
                   homeAddress: personalInfo.homeAddress,
                 };

@@ -46,7 +46,7 @@ const themeData = {
       },
     },
   ],
-  defaultThemeId: "lightOrange",
+  defaultThemeId: "darkGreen",
 };
 
 export default themeData;
