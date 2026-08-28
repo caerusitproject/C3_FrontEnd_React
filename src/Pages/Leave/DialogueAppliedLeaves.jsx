@@ -19,7 +19,9 @@ import {
 import Button from "../../Components/ui/Button/Button";
 
 import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
 import AirlineSeatReclineExtraIcon from "@mui/icons-material/AirlineSeatReclineExtra";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export default function DialogueAppliedLeaves({
   theme,
@@ -499,7 +501,18 @@ export default function DialogueAppliedLeaves({
                                 },
                               }}
                             >
-                              <EditIcon fontSize="small" />
+                              {leave?.status == "Pending" ||
+                              leave?.status == "pending" ? (
+                                <EditIcon fontSize="small" />
+                              ) : leave?.status == "rejected" ||
+                                leave?.status == "Rejected" ? (
+                                <ClearIcon
+                                  sx={{ color: "red" }}
+                                  fontSize="small"
+                                />
+                              ) : (
+                                <CheckIcon fontSize="small" />
+                              )}
                             </IconButton>
                           </Tooltip>
                         </TableCell>

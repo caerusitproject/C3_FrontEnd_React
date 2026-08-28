@@ -7,7 +7,8 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-
+import { useDispatch } from "react-redux";
+import { showAlert } from "../../store/slices/alertSlice";
 import Button from "../../Components/ui/Button/Button";
 
 export default function ReasonDialoguePopup({
@@ -22,7 +23,21 @@ export default function ReasonDialoguePopup({
   handleConfirm,
   editingLeaveId,
 }) {
+  const dispatch = useDispatch();
   const isEditing = Boolean(editingLeaveId);
+
+  const validate = () => {
+    if (leaveReason && leaveReason.length < 5) {
+      dispatch(
+        showAlert({
+          type: "error",
+          title: "Leave Reason has to be greater than 5",
+        }),
+      );
+      return false;
+    }
+    return true;
+  };
 
   return (
     <Dialog
@@ -194,7 +209,13 @@ export default function ReasonDialoguePopup({
 
         {/* APPLY / UPDATE */}
         <Button
-          onClick={handleConfirm}
+          onClick={() => {
+            let validation = validate();
+            if (!validation) {
+              return;
+            }
+            handleConfirm();
+          }}
           disabled={!leaveReason.trim()}
           sx={{
             backgroundColor: "var(--color-primary, #1976d2)",

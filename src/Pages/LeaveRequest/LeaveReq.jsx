@@ -13,7 +13,7 @@ export default function LeaveReq() {
   const dispatch = useDispatch();
   const allPendingLeaveReq = useSelector(
     (state) => state.leaveManagement.allPendingLeaveReq,
-  )?.filter((ele) => ele.status == "Pending");
+  );
 
   const totalPendingLeaves = useSelector(
     (state) => state.leaveManagement.totalPendingLeaves,
@@ -22,6 +22,7 @@ export default function LeaveReq() {
 
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [pendingLeavesReq, setPendingLeavesReq] = useState(null);
   const [page, setPage] = React.useState(1);
   const [leaveRequest, setLeaveRequest] = useState(null);
 
@@ -32,6 +33,15 @@ export default function LeaveReq() {
   useEffect(() => {
     dispatch(actions.fetchPendingAllLeaveRequest());
   }, []);
+
+  useEffect(() => {
+    if (allPendingLeaveReq && allPendingLeaveReq.length > 0) {
+      let filteredPendingLeave = allPendingLeaveReq.filter(
+        (item) => item.status == "Pending" || item.status == "pending",
+      );
+      setPendingLeavesReq(filteredPendingLeave);
+    }
+  }, [allPendingLeaveReq]);
 
   const handleOpen = (item) => {
     let filteredLeaveRequest = allPendingLeaveReq.find(
@@ -73,6 +83,52 @@ export default function LeaveReq() {
         minHeight: "100vh",
       }}
     >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 3,
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            color: theme.typography.helperText,
+          }}
+        >
+          Total Records : {totalPendingLeaves}
+        </Typography>
+
+        <Pagination
+          page={page}
+          count={totalPages || 1}
+          onChange={handlePageChange}
+          variant="outlined"
+          shape="rounded"
+          showFirstButton
+          showLastButton
+          sx={{
+            "& .MuiPaginationItem-root": {
+              color: theme.typography.bodyText,
+              borderColor: theme.foundation.borderColor,
+            },
+
+            "& .MuiPaginationItem-root.Mui-selected": {
+              backgroundColor: theme.foundation.primaryColor,
+              color: "#fff",
+
+              "&:hover": {
+                backgroundColor: theme.foundation.primaryHover,
+              },
+            },
+
+            "& .MuiPaginationItem-root:hover": {
+              backgroundColor: `${theme.foundation.primaryColor}15`,
+            },
+          }}
+        />
+      </Box>
       <Typography
         variant="h5"
         fontWeight={700}
@@ -80,6 +136,13 @@ export default function LeaveReq() {
       >
         Leave Requests
       </Typography>
+      {allPendingLeaveReq && allPendingLeaveReq.length == 0 && (
+        <Typography
+          sx={{ color: theme.typography.bodyText, textAlign: "center" }}
+        >
+          No Pending Leave Request available to Approve
+        </Typography>
+      )}
 
       {allPendingLeaveReq &&
         allPendingLeaveReq?.length > 0 &&
@@ -167,52 +230,7 @@ export default function LeaveReq() {
             </Button>
           </Paper>
         ))}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mt: 3,
-        }}
-      >
-        <Typography
-          variant="body2"
-          sx={{
-            color: theme.typography.helperText,
-          }}
-        >
-          Total Records : {totalPendingLeaves}
-        </Typography>
 
-        <Pagination
-          page={page}
-          count={totalPages || 1}
-          onChange={handlePageChange}
-          variant="outlined"
-          shape="rounded"
-          showFirstButton
-          showLastButton
-          sx={{
-            "& .MuiPaginationItem-root": {
-              color: theme.typography.bodyText,
-              borderColor: theme.foundation.borderColor,
-            },
-
-            "& .MuiPaginationItem-root.Mui-selected": {
-              backgroundColor: theme.foundation.primaryColor,
-              color: "#fff",
-
-              "&:hover": {
-                backgroundColor: theme.foundation.primaryHover,
-              },
-            },
-
-            "& .MuiPaginationItem-root:hover": {
-              backgroundColor: `${theme.foundation.primaryColor}15`,
-            },
-          }}
-        />
-      </Box>
       <ApproveRejectModal
         open={open}
         // request={selectedRequest}

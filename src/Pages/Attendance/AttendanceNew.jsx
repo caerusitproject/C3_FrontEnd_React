@@ -6,11 +6,15 @@ import { useTheme } from "../../context/ThemeContext";
 // import { AttendanceAPI } from "../../api/attendanceApi";
 // import { AllemployeeApi } from "../../api/getallemployeeApi";
 import { Select, MenuItem, FormControl } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import * as actions from "../../store/actions";
 // import CustomLoader from "../../components/common/CustomLoader";
 
 const AttendanceNew = () => {
   //   const { user } = useAuth();
+  const dispatch = useDispatch();
   const theme = useTheme();
+  const { loggedInUser } = useSelector((state) => state.login);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [attendanceData, setAttendanceData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +36,13 @@ const AttendanceNew = () => {
   //       setSelectedEmpCode("EMP001");
   //     }
   //   }, [user]);
+
+  useEffect(() => {
+    dispatch(
+      actions.fetchAllAttendanceLeaveRequest(loggedInUser?.empCode, "2026-03"),
+    );
+  }, []);
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);

@@ -382,7 +382,7 @@ const Leave = () => {
 
     dispatch(globalLoaderOpen());
 
-    fetchleaveRequestManagementService(loggedInUser.empCode)
+    fetchleaveRequestManagementService(loggedInUser?.empCode)
       .then((res) => {
         dispatch(globalLoaderClose());
 
@@ -423,9 +423,27 @@ const Leave = () => {
 
   const allConfirmedDates = useMemo(() => {
     return leaves
-      .filter((leave) => leave.id !== editingLeaveId)
+      .filter((leave) => {
+        if (leave.id === editingLeaveId) {
+          return false;
+        }
+
+        const status = String(leave.status || "").toLowerCase();
+
+        return (
+          status === "pending" ||
+          status === "approved" ||
+          status === "confirmed"
+        );
+      })
       .flatMap((leave) => getDatesInRange(leave.start, leave.end));
   }, [leaves, editingLeaveId]);
+
+  // const allConfirmedDates = useMemo(() => {
+  //   return leaves
+  //     .filter((leave) => leave.id !== editingLeaveId)
+  //     .flatMap((leave) => getDatesInRange(leave.start, leave.end));
+  // }, [leaves, editingLeaveId]);
 
   /* ============================================================
      EXISTING LEAVE DATE SET
@@ -495,26 +513,73 @@ const Leave = () => {
   //   return [...leaveEvents, ...holidayEvents];
   // }, [leaves, holidays]);
 
+  // const events = useMemo(() => {
+  //   const leaveEvents = leaves
+  //     .filter((leave) => leave.id !== editingLeaveId)
+  //     .flatMap((leave) => {
+  //       const dates =
+  //         leave.selectedDates?.length > 0
+  //           ? leave.selectedDates
+  //           : getDatesInRange(leave.start, leave.end);
+
+  //       const status = String(leave.status || "").toLowerCase();
+
+  //       return dates.map((date) => {
+  //         let type = "Leave";
+
+  //         if (status === "approved" || status === "confirmed") {
+  //           type = "Confirmed";
+  //         } else if (status === "Pending") {
+  //           type = "Leave";
+  //         }
+  //         //  else if (status === "Rejected") {
+  //         //   type = "Rejected";
+  //         // }
+
+  //         return {
+  //           date,
+  //           type,
+  //           label: leave.status || "Pending",
+  //         };
+  //       });
+  //     });
+
+  //   const holidayEvents = holidays.map((date) => ({
+  //     date,
+  //     type: "Holiday",
+  //     label: "Holiday",
+  //   }));
+
+  //   return [...leaveEvents, ...holidayEvents];
+  // }, [leaves, editingLeaveId]);
+
   const events = useMemo(() => {
     const leaveEvents = leaves
-      .filter((leave) => leave.id !== editingLeaveId)
+      .filter((leave) => {
+        if (leave.id === editingLeaveId) {
+          return false;
+        }
+
+        const status = String(leave.status || "").toLowerCase();
+
+        // Do NOT show rejected leaves on calendar
+        return status !== "rejected";
+      })
       .flatMap((leave) => {
         const dates =
           leave.selectedDates?.length > 0
             ? leave.selectedDates
             : getDatesInRange(leave.start, leave.end);
 
-        const status = String(leave.status || "Approved").toLowerCase();
+        const status = String(leave.status || "Pending").toLowerCase();
 
         return dates.map((date) => {
           let type = "Leave";
 
           if (status === "approved" || status === "confirmed") {
             type = "Confirmed";
-          } else if (status === "Pending") {
+          } else if (status === "pending") {
             type = "Leave";
-          } else if (status === "Rejected") {
-            type = "Rejected";
           }
 
           return {
@@ -884,27 +949,27 @@ const Leave = () => {
 
         reason: leaveReason.trim(),
       };
-      setLeaves((previousLeaves) =>
-        previousLeaves.map((leave) => {
-          if (leave.id !== editingLeaveId) {
-            return leave;
-          }
+      // setLeaves((previousLeaves) =>
+      //   previousLeaves.map((leave) => {
+      //     if (leave.id !== editingLeaveId) {
+      //       return leave;
+      //     }
 
-          return {
-            ...leave,
+      //     return {
+      //       ...leave,
 
-            start: startDate,
+      //       start: startDate,
 
-            end: endDate,
+      //       end: endDate,
 
-            days: selectedDates.length,
+      //       days: selectedDates.length,
 
-            reason: leaveReason.trim(),
+      //       reason: leaveReason.trim(),
 
-            selectedDates: [...selectedDates],
-          };
-        }),
-      );
+      //       selectedDates: [...selectedDates],
+      //     };
+      //   }),
+      // );
       console.log("edit leave______", editLeaveClone);
       // dispatch(actions.postLeaveRequest(loggedInUser?.empCode, editLeaveClone));
       dispatch(globalLoaderOpen());
@@ -951,6 +1016,28 @@ const Leave = () => {
             return;
           }
 
+          setLeaves((previousLeaves) =>
+            previousLeaves.map((leave) => {
+              if (leave.id !== editingLeaveId) {
+                return leave;
+              }
+
+              return {
+                ...leave,
+
+                start: startDate,
+
+                end: endDate,
+
+                days: selectedDates.length,
+
+                reason: leaveReason.trim(),
+
+                selectedDates: [...selectedDates],
+              };
+            }),
+          );
+
           /*
            * ==========================================================
            * SUCCESS
@@ -974,8 +1061,9 @@ const Leave = () => {
           /*
            * Backend/API error
            */
-          resetLeaveSelection();
-          setLeaves([]);
+          // resetLeaveSelection();
+          handleCancel();
+          // setLeaves([]);
 
           dispatch(
             showAlert({
@@ -1027,7 +1115,7 @@ const Leave = () => {
         reason: leaveReason.trim(),
       };
 
-      setLeaves((previousLeaves) => [...previousLeaves, newLeave]);
+      // setLeaves((previousLeaves) => [...previousLeaves, newLeave]);
 
       // dispatch(actions.postLeaveRequest(loggedInUser?.empCode, newLeaveClone));
 
@@ -1075,6 +1163,8 @@ const Leave = () => {
             return;
           }
 
+          setLeaves((previousLeaves) => [...previousLeaves, newLeave]);
+
           /*
            * ==========================================================
            * SUCCESS
@@ -1098,8 +1188,9 @@ const Leave = () => {
           /*
            * Backend/API error
            */
-          resetLeaveSelection();
-          setLeaves([]);
+          // resetLeaveSelection();
+          handleCancel();
+          // setLeaves([]);
 
           dispatch(
             showAlert({

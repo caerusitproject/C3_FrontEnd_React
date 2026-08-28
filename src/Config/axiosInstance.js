@@ -19,6 +19,14 @@ const leaveApi = axios.create({
   },
 });
 
+const attendanceApi = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL_ATTENDANCE,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 /* ============================================================
    REQUEST INTERCEPTOR
    Attach access token to BOTH api and leaveApi
@@ -40,6 +48,35 @@ const attachAccessToken = (config) => {
   return config;
 };
 
+const getAttendanceAccessToken = async () => {
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_BASE_URL}/auth/service-token`,
+      {
+        clientId: "attendance-service",
+        clientSecret: "attendance-service-secret",
+      },
+      {
+        withCredentials: true,
+      },
+    );
+
+    const attendanceToken = response?.data?.accessToken;
+
+    if (!attendanceToken) {
+      throw new Error("Attendance access token not received");
+    }
+
+    localStorage.setItem("attendance-access-token", attendanceToken);
+
+    return attendanceToken;
+  } catch (error) {
+    console.error("Failed to get attendance access token:", error);
+
+    throw error;
+  }
+};
+
 /* api */
 api.interceptors.request.use(attachAccessToken, (error) =>
   Promise.reject(error),
@@ -48,6 +85,25 @@ api.interceptors.request.use(attachAccessToken, (error) =>
 /* leaveApi */
 leaveApi.interceptors.request.use(attachAccessToken, (error) =>
   Promise.reject(error),
+);
+
+attendanceApi.interceptors.request.use(
+  async (config) => {
+    let attendanceToken = localStorage.getItem("attendance-access-token");
+
+    if (!attendanceToken) {
+      attendanceToken = await getAttendanceAccessToken();
+    }
+
+    if (attendanceToken) {
+      config.headers = config.headers || {};
+
+      config.headers.Authorization = `Bearer ${attendanceToken}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
 );
 
 /* ============================================================
@@ -252,4 +308,4 @@ leaveApi.interceptors.response.use(
   },
 );
 
-export { api, leaveApi };
+export { api, leaveApi, attendanceApi };

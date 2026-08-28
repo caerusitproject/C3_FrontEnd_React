@@ -7,4 +7,5 @@ export * from "./requestAssetDashboardaction";
 export * from "./assetsManagementaction";
 export * from "./assetRequestAction";
 export * from "./leaveManagementaction";
+export * from "./attendanceAction";
 export { showAlert, hideAlert } from "../slices/alertSlice";

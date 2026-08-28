@@ -444,19 +444,21 @@ const CalendarNew = ({
         color: "var(--color-warning-text, #b45309)",
         border: "1px solid var(--color-warning, #f59e0b)",
       };
-    } else if (
-      dayInfo.event?.label === "Rejected" ||
-      dayInfo.event?.label === "rejected"
-    ) {
-      /*
-       * REJECTED LEAVE
-       */
-      style = {
-        background: "#f89292",
-        color: "#ffffff",
-        border: "1px solid #616161",
-      };
-    } else if (dayInfo.event?.type === "lwp") {
+    }
+    //  else if (
+    //   dayInfo.event?.label === "Rejected" ||
+    //   dayInfo.event?.label === "rejected"
+    // ) {
+    //   /*
+    //    * REJECTED LEAVE
+    //    */
+    //   style = {
+    //     background: "#f89292",
+    //     color: "#ffffff",
+    //     border: "1px solid #616161",
+    //   };
+    // }
+    else if (dayInfo.event?.type === "lwp") {
       /* ==========================================================
        EXISTING LEAVE
     ========================================================== */
