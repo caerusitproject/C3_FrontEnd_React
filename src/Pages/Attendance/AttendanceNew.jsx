@@ -12,9 +12,25 @@ import * as actions from "../../store/actions";
 
 const AttendanceNew = () => {
   //   const { user } = useAuth();
+  const allAttendanceRequest = useSelector(
+    (state) => state.attendanceManagement.allAttendanceRequest,
+  );
+  const attendanceSummary = useSelector(
+    (state) => state.attendanceManagement.attendanceSummary,
+  );
+
+  const employeeList = useSelector(
+    (state) => state.attendanceManagement.employeeList,
+  );
   const dispatch = useDispatch();
   const theme = useTheme();
   const { loggedInUser } = useSelector((state) => state.login);
+  const [selectedEmployee, setSelectedEmployee] = useState({
+    employeeId: loggedInUser?.empId || "",
+    employeeCode: loggedInUser?.empCode || "",
+  });
+  // const [empId, setEmpId] = useState(loggedInUser?.empId || "");
+  const [events, setEvents] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [attendanceData, setAttendanceData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +44,13 @@ const AttendanceNew = () => {
   //   const canViewAll = ["MANAGER", "ADMIN", "HR"].includes(role);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  const getYearMonth = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+
+    return `${year}-${month}`;
+  };
+
   // Default to current user's empCode
   //   useEffect(() => {
   //     if (user?.empCode) {
@@ -36,12 +59,84 @@ const AttendanceNew = () => {
   //       setSelectedEmpCode("EMP001");
   //     }
   //   }, [user]);
+  useEffect(() => {
+    dispatch(actions.fetchAllEmployeesList());
+  }, []);
 
   useEffect(() => {
+    if (loggedInUser?.empCode && !selectedEmployee) {
+      setSelectedEmployee({
+        ...selectedEmployee,
+        employeeCode: loggedInUser?.empCode,
+      });
+      setSelectedEmployee({
+        ...selectedEmployee,
+        employeeId: loggedInUser?.empCode,
+      });
+    }
+  }, [
+    loggedInUser?.empCode,
+    selectedEmployee?.employeeCode,
+    selectedEmployee?.employeeId,
+  ]);
+
+  useEffect(() => {
+    if (!selectedEmployee) return;
+
+    const yearMonth = getYearMonth(currentDate);
+
     dispatch(
-      actions.fetchAllAttendanceLeaveRequest(loggedInUser?.empCode, "2026-03"),
+      actions.fetchAllAttendanceLeaveRequest(
+        selectedEmployee?.employeeId,
+        selectedEmployee?.employeeCode,
+        yearMonth,
+      ),
     );
-  }, []);
+  }, [
+    selectedEmployee,
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    dispatch,
+  ]);
+
+  console.log("employee code__", loggedInUser?.empCode);
+
+  // useEffect(() => {
+  //   const yearMonth = getYearMonth(currentDate);
+  //   dispatch(
+  //     actions.fetchAllAttendanceLeaveRequest(loggedInUser?.empCode, yearMonth),
+  //   );
+  // }, [currentDate.getFullYear(), currentDate.getMonth()]);
+
+  useEffect(() => {
+    if (!Array.isArray(allAttendanceRequest)) {
+      setEvents([]);
+      return;
+    }
+
+    const formattedEvents = allAttendanceRequest
+      .filter((attendance) => attendance.status !== "WEEKEND")
+      .map((attendance) => {
+        const statusMap = {
+          PRESENT: "present",
+          ABSENT: "lwp",
+          HOLIDAY: "holiday",
+        };
+
+        return {
+          date: attendance.date,
+          type: statusMap[attendance.status] || "unknown",
+
+          ...(attendance.status === "HOLIDAY" && {
+            label: attendance.holidayName || "Holiday",
+          }),
+        };
+      });
+
+    setEvents(formattedEvents);
+  }, [allAttendanceRequest]);
+
+  console.log("events____", employeeList);
 
   useEffect(() => {
     const handleResize = () => {
@@ -50,6 +145,12 @@ const AttendanceNew = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  console.log(
+    "all attendance req and summary",
+    // allAttendanceRequest,
+    attendanceSummary,
+  );
 
   // Fetch employees list if authorized
   //   useEffect(() => {
@@ -83,34 +184,41 @@ const AttendanceNew = () => {
   //   }, [canViewAll, user]);
 
   // Fetch attendance data when month/year or selectedEmpCode changes
-  useEffect(() => {
-    if (!selectedEmpCode) return;
-    // const fetchAttendance = async () => {
-    //   try {
-    //     setLoading(true);
-    //     setError(null);
-    //     const month = currentDate.getMonth() + 1;
-    //     const year = currentDate.getFullYear();
-    //     const response = await AttendanceAPI.getAttendanceByEmployee(
-    //       selectedEmpCode,
-    //       month,
-    //       year,
-    //     );
-    //     if (response.success) {
-    //       setAttendanceData(response.data);
-    //     } else {
-    //       throw new Error(
-    //         response.message || "Failed to fetch attendance data",
-    //       );
-    //     }
-    //   } catch (err) {
-    //     setError(err.message);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchAttendance();
-  }, [currentDate, selectedEmpCode]);
+  // useEffect(() => {
+  // if (!selectedEmpCode) return;
+  // const fetchAttendance = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+  //     const month = currentDate.getMonth() + 1;
+  //     const year = currentDate.getFullYear();
+  //     const response = await AttendanceAPI.getAttendanceByEmployee(
+  //       selectedEmpCode,
+  //       month,
+  //       year,
+  //     );
+  //     if (response.success) {
+  //       setAttendanceData(response.data);
+  //     } else {
+  //       throw new Error(
+  //         response.message || "Failed to fetch attendance data",
+  //       );
+  //     }
+  //   } catch (err) {
+  //     setError(err.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // fetchAttendance();
+  // }, [currentDate, selectedEmpCode]);
+
+  const handleEmployeeChange = (selectedEmployee) => {
+    setSelectedEmployee({
+      employeeId: selectedEmployee.employeeId,
+      employeeCode: selectedEmployee.employeeCode,
+    });
+  };
 
   // Calculate hours from checkIn and checkOut times
   const calculateHours = (checkIn, checkOut) => {
@@ -124,31 +232,31 @@ const AttendanceNew = () => {
   };
 
   // Transform API data for calendar
-  const events = [
-    {
-      date: "2026-03-11",
-      type: "present",
-    },
-    {
-      date: "2026-03-12",
-      type: "present",
-    },
-    {
-      date: "2026-03-19",
-      type: "lwp",
-    },
-    {
-      date: "2026-03-21",
-      type: "lwp",
-    },
-    {
-      date: "2026-03-25",
-      type: "holiday",
-      label: "Holiday",
-    },
-    { date: "2026-03-04", type: "lwp" },
-    { date: "2026-03-05", type: "present" },
-  ];
+  // const events = [
+  //   {
+  //     date: "2026-03-11",
+  //     type: "present",
+  //   },
+  //   {
+  //     date: "2026-03-12",
+  //     type: "present",
+  //   },
+  //   {
+  //     date: "2026-03-19",
+  //     type: "lwp",
+  //   },
+  //   {
+  //     date: "2026-03-21",
+  //     type: "lwp",
+  //   },
+  //   {
+  //     date: "2026-03-25",
+  //     type: "holiday",
+  //     label: "Holiday",
+  //   },
+  //   { date: "2026-03-04", type: "lwp" },
+  //   { date: "2026-03-05", type: "present" },
+  // ];
 
   // Totals
   const totalHours = attendanceData
@@ -161,9 +269,20 @@ const AttendanceNew = () => {
   const absentDays = attendanceData.filter((a) => a.status === "Absent").length;
   const presentDays = attendanceData.length - absentDays;
 
+  // const handleMonthChange = (direction) => {
+  //   const newDate = new Date(currentDate);
+  //   newDate.setMonth(newDate.getMonth() + direction);
+  //   setCurrentDate(newDate);
+  // };
+
   const handleMonthChange = (direction) => {
     const newDate = new Date(currentDate);
+
+    // Always use the first day of the month
+    // to prevent date overflow when changing months.
+    newDate.setDate(1);
     newDate.setMonth(newDate.getMonth() + direction);
+
     setCurrentDate(newDate);
   };
 
@@ -251,7 +370,7 @@ const AttendanceNew = () => {
               padding: isMobile ? "6px 8px" : "8px 12px",
             }}
           >
-            {totalHours.toFixed(1)}
+            {attendanceSummary?.totalWorkingHours}
             <div
               style={{
                 ...labelStyle,
@@ -270,7 +389,7 @@ const AttendanceNew = () => {
               padding: isMobile ? "6px 8px" : "8px 12px",
             }}
           >
-            {presentDays}
+            {attendanceSummary?.presentDays}
             <div
               style={{
                 ...labelStyle,
@@ -289,7 +408,9 @@ const AttendanceNew = () => {
               padding: isMobile ? "6px 8px" : "8px 12px",
             }}
           >
-            {absentDays}
+            {Number(attendanceSummary?.totalWorkingDays) -
+              (Number(attendanceSummary?.presentDays) +
+                Number(attendanceSummary?.holidayDays))}
             <div
               style={{
                 ...labelStyle,
@@ -300,98 +421,112 @@ const AttendanceNew = () => {
             </div>
           </div>
         </div>
-
-        <div
-          style={{
-            width: isMobile ? "100%" : "auto",
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: isMobile ? "flex-end" : "center",
-          }}
-        >
-          <div
-            style={{
-              width: isMobile ? "230px" : "350px",
-            }}
-          >
-            <FormControl fullWidth size="small">
-              <Select
-                value={selectedEmpCode || ""}
-                onChange={(e) => setSelectedEmpCode(e.target.value)}
-                displayEmpty
-                renderValue={(selected) => {
-                  // If nothing selected → show placeholder
-                  if (!selected) {
-                    return (
-                      <em
-                        style={{
-                          // color: theme.colors.text.secondary,
-                          fontStyle: "italic",
-                        }}
-                      >
-                        Select Employee
-                      </em>
-                    );
-                  }
-
-                  // If user selects their own empCode → show placeholder instead of name
-                  // const isOwn = selected === user?.empCode;
-                  // if (isOwn) {
-                  //   return (
-                  //     <em
-                  //       style={{
-                  //         // color: theme.colors.text.secondary,
-                  //         fontStyle: "italic",
-                  //       }}
-                  //     >
-                  //       Select Employee
-                  //     </em>
-                  //   );
-                  // }
-
-                  // Otherwise show employee name or fallback to empCode
-                  const employeeName =
-                    employees.find((emp) => emp.empCode === selected)?.name ||
-                    selected;
-
-                  return employeeName;
-                }}
-                sx={{
-                  backgroundColor: "#fff", // white background
-                  borderRadius: "6px",
-                  fontSize: isMobile ? "12px" : "14px",
-                  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    border: "none",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    border: "none",
-                  },
-                  "& .MuiSelect-select": {
-                    padding: isMobile ? "6px 10px" : "8px 12px",
-                  },
+        {loggedInUser &&
+          (loggedInUser?.role == "Human Resources" ||
+            loggedInUser?.role == "Team Manager") && (
+            <div
+              style={{
+                width: isMobile ? "100%" : "auto",
+                display: "flex",
+                alignItems: "baseline",
+                justifyContent: isMobile ? "flex-end" : "center",
+              }}
+            >
+              <div
+                style={{
+                  width: isMobile ? "230px" : "350px",
                 }}
               >
-                <MenuItem value="" disabled>
-                  <em
-                    style={{
-                      fontStyle: "italic",
-                      // color: theme.colors.text.secondary,
+                <FormControl fullWidth size="small">
+                  <Select
+                    value={selectedEmployee?.employeeCode || ""}
+                    onChange={(e) => {
+                      const employeeCode = e.target.value;
+
+                      // My Attendance
+                      if (employeeCode === loggedInUser?.empCode) {
+                        handleEmployeeChange({
+                          employeeId: loggedInUser?.empId,
+                          employeeCode: loggedInUser?.empCode,
+                        });
+
+                        return;
+                      }
+
+                      // Other employee
+                      const employee = employeeList.find(
+                        (emp) => emp.employeeCode === employeeCode,
+                      );
+
+                      if (employee) {
+                        handleEmployeeChange({
+                          employeeId: employee.employeeId,
+                          employeeCode: employee.employeeCode,
+                        });
+                      }
+                    }}
+                    displayEmpty
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return (
+                          <em style={{ fontStyle: "italic" }}>
+                            Select Employee
+                          </em>
+                        );
+                      }
+
+                      if (selected === loggedInUser?.empCode) {
+                        return "My Attendance";
+                      }
+
+                      return selected;
+                    }}
+                    sx={{
+                      backgroundColor: "#fff",
+                      borderRadius: "6px",
+                      fontSize: isMobile ? "12px" : "14px",
+
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        border: "none",
+                      },
+
+                      "& .MuiSelect-select": {
+                        padding: isMobile ? "6px 10px" : "8px 12px",
+                      },
                     }}
                   >
-                    Select Employee
-                  </em>
-                </MenuItem>
+                    <MenuItem value="" disabled>
+                      <em style={{ fontStyle: "italic" }}>Select Employee</em>
+                    </MenuItem>
 
-                {employees.map((emp) => (
-                  <MenuItem key={emp.id} value={emp.empCode}>
-                    {emp.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-        </div>
+                    {/* My Attendance */}
+                    <MenuItem value={loggedInUser?.empCode}>
+                      My Attendance
+                    </MenuItem>
+
+                    {/* Other Employees */}
+                    {employeeList
+                      .filter(
+                        (emp) => emp.employeeCode !== loggedInUser?.empCode,
+                      )
+                      .map((emp) => (
+                        <MenuItem key={emp.employeeId} value={emp.employeeCode}>
+                          {emp.employeeCode}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </div>
+          )}
       </div>
 
       <CalendarNew

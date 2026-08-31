@@ -2,13 +2,26 @@ import { attendanceApi } from "../../Config/axiosInstance";
 
 // fetchAllProjectMappingService
 
-export const allattendanceService = (empCode, month) => {
+export const allattendanceService = (empId, empCode, month) => {
   return new Promise(async (resolve, reject) => {
     try {
       let response = "";
       response = await attendanceApi.get(
-        `v1/attendances/employee/1/calendar?employeeCode=${empCode}&month=${month}`,
+        `v1/attendances/employee/${empId}/calendar?employeeCode=${empCode}&month=${month}`,
       );
+
+      if (response) resolve(response);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const allEmployeeListService = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = "";
+      response = await attendanceApi.get(`v1/attendances/employees`);
 
       if (response) resolve(response);
     } catch (err) {

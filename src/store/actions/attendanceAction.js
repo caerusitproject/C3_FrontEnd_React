@@ -1,5 +1,6 @@
 import {
   allattendanceService,
+  allEmployeeListService,
   fetchleaveRequestManagementService,
   getPendingAllleaveRequestManagementService,
   pendingleavesApprovalRejectManagementService,
@@ -7,13 +8,16 @@ import {
   deleteAssetManagementService,
 } from "../services/attendanceManagementService";
 import { showAlert } from "../slices/alertSlice";
-import { storeAllattendanceRequest } from "../slices/attendanceSlice";
+import {
+  storeAllattendanceRequest,
+  storeAllEmployeeList,
+} from "../slices/attendanceSlice";
 import { globalLoaderOpen, globalLoaderClose } from "../slices/globalSlice";
 
-export const fetchAllAttendanceLeaveRequest = (empCode, month) => {
+export const fetchAllAttendanceLeaveRequest = (empId, empCode, month) => {
   return (dispatch) => {
     dispatch(globalLoaderOpen());
-    allattendanceService(empCode, month)
+    allattendanceService(empId, empCode, month)
       .then((res) => {
         dispatch(globalLoaderClose());
         dispatch(storeAllattendanceRequest(res?.data?.data));
@@ -32,6 +36,36 @@ export const fetchAllAttendanceLeaveRequest = (empCode, month) => {
             type: "error",
             title: err?.error || "Attendance Get Failed",
             message: err?.message || "Attendance fetched API failed",
+          }),
+        );
+
+        console.log("error_message", err?.message);
+      });
+  };
+};
+
+export const fetchAllEmployeesList = () => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    allEmployeeListService()
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(storeAllEmployeeList(res?.data?.data));
+        dispatch(
+          showAlert({
+            type: "success",
+            title: res?.message || "Employees fetched Successfully",
+          }),
+        );
+        console.log("leave details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Employee List Get Failed",
+            message: err?.message || "Employee List fetched API failed",
           }),
         );
 

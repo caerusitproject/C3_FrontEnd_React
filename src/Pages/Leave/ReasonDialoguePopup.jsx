@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
+import "./style.css";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Select,
+  FormControl,
+  MenuItem,
+  InputLabel,
   TextField,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
@@ -25,6 +30,7 @@ export default function ReasonDialoguePopup({
 }) {
   const dispatch = useDispatch();
   const isEditing = Boolean(editingLeaveId);
+  const [leaveType, setLeaveType] = useState("0");
 
   const validate = () => {
     if (leaveReason && leaveReason.length < 5) {
@@ -42,6 +48,7 @@ export default function ReasonDialoguePopup({
   return (
     <Dialog
       open={reasonModalOpen}
+      // open={true}
       onClose={() => {
         setReasonModalOpen(false);
       }}
@@ -83,51 +90,81 @@ export default function ReasonDialoguePopup({
         <div
           style={{
             display: "flex",
-            gap: "20px",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
             marginBottom: "16px",
-            flexWrap: "wrap",
+            gap: "20px",
           }}
         >
-          {/* START DATE */}
-          <div>
-            <strong>Start Date</strong>
+          {/* LEFT SIDE */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "40px",
+            }}
+          >
+            {/* START DATE */}
+            <div>
+              <strong>Start Date</strong>
 
-            <div
-              style={{
-                marginTop: "4px",
-                color: "var(--color-text-secondary, inherit)",
-              }}
-            >
-              {startDate || "-"}
+              <div
+                style={{
+                  marginTop: "4px",
+                  color: "var(--color-text-secondary, inherit)",
+                }}
+              >
+                {startDate || "-"}
+              </div>
+            </div>
+
+            {/* END DATE */}
+            <div>
+              <strong>End Date</strong>
+
+              <div
+                style={{
+                  marginTop: "4px",
+                  color: "var(--color-text-secondary, inherit)",
+                }}
+              >
+                {endDate || "-"}
+              </div>
+            </div>
+
+            {/* DAYS */}
+            <div>
+              <strong>Days</strong>
+
+              <div
+                style={{
+                  marginTop: "4px",
+                  color: "var(--color-text-secondary, inherit)",
+                }}
+              >
+                {selectedDates?.length || 0}
+              </div>
             </div>
           </div>
 
-          {/* END DATE */}
-          <div>
-            <strong>End Date</strong>
+          {/* RIGHT SIDE - LEAVE TYPE */}
+        </div>
+        <div className="leave-type-container">
+          <div className="leave-type-wrapper">
+            <strong className="leave-type-label">Leave Type</strong>
 
-            <div
-              style={{
-                marginTop: "4px",
-                color: "var(--color-text-secondary, inherit)",
-              }}
-            >
-              {endDate || "-"}
-            </div>
-          </div>
-
-          {/* DAYS */}
-          <div>
-            <strong>Days</strong>
-
-            <div
-              style={{
-                marginTop: "4px",
-                color: "var(--color-text-secondary, inherit)",
-              }}
-            >
-              {selectedDates?.length || 0}
-            </div>
+            <FormControl className="leave-type-select" size="small">
+              <Select
+                size="small"
+                value={leaveType}
+                onChange={(e) => {
+                  setLeaveType(e.target.value);
+                }}
+              >
+                <MenuItem value="0">Earned Leave</MenuItem>
+              </Select>
+            </FormControl>
           </div>
         </div>
 

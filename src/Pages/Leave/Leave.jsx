@@ -51,6 +51,12 @@ const Leave = () => {
   const leavefetchedRequest = useSelector(
     (state) => state.leaveManagement.leaveRequest,
   );
+  const holidaysList = useSelector(
+    (state) => state.leaveManagement.allHolidaysLeaveList,
+  );
+  const leaveBalances = useSelector(
+    (state) => state.leaveManagement.leaveBalanceLeave,
+  );
   const { loggedInUser } = useSelector((state) => state.login);
   const { theme, isLoading: themeLoading } = useThemeContext();
 
@@ -129,7 +135,18 @@ const Leave = () => {
      HOLIDAYS
      ============================================================ */
 
-  const holidays = [];
+  const holidays = useMemo(() => {
+    if (!Array.isArray(holidaysList)) {
+      return [];
+    }
+
+    return holidaysList
+      .filter(
+        (holiday) =>
+          holiday?.activeStatusCode === "ACTIVE" && holiday?.holidayDate,
+      )
+      .map((holiday) => holiday.holidayDate);
+  }, [holidaysList]);
 
   const handleEditLeave = (leave) => {
     console.log("Editing leave:", leave);
@@ -196,7 +213,7 @@ const Leave = () => {
     setReasonModalOpen(false);
   };
 
-  console.log("all Leave___", leaves);
+  console.log("all Leave___", leaveBalances);
 
   // const handleEditLeave = (leave) => {
   //   console.log("Editing leave:", leave);
@@ -376,6 +393,13 @@ const Leave = () => {
   };
 
   useEffect(() => {
+    dispatch(actions.fetchHolidaysperYear(String(currentDate.getFullYear())));
+    dispatch(actions.fetchLeaveBalance(loggedInUser?.empId));
+  }, [dispatch, currentDate.getFullYear()]);
+
+  console.log("all holidays list_____", holidaysList);
+
+  useEffect(() => {
     if (!loggedInUser?.empCode) {
       return;
     }
@@ -412,7 +436,6 @@ const Leave = () => {
       });
   }, [
     loggedInUser?.empCode,
-    leavefetchedRequest,
     currentDate.getFullYear(),
     currentDate.getMonth(),
   ]);
@@ -553,6 +576,52 @@ const Leave = () => {
   //   return [...leaveEvents, ...holidayEvents];
   // }, [leaves, editingLeaveId]);
 
+  // const events = useMemo(() => {
+  //   const leaveEvents = leaves
+  //     .filter((leave) => {
+  //       if (leave.id === editingLeaveId) {
+  //         return false;
+  //       }
+
+  //       const status = String(leave.status || "").toLowerCase();
+
+  //       // Do NOT show rejected leaves on calendar
+  //       return status !== "rejected";
+  //     })
+  //     .flatMap((leave) => {
+  //       const dates =
+  //         leave.selectedDates?.length > 0
+  //           ? leave.selectedDates
+  //           : getDatesInRange(leave.start, leave.end);
+
+  //       const status = String(leave.status || "Pending").toLowerCase();
+
+  //       return dates.map((date) => {
+  //         let type = "Leave";
+
+  //         if (status === "approved" || status === "confirmed") {
+  //           type = "Confirmed";
+  //         } else if (status === "pending") {
+  //           type = "Leave";
+  //         }
+
+  //         return {
+  //           date,
+  //           type,
+  //           label: leave.status || "Pending",
+  //         };
+  //       });
+  //     });
+
+  //   const holidayEvents = holidays.map((date) => ({
+  //     date,
+  //     type: "Holiday",
+  //     label: "Holiday",
+  //   }));
+
+  //   return [...leaveEvents, ...holidayEvents];
+  // }, [leaves, editingLeaveId]);
+
   const events = useMemo(() => {
     const leaveEvents = leaves
       .filter((leave) => {
@@ -562,7 +631,6 @@ const Leave = () => {
 
         const status = String(leave.status || "").toLowerCase();
 
-        // Do NOT show rejected leaves on calendar
         return status !== "rejected";
       })
       .flatMap((leave) => {
@@ -590,14 +658,19 @@ const Leave = () => {
         });
       });
 
-    const holidayEvents = holidays.map((date) => ({
-      date,
-      type: "Holiday",
-      label: "Holiday",
-    }));
+    const holidayEvents = holidaysList
+      .filter(
+        (holiday) =>
+          holiday?.activeStatusCode === "ACTIVE" && holiday?.holidayDate,
+      )
+      .map((holiday) => ({
+        date: holiday.holidayDate,
+        type: "holiday",
+        label: holiday.holidayName || "Holiday",
+      }));
 
     return [...leaveEvents, ...holidayEvents];
-  }, [leaves, editingLeaveId]);
+  }, [leaves, editingLeaveId, holidaysList]);
 
   const resetLeaveSelection = () => {
     setIsSelecting(false);
@@ -624,51 +697,64 @@ const Leave = () => {
   /* ============================================================
      MONTH NAVIGATION
      ============================================================ */
-
   const handleMonthChange = (direction) => {
-    const newDate = new Date(currentDate);
+    setCurrentDate((prevDate) => {
+      const newDate = new Date(prevDate);
 
-    newDate.setMonth(newDate.getMonth() + direction);
+      newDate.setDate(1);
+      newDate.setMonth(newDate.getMonth() + direction);
 
-    setCurrentDate(newDate);
-
-    /*
-     * Continue selection when moving
-     * between months.
-     */
-
-    if (isSelectingRef.current && dragStart) {
-      const newYear = newDate.getFullYear();
-
-      const newMonth = newDate.getMonth();
-
-      const newDragEndDate =
-        direction > 0
-          ? new Date(newYear, newMonth, 1)
-          : new Date(newYear, newMonth + 1, 0);
-
-      const newDragEndStr = `${newDragEndDate.getFullYear()}-${String(
-        newDragEndDate.getMonth() + 1,
-      ).padStart(2, "0")}-${String(newDragEndDate.getDate()).padStart(2, "0")}`;
-
-      /*
-       * Do not extend a selection into
-       * an already-applied leave.
-       */
-
-      const dates = getDatesInRange(dragStart, newDragEndStr);
-
-      if (rangeContainsExistingLeave(dates)) {
-        return;
-      }
-
-      setDragEnd(newDragEndStr);
-
-      setSelectedDates(dates);
-    }
+      return newDate;
+    });
 
     setShowNextMonthButton(false);
   };
+  // const handleMonthChange = (direction) => {
+  //   const newDate = new Date(currentDate);
+
+  //   newDate.setMonth(newDate.getMonth() + direction);
+
+  //   console.log("new date:", newDate.toISOString());
+
+  //   setCurrentDate(newDate);
+
+  //   /*
+  //    * Continue selection when moving
+  //    * between months.
+  //    */
+
+  //   if (isSelectingRef.current && dragStart) {
+  //     const newYear = newDate.getFullYear();
+
+  //     const newMonth = newDate.getMonth();
+
+  //     const newDragEndDate =
+  //       direction > 0
+  //         ? new Date(newYear, newMonth, 1)
+  //         : new Date(newYear, newMonth + 1, 0);
+
+  //     const newDragEndStr = `${newDragEndDate.getFullYear()}-${String(
+  //       newDragEndDate.getMonth() + 1,
+  //     ).padStart(2, "0")}-${String(newDragEndDate.getDate()).padStart(2, "0")}`;
+
+  //     /*
+  //      * Do not extend a selection into
+  //      * an already-applied leave.
+  //      */
+
+  //     const dates = getDatesInRange(dragStart, newDragEndStr);
+
+  //     if (rangeContainsExistingLeave(dates)) {
+  //       return;
+  //     }
+
+  //     setDragEnd(newDragEndStr);
+
+  //     setSelectedDates(dates);
+  //   }
+
+  //   setShowNextMonthButton(false);
+  // };
 
   /* ============================================================
      CALENDAR SELECTION
@@ -1537,50 +1623,80 @@ const Leave = () => {
 
         <div style={summaryContainerStyle}>
           {/* Applied Leaves */}
+          {leaveBalances &&
+            leaveBalances.map((item) => {
+              if (
+                item?.leaveTypeName == "Casual Leave" ||
+                item?.leaveTypeName == "Sick Leave"
+              ) {
+                return (
+                  <div
+                    style={{
+                      ...summaryBoxStyle,
 
-          <div
-            style={{
-              ...summaryBoxStyle,
+                      border: theme.foundation.primaryColor,
 
-              border: theme.foundation.primaryColor,
+                      color: theme.foundation.primaryColor,
+                    }}
+                  >
+                    {0}
 
-              color: theme.foundation.primaryColor,
-            }}
-          >
-            {leaves.length}
+                    <div style={summaryLabelStyle}>{item?.leaveTypeName}</div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    style={{
+                      ...summaryBoxStyle,
 
-            <div style={summaryLabelStyle}>Earned Leaves</div>
-          </div>
+                      border: theme.foundation.primaryColor,
 
-          {/* Total Leave Days */}
+                      color: theme.foundation.primaryColor,
+                    }}
+                  >
+                    {item?.availableBalance || 0}
 
-          <div
-            style={{
-              ...summaryBoxStyle,
+                    <div style={summaryLabelStyle}>{item?.leaveTypeName}</div>
+                  </div>
+                );
+              }
+              <>
+                {/* Total Leave Days */}
 
-              border: theme.foundation.primaryColor,
+                {/* <div
+                  style={{
+                    ...summaryBoxStyle,
 
-              color: theme.foundation.primaryColor,
-            }}
-          >
-            {leaves.reduce((total, leave) => total + leave.days, 0)}
+                    border: theme.foundation.primaryColor,
 
-            <div style={summaryLabelStyle}>Casual Leaves</div>
-          </div>
+                    color: theme.foundation.primaryColor,
+                  }}
+                >
+                  
+                  
+                
 
-          <div
-            style={{
-              ...summaryBoxStyle,
+                  <div style={summaryLabelStyle}>Casual Leaves</div>
+                </div>
 
-              border: theme.foundation.primaryColor,
+                <div
+                  style={{
+                    ...summaryBoxStyle,
 
-              color: theme.foundation.primaryColor,
-            }}
-          >
-            {leaves.reduce((total, leave) => total + leave.days, 0)}
+                    border: theme.foundation.primaryColor,
 
-            <div style={summaryLabelStyle}>Sick Leaves</div>
-          </div>
+                    color: theme.foundation.primaryColor,
+                  }}
+                >
+                  
+                  {leaveBalances[2]?.availableBalance || 0}
+                  
+
+                  <div style={summaryLabelStyle}>Sick Leaves</div>
+                </div> */}
+              </>;
+            })}
         </div>
 
         {/* ==================================================

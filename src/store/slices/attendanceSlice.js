@@ -4,6 +4,7 @@ import GlobalLoader from "../../Components/ui/Loader/GlobalLoader";
 const initialState = {
   allAttendanceRequest: [],
   attendanceSummary: {},
+  employeeList: [],
 };
 
 export const attendanceSlice = createSlice({
@@ -14,9 +15,13 @@ export const attendanceSlice = createSlice({
       state.allAttendanceRequest = action.payload?.days;
       state.attendanceSummary = action.payload?.summary;
     },
+    storeAllEmployeeList: (state, action) => {
+      state.employeeList = action.payload;
+    },
   },
 });
 
-export const { storeAllattendanceRequest } = attendanceSlice.actions;
+export const { storeAllattendanceRequest, storeAllEmployeeList } =
+  attendanceSlice.actions;
 
 export default attendanceSlice.reducer;

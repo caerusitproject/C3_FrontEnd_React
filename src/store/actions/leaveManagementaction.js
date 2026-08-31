@@ -3,6 +3,8 @@ import {
   fetchleaveRequestManagementService,
   getPendingAllleaveRequestManagementService,
   pendingleavesApprovalRejectManagementService,
+  allHolidaysListService,
+  fetchLeaveBalService,
   updateAssetManagementService,
   deleteAssetManagementService,
 } from "../services/leaveManagementService";
@@ -10,6 +12,8 @@ import { showAlert } from "../slices/alertSlice";
 import {
   storeLeaveRequest,
   storeallPendingLeaveRequest,
+  storeAllHolidayList,
+  storeLeaveBalance,
 } from "../slices/leaveManagementSlice";
 import { globalLoaderOpen, globalLoaderClose } from "../slices/globalSlice";
 
@@ -127,6 +131,66 @@ export const ApprovalRejectAllPendingLeaveRequest = (
             type: "error",
             title: err?.error || "Leave Post Failed",
             message: err?.message || "Leave Management API failed",
+          }),
+        );
+
+        console.log("error_message", err?.message);
+      });
+  };
+};
+
+export const fetchHolidaysperYear = (year) => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    allHolidaysListService(year)
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(storeAllHolidayList(res?.data?.data));
+        dispatch(
+          showAlert({
+            type: "success",
+            title: res?.message || "Employees fetched Successfully",
+          }),
+        );
+        console.log("leave details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Employee List Get Failed",
+            message: err?.message || "Employee List fetched API failed",
+          }),
+        );
+
+        console.log("error_message", err?.message);
+      });
+  };
+};
+
+export const fetchLeaveBalance = (empId) => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    fetchLeaveBalService(empId)
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(storeLeaveBalance(res?.data?.data));
+        dispatch(
+          showAlert({
+            type: "success",
+            title: res?.message || "Employees fetched Successfully",
+          }),
+        );
+        console.log("leave details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Employee List Get Failed",
+            message: err?.message || "Employee List fetched API failed",
           }),
         );
 

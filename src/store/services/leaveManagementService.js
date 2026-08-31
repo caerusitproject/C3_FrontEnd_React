@@ -1,4 +1,4 @@
-import { leaveApi } from "../../Config/axiosInstance";
+import { leaveApi, superAdminApi } from "../../Config/axiosInstance";
 
 // fetchAllProjectMappingService
 
@@ -71,6 +71,36 @@ export const pendingleavesApprovalRejectManagementService = (
           },
         },
       );
+
+      if (response) resolve(response);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const allHolidaysListService = (year) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = "";
+      response = await superAdminApi.get(`v1/holidays/year/${year}`);
+
+      if (response) resolve(response);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const fetchLeaveBalService = (empId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = "";
+      response = await leaveApi.get(`v1/leave-management/leave-balances/me`, {
+        headers: {
+          "X-EMP-ID": empId,
+        },
+      });
 
       if (response) resolve(response);
     } catch (err) {

@@ -18,7 +18,7 @@ const Leave = lazy(() => import("./Pages/Leave/Leave.jsx"));
 const Payroll = lazy(() => import("./Pages/Payroll/Payroll.jsx"));
 const Home = lazy(() => import("./Pages/Home/Home"));
 const LeaveRequest = lazy(() => import("./Pages/LeaveRequest/LeaveReq.jsx"));
-// const Attendance = lazy(() => import("./Pages/Attendance/Attendance"));
+const Profile = lazy(() => import("./Pages/Profile/ProfileView.jsx"));
 const AttendanceNew = lazy(
   () => import("./Pages/Attendance/AttendanceNew.jsx"),
 );
@@ -75,6 +75,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/home" element={<Home />} />
               <Route path="/attendance" element={<AttendanceNew />} />
+              {/* <Route path="/profile" element={<Profile />} /> */}
               <Route path="/lms" element={<Leave />} />
               <Route path="/leave-requests" element={<LeaveRequest />} />
               <Route path="/payroll" element={<Payroll />} />
