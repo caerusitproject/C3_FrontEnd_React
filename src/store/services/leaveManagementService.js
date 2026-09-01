@@ -23,6 +23,22 @@ export const leaveRequestManagementService = (empCode, leaveObj) => {
   });
 };
 
+export const updateLeaveRequestManagementService = (leaveId, leaveObj) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = "";
+      response = await leaveApi.put(
+        `/v1/leave-management/${leaveId}`,
+        leaveObj,
+      );
+
+      if (response) resolve(response);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
 export const fetchleaveRequestManagementService = (empCode) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -64,7 +80,7 @@ export const pendingleavesApprovalRejectManagementService = (
       let response = "";
       response = await leaveApi.put(
         `v1/leave-management/${leaveReqId}/${approveReject}`,
-        null,
+        { remarks: "Default by the manager" },
         {
           headers: {
             "X-EMP-ID": 1,

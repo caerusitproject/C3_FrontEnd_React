@@ -5,6 +5,7 @@ import {
   pendingleavesApprovalRejectManagementService,
   allHolidaysListService,
   fetchLeaveBalService,
+  updateLeaveRequestManagementService,
   updateAssetManagementService,
   deleteAssetManagementService,
 } from "../services/leaveManagementService";
@@ -38,6 +39,35 @@ export const postLeaveRequest = (empCode, leaveObj) => {
             type: "error",
             title: err?.error || "Leave Post Failed",
             message: err?.message || "Leave Management API failed",
+          }),
+        );
+
+        console.log("error_message", err?.message);
+      });
+  };
+};
+
+export const updateLeaveRequest = (leaveId, leaveObj) => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    updateLeaveRequestManagementService(leaveId, leaveObj)
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "success",
+            title: res?.message || "Leave Request Updated Successfully",
+          }),
+        );
+        console.log("leave details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Leave Update Post Failed",
+            message: err?.message || "Leave Update Management API failed",
           }),
         );
 

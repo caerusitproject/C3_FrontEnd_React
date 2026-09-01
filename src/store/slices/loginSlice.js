@@ -73,6 +73,7 @@ export const loginSlice = createSlice({
 
       localStorage.removeItem("user");
       localStorage.removeItem("menus");
+      localStorage.removeItem("attendance-access-token");
       // localStorage.clear();
     },
 

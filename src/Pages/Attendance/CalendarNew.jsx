@@ -396,7 +396,6 @@ const CalendarNew = ({
      All other calendar states preserve their
      existing colors/backgrounds.
   ============================================================ */
-
   const getCellStyle = (dayInfo) => {
     if (!dayInfo) {
       return {
@@ -409,56 +408,53 @@ const CalendarNew = ({
     const isSelectedDay = isSelected(dayInfo.dateStr);
 
     const normalBackground = "var(--color-surface, #ffffff)";
-
     const borderColor = "var(--color-border, #e0e0e0)";
-
     const weekendBackground = "var(--color-disabled-bg, #f0f0f0)";
-
     const weekendText = "var(--color-disabled-text, #777777)";
 
-    /*
-     * ==========================================================
-     * BASE / NORMAL DATE
-     * ==========================================================
-     *
-     * Background remains unchanged.
-     *
-     * Only the text color is taken from:
-     *
-     * theme.colors.textPrimary
-     */
+    const eventType = String(dayInfo.event?.type || "")
+      .trim()
+      .toLowerCase();
+    const eventLabel = String(dayInfo.event?.label || "")
+      .trim()
+      .toLowerCase();
+
     let style = {
       background: normalBackground,
       color: themeDateTextColor,
       border: `1px solid ${borderColor}`,
     };
 
-    /* ==========================================================
-       HOLIDAY
-    ========================================================== */
-    console.log("dayInfo.event?.type", dayInfo);
+    /*
+     * IMPORTANT:
+     * Event styles are checked BEFORE past/weekend logic.
+     * Therefore previous-month events will still get
+     * their background color.
+     */
 
-    if (dayInfo.event?.type === "holiday") {
+    if (eventType === "holiday") {
       style = {
         background: "var(--color-warning-bg, #d87127)",
         color: "var(--color-warning-text, #b45309)",
         border: "1px solid var(--color-warning, #f59e0b)",
       };
-    }
-    //  else if (
-    //   dayInfo.event?.label === "Rejected" ||
-    //   dayInfo.event?.label === "rejected"
-    // ) {
-    //   /*
-    //    * REJECTED LEAVE
-    //    */
-    //   style = {
-    //     background: "#f89292",
-    //     color: "#ffffff",
-    //     border: "1px solid #616161",
-    //   };
-    // }
-    else if (dayInfo.event?.type === "lwp") {
+    } else if (
+      eventType === "rejected" ||
+      eventLabel === "rejected" ||
+      eventLabel === "Rejected"
+    ) {
+      style = {
+        background: "#cc4d4d",
+        color: "#ffffff",
+        border: "1px solid #616161",
+      };
+    } else if (eventLabel === "Pending" || eventType === "leave") {
+      style = {
+        background: "#90fc96",
+        color: "#ffffff",
+        border: "1px solid #5eff00",
+      };
+    } else if (eventType === "lwp") {
       /* ==========================================================
        EXISTING LEAVE
     ========================================================== */
@@ -467,52 +463,26 @@ const CalendarNew = ({
         color: "#ffff",
         border: "1px solid var(--color-success, #e04c1f)",
       };
-    } else if (
-      dayInfo.event?.type === "confirmed" ||
-      dayInfo.event?.type === "Confirmed"
-    ) {
+    } else if (eventType === "confirmed" || eventType === "approved") {
       style = {
         background: "#4eec26",
-        color: "#ffff",
-        border: "1px solid var(--color-success, #3c860a)",
+        color: "#ffffff",
+        border: "1px solid #3c860a",
       };
-    } else if (dayInfo.isConfirmed) {
-      /* ==========================================================
-       CONFIRMED LEAVE
-    ========================================================== */
-      style = {
-        background: "var(--color-success-bg, #e8f5e9)",
-        color: "var(--color-success-text, #2e7d32)",
-        border: "1px solid var(--color-success, #4caf50)",
-      };
-    } else if (dayInfo.event?.type === "present") {
+    } else if (eventType === "present") {
       style = {
         background: "#2e7d32",
         color: "#f3f3f3",
-        border: "#E5F8EA",
+        border: "1px solid #E5F8EA",
       };
     } else if (isSelectedDay) {
-      /* ==========================================================
-       SELECTED DATE
-
-       DO NOT CHANGE THIS.
-
-       Selected dates continue using the existing
-       primary background and white text.
-    ========================================================== */
       style = {
         background: "var(--color-primary, #1976d2)",
-
         color: "#ffffff",
-
         border: "1px solid var(--color-primary, #1976d2)",
-
         WebkitTextFillColor: "#ffffff",
       };
     } else if (dayInfo.isWeekend) {
-      /* ==========================================================
-       WEEKEND
-    ========================================================== */
       style = {
         background: weekendBackground,
         color: weekendText,
@@ -520,93 +490,226 @@ const CalendarNew = ({
       };
     }
 
-    // if (
-    //   dayInfo.event?.type === "Holiday" ||
-    //   dayInfo.event?.type === "holiday"
-    // ) {
-    //   style = {
-    //     background: "var(--color-warning-bg, #d87127)",
-    //     color: "var(--color-warning-text, #b45309)",
-    //     border: "1px solid var(--color-warning, #f59e0b)",
-    //   };
-    // } else if (
-    //   dayInfo.event?.type === "Confirmed" ||
-    //   dayInfo.event?.type === "confirmed"
-    // ) {
-    //   /*
-    //    * MANAGER APPROVED LEAVE
-    //    */
-    //   style = {
-    //     background: "#2e7d32",
-    //     color: "#ffffff",
-    //     border: "1px solid #1b5e20",
-    //   };
-    // } else if (
-    //   dayInfo.event?.type === "Leave" ||
-    //   dayInfo.event?.type === "lwp"
-    // ) {
-    //   /*
-    //    * PENDING LEAVE
-    //    */
-    //   style = {
-    //     background: "#db3721",
-    //     color: "#ffffff",
-    //     border: "1px solid #e04c1f",
-    //   };
-    // } else if (
-    //   dayInfo.event?.type === "Rejected" ||
-    //   dayInfo.event?.type === "rejected"
-    // ) {
-    //   /*
-    //    * REJECTED LEAVE
-    //    */
-    //   style = {
-    //     background: "#757575",
-    //     color: "#ffffff",
-    //     border: "1px solid #616161",
-    //   };
-    // } else if (dayInfo.isConfirmed) {
-    //   style = {
-    //     background: "var(--color-success-bg, #e8f5e9)",
-    //     color: "var(--color-success-text, #2e7d32)",
-    //     border: "1px solid var(--color-success, #4caf50)",
-    //   };
-    // } else if (dayInfo.event?.type === "present") {
-    //   style = {
-    //     background: "#2e7d32",
-    //     color: "#f3f3f3",
-    //     border: "1px solid #E5F8EA",
-    //   };
-    // } else if (isSelectedDay) {
-    //   style = {
-    //     background: "var(--color-primary, #1976d2)",
-    //     color: "#ffffff",
-    //     border: "1px solid var(--color-primary, #1976d2)",
-    //     WebkitTextFillColor: "#ffffff",
-    //   };
-    // } else if (dayInfo.isWeekend) {
-    //   style = {
-    //     background: weekendBackground,
-    //     color: weekendText,
-    //     border: `1px solid ${borderColor}`,
-    //   };
-    // }
-
-    /* ==========================================================
-       TODAY
-       
-       Only modify the border.
-       Never replace the existing background/color.
-    ========================================================== */
-
+    /*
+     * TODAY
+     */
     if (dayInfo.dateStr === todayString) {
       style.border = isSelectedDay
         ? "2px solid #ffffff"
         : "2px solid var(--color-primary, #1976d2)";
     }
 
+    console.log("theme__id___", dayInfo?.event);
     return style;
   };
+
+  // const getCellStyle = (dayInfo) => {
+  //   if (!dayInfo) {
+  //     return {
+  //       background: "transparent",
+  //       border: "1px solid transparent",
+  //       color: "inherit",
+  //     };
+  //   }
+
+  //   const isSelectedDay = isSelected(dayInfo.dateStr);
+
+  //   const normalBackground = "var(--color-surface, #ffffff)";
+
+  //   const borderColor = "var(--color-border, #e0e0e0)";
+
+  //   const weekendBackground = "var(--color-disabled-bg, #f0f0f0)";
+
+  //   const weekendText = "var(--color-disabled-text, #777777)";
+
+  //   const eventType = String(dayInfo.event?.type || "").toLowerCase();
+  //   const eventLabel = String(dayInfo.event?.label || "").toLowerCase();
+
+  //   /*
+  //    * ==========================================================
+  //    * BASE / NORMAL DATE
+  //    * ==========================================================
+  //    *
+  //    * Background remains unchanged.
+  //    *
+  //    * Only the text color is taken from:
+  //    *
+  //    * theme.colors.textPrimary
+  //    */
+  //   let style = {
+  //     background: normalBackground,
+  //     color: themeDateTextColor,
+  //     border: `1px solid ${borderColor}`,
+  //   };
+
+  //   /* ==========================================================
+  //      HOLIDAY
+  //   ========================================================== */
+  //   console.log("dayInfo.event?.type", dayInfo);
+
+  //   console.log("Calendar Event:", dayInfo.dateStr, dayInfo.event);
+
+  //   if (eventType === "holiday") {
+  //     style = {
+  //       background: "var(--color-warning-bg, #d87127)",
+  //       color: "var(--color-warning-text, #b45309)",
+  //       border: "1px solid var(--color-warning, #f59e0b)",
+  //     };
+  //   } else if (eventLabel === "Rejected" || eventLabel === "rejected") {
+  //     /*
+  //      * REJECTED LEAVE
+  //      */
+  //     style = {
+  //       background: "#cc4d4d",
+  //       color: "#ffffff",
+  //       border: "1px solid #616161",
+  //     };
+  //   } else if (eventType === "lwp") {
+  //     /* ==========================================================
+  //      EXISTING LEAVE
+  //   ========================================================== */
+  //     style = {
+  //       background: "#db3721",
+  //       color: "#ffff",
+  //       border: "1px solid var(--color-success, #e04c1f)",
+  //     };
+  //   } else if (eventType === "confirmed" || eventType === "Confirmed") {
+  //     style = {
+  //       background: "#4eec26",
+  //       color: "#ffff",
+  //       border: "1px solid var(--color-success, #3c860a)",
+  //     };
+  //   } else if (dayInfo.isConfirmed) {
+  //     /* ==========================================================
+  //      CONFIRMED LEAVE
+  //   ========================================================== */
+  //     style = {
+  //       background: "var(--color-success-bg, #e8f5e9)",
+  //       color: "var(--color-success-text, #2e7d32)",
+  //       border: "1px solid var(--color-success, #4caf50)",
+  //     };
+  //   } else if (eventType === "present") {
+  //     style = {
+  //       background: "#2e7d32",
+  //       color: "#f3f3f3",
+  //       border: "#E5F8EA",
+  //     };
+  //   } else if (isSelectedDay) {
+  //     /* ==========================================================
+  //      SELECTED DATE
+
+  //      DO NOT CHANGE THIS.
+
+  //      Selected dates continue using the existing
+  //      primary background and white text.
+  //   ========================================================== */
+  //     style = {
+  //       background: "var(--color-primary, #1976d2)",
+
+  //       color: "#ffffff",
+
+  //       border: "1px solid var(--color-primary, #1976d2)",
+
+  //       WebkitTextFillColor: "#ffffff",
+  //     };
+  //   } else if (dayInfo.isWeekend) {
+  //     /* ==========================================================
+  //      WEEKEND
+  //   ========================================================== */
+  //     style = {
+  //       background: weekendBackground,
+  //       color: weekendText,
+  //       border: `1px solid ${borderColor}`,
+  //     };
+  //   }
+
+  //   // if (
+  //   //   dayInfo.event?.type === "Holiday" ||
+  //   //   dayInfo.event?.type === "holiday"
+  //   // ) {
+  //   //   style = {
+  //   //     background: "var(--color-warning-bg, #d87127)",
+  //   //     color: "var(--color-warning-text, #b45309)",
+  //   //     border: "1px solid var(--color-warning, #f59e0b)",
+  //   //   };
+  //   // } else if (
+  //   //   dayInfo.event?.type === "Confirmed" ||
+  //   //   dayInfo.event?.type === "confirmed"
+  //   // ) {
+  //   //   /*
+  //   //    * MANAGER APPROVED LEAVE
+  //   //    */
+  //   //   style = {
+  //   //     background: "#2e7d32",
+  //   //     color: "#ffffff",
+  //   //     border: "1px solid #1b5e20",
+  //   //   };
+  //   // } else if (
+  //   //   dayInfo.event?.type === "Leave" ||
+  //   //   dayInfo.event?.type === "lwp"
+  //   // ) {
+  //   //   /*
+  //   //    * PENDING LEAVE
+  //   //    */
+  //   //   style = {
+  //   //     background: "#db3721",
+  //   //     color: "#ffffff",
+  //   //     border: "1px solid #e04c1f",
+  //   //   };
+  //   // } else if (
+  //   //   dayInfo.event?.type === "Rejected" ||
+  //   //   dayInfo.event?.type === "rejected"
+  //   // ) {
+  //   //   /*
+  //   //    * REJECTED LEAVE
+  //   //    */
+  //   //   style = {
+  //   //     background: "#757575",
+  //   //     color: "#ffffff",
+  //   //     border: "1px solid #616161",
+  //   //   };
+  //   // } else if (dayInfo.isConfirmed) {
+  //   //   style = {
+  //   //     background: "var(--color-success-bg, #e8f5e9)",
+  //   //     color: "var(--color-success-text, #2e7d32)",
+  //   //     border: "1px solid var(--color-success, #4caf50)",
+  //   //   };
+  //   // } else if (dayInfo.event?.type === "present") {
+  //   //   style = {
+  //   //     background: "#2e7d32",
+  //   //     color: "#f3f3f3",
+  //   //     border: "1px solid #E5F8EA",
+  //   //   };
+  //   // } else if (isSelectedDay) {
+  //   //   style = {
+  //   //     background: "var(--color-primary, #1976d2)",
+  //   //     color: "#ffffff",
+  //   //     border: "1px solid var(--color-primary, #1976d2)",
+  //   //     WebkitTextFillColor: "#ffffff",
+  //   //   };
+  //   // } else if (dayInfo.isWeekend) {
+  //   //   style = {
+  //   //     background: weekendBackground,
+  //   //     color: weekendText,
+  //   //     border: `1px solid ${borderColor}`,
+  //   //   };
+  //   // }
+
+  //   /* ==========================================================
+  //      TODAY
+
+  //      Only modify the border.
+  //      Never replace the existing background/color.
+  //   ========================================================== */
+
+  //   if (dayInfo.dateStr === todayString) {
+  //     style.border = isSelectedDay
+  //       ? "2px solid #ffffff"
+  //       : "2px solid var(--color-primary, #1976d2)";
+  //   }
+
+  //   return style;
+  // };
 
   /* ============================================================
    THEME-BASED CALENDAR TEXT COLORS

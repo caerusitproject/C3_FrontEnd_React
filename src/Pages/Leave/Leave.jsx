@@ -33,6 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   leaveRequestManagementService,
   fetchleaveRequestManagementService,
+  updateLeaveRequestManagementService,
   updateAssetManagementService,
   deleteAssetManagementService,
 } from "../../store/services/leaveManagementService";
@@ -80,6 +81,7 @@ const Leave = () => {
    */
 
   const [leaves, setLeaves] = useState([]);
+  // const [leaveIdEdit, setLeaveIdEdit] = useState(null);
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [leaveSendRequest, setLeaveSendReq] = useState(null);
   const [reasonModalOpen, setReasonModalOpen] = useState(false);
@@ -150,6 +152,7 @@ const Leave = () => {
 
   const handleEditLeave = (leave) => {
     console.log("Editing leave:", leave);
+    // setLeaveIdEdit(leave ? leave?.id : 0);
 
     const existingDates =
       leave.selectedDates?.length > 0
@@ -158,7 +161,7 @@ const Leave = () => {
 
     setSelectedLeaveToEdit(leave);
 
-    setEditingLeaveId(leave.id);
+    setEditingLeaveId(leave ? leave?.id : 0);
 
     /*
      * Show the existing dates initially.
@@ -392,6 +395,37 @@ const Leave = () => {
     };
   };
 
+  //  display the history dates of the calendar
+  const getCalendarDatesInRange = (start, end) => {
+    if (!start || !end) {
+      return [];
+    }
+
+    const dates = [];
+
+    const current = new Date(`${start}T00:00:00`);
+    const endDate = new Date(`${end}T00:00:00`);
+
+    while (current <= endDate) {
+      const year = current.getFullYear();
+      const month = String(current.getMonth() + 1).padStart(2, "0");
+      const day = String(current.getDate()).padStart(2, "0");
+
+      const dateStr = `${year}-${month}-${day}`;
+
+      const dayOfWeek = current.getDay();
+
+      // Only weekdays
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        dates.push(dateStr);
+      }
+
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  };
+
   useEffect(() => {
     dispatch(actions.fetchHolidaysperYear(String(currentDate.getFullYear())));
     dispatch(actions.fetchLeaveBalance(loggedInUser?.empId));
@@ -622,6 +656,57 @@ const Leave = () => {
   //   return [...leaveEvents, ...holidayEvents];
   // }, [leaves, editingLeaveId]);
 
+  // OLD WORKING
+  // const events = useMemo(() => {
+  //   const leaveEvents = leaves
+  //     .filter((leave) => {
+  //       if (leave.id === editingLeaveId) {
+  //         return false;
+  //       }
+
+  //       const status = String(leave.status || "").toLowerCase();
+
+  //       return status !== "rejected";
+  //     })
+  //     .flatMap((leave) => {
+  //       const dates =
+  //         leave.selectedDates?.length > 0
+  //           ? leave.selectedDates
+  //           : getDatesInRange(leave.start, leave.end);
+
+  //       const status = String(leave.status || "Pending").toLowerCase();
+
+  //       return dates.map((date) => {
+  //         let type = "Leave";
+
+  //         if (status === "approved" || status === "confirmed") {
+  //           type = "Confirmed";
+  //         } else if (status === "pending") {
+  //           type = "Leave";
+  //         }
+
+  //         return {
+  //           date,
+  //           type,
+  //           label: leave.status || "Pending",
+  //         };
+  //       });
+  //     });
+
+  //   const holidayEvents = holidaysList
+  //     .filter(
+  //       (holiday) =>
+  //         holiday?.activeStatusCode === "ACTIVE" && holiday?.holidayDate,
+  //     )
+  //     .map((holiday) => ({
+  //       date: holiday.holidayDate,
+  //       type: "holiday",
+  //       label: holiday.holidayName || "Holiday",
+  //     }));
+
+  //   return [...leaveEvents, ...holidayEvents];
+  // }, [leaves, editingLeaveId, holidaysList]);
+
   const events = useMemo(() => {
     const leaveEvents = leaves
       .filter((leave) => {
@@ -631,15 +716,67 @@ const Leave = () => {
 
         const status = String(leave.status || "").toLowerCase();
 
-        return status !== "rejected";
+        if (!leave.start || !leave.end) {
+          return false;
+        }
+
+        const leaveEndDate = new Date(`${leave.end}T00:00:00`);
+        const todayDate = new Date(`${todayStr}T00:00:00`);
+
+        const isPastLeave = leaveEndDate < todayDate;
+
+        /*
+         * =========================================================
+         * PAST LEAVES
+         * =========================================================
+         *
+         * Show ALL statuses:
+         * Pending
+         * Approved
+         * Confirmed
+         * Rejected
+         */
+        if (isPastLeave) {
+          return (
+            status === "pending" ||
+            status === "approved" ||
+            status === "confirmed" ||
+            status === "rejected"
+          );
+        }
+
+        /*
+         * =========================================================
+         * CURRENT / FUTURE LEAVES
+         * =========================================================
+         *
+         * Show:
+         * Pending
+         * Approved
+         * Confirmed
+         *
+         * Hide:
+         * Rejected
+         */
+        return (
+          status === "pending" ||
+          status === "approved" ||
+          status === "confirmed"
+        );
       })
       .flatMap((leave) => {
-        const dates =
-          leave.selectedDates?.length > 0
-            ? leave.selectedDates
-            : getDatesInRange(leave.start, leave.end);
+        /*
+         * IMPORTANT:
+         *
+         * Use getCalendarDatesInRange()
+         * instead of getDatesInRange()
+         *
+         * because this function must also return
+         * past dates for display.
+         */
+        const dates = getCalendarDatesInRange(leave.start, leave.end);
 
-        const status = String(leave.status || "Pending").toLowerCase();
+        const status = String(leave.status || "").toLowerCase();
 
         return dates.map((date) => {
           let type = "Leave";
@@ -648,6 +785,8 @@ const Leave = () => {
             type = "Confirmed";
           } else if (status === "pending") {
             type = "Leave";
+          } else if (status === "rejected") {
+            type = "Rejected";
           }
 
           return {
@@ -658,6 +797,11 @@ const Leave = () => {
         });
       });
 
+    /*
+     * =========================================================
+     * HOLIDAYS
+     * =========================================================
+     */
     const holidayEvents = holidaysList
       .filter(
         (holiday) =>
@@ -670,7 +814,9 @@ const Leave = () => {
       }));
 
     return [...leaveEvents, ...holidayEvents];
-  }, [leaves, editingLeaveId, holidaysList]);
+  }, [leaves, editingLeaveId, holidaysList, todayStr]);
+
+  console.log("calendar events new____", events);
 
   const resetLeaveSelection = () => {
     setIsSelecting(false);
@@ -999,6 +1145,7 @@ const Leave = () => {
   /* ============================================================
      CONFIRM LEAVE
      ============================================================ */
+  console.log("leaves__", leaves);
   const handleConfirm = () => {
     if (
       !startDate ||
@@ -1035,6 +1182,8 @@ const Leave = () => {
 
         reason: leaveReason.trim(),
       };
+
+      let onlyLeaveId = leaves.find((leave) => leave.id === editingLeaveId);
       // setLeaves((previousLeaves) =>
       //   previousLeaves.map((leave) => {
       //     if (leave.id !== editingLeaveId) {
@@ -1060,7 +1209,7 @@ const Leave = () => {
       // dispatch(actions.postLeaveRequest(loggedInUser?.empCode, editLeaveClone));
       dispatch(globalLoaderOpen());
 
-      leaveRequestManagementService(loggedInUser?.empCode, editLeaveClone)
+      updateLeaveRequestManagementService(onlyLeaveId?.id, editLeaveClone)
         .then((res) => {
           dispatch(globalLoaderClose());
 
@@ -1123,6 +1272,7 @@ const Leave = () => {
               };
             }),
           );
+          dispatch(actions.fetchLeaveBalance(loggedInUser?.empId));
 
           /*
            * ==========================================================
@@ -1250,6 +1400,7 @@ const Leave = () => {
           }
 
           setLeaves((previousLeaves) => [...previousLeaves, newLeave]);
+          dispatch(actions.fetchLeaveBalance(loggedInUser?.empId));
 
           /*
            * ==========================================================
