@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { useThemeContext } from "../../context/ThemeContext";
 
-import Button from "../../Components/ui/Button/Button";
+import { Button } from "../../Components/ui/Button/Button";
 import * as actions from "../../store/actions";
 
 import {
@@ -1625,7 +1625,17 @@ const Leave = () => {
 
     setSelectedLeaveToDelete(null);
   };
+  const todayfilteredLeaves = new Date();
+  todayfilteredLeaves.setHours(0, 0, 0, 0);
 
+  const futureLeaves = (leaves || []).filter((leave) => {
+    if (!leave?.end) return false;
+
+    const endDate = new Date(leave.end);
+    endDate.setHours(0, 0, 0, 0);
+
+    return endDate >= todayfilteredLeaves;
+  });
   /* ============================================================
      THEME-AWARE STYLES
      ============================================================ */
@@ -1682,14 +1692,42 @@ const Leave = () => {
     transition: "background-color 0.2s ease, border-color 0.2s ease",
   };
 
+  // const summaryContainerStyle = {
+  //   display: "flex",
+
+  //   gap: isMobile ? "12px" : "14px",
+
+  //   justifyContent: "center",
+
+  //   // flexWrap: "no-wrap",
+  // };
+
   const summaryContainerStyle = {
     display: "flex",
-
-    gap: isMobile ? "12px" : "20px",
-
-    justifyContent: "center",
-
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "16px",
+    width: "100%",
     flexWrap: "wrap",
+  };
+
+  const leaveBalanceContainerStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: "12px",
+    flexWrap: "wrap",
+    flex: "1 1 auto",
+    minWidth: 0,
+  };
+
+  const actionContainerStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: "10px",
+    flexWrap: "wrap",
+    flex: "0 1 auto",
   };
 
   const summaryBoxStyle = {
@@ -1772,38 +1810,52 @@ const Leave = () => {
             SUMMARY
             ================================================== */}
 
+        {/* ==================================================
+      LEAVE BALANCE SUMMARY
+      ================================================== */}
         <div style={summaryContainerStyle}>
-          {/* Applied Leaves */}
-          {leaveBalances &&
-            leaveBalances.map((item) => {
-              if (
-                item?.leaveTypeName == "Casual Leave" ||
-                item?.leaveTypeName == "Sick Leave"
-              ) {
+          <div style={leaveBalanceContainerStyle}>
+            {leaveBalances &&
+              leaveBalances.map((item) => {
+                if (
+                  item?.leaveTypeName === "Casual Leave" ||
+                  item?.leaveTypeName === "Sick Leave"
+                ) {
+                  return (
+                    <div
+                      key={item?.leaveTypeName}
+                      style={{
+                        ...summaryBoxStyle,
+
+                        border: `1px solid ${theme.foundation.primaryColor}`,
+
+                        color: theme.foundation.primaryColor,
+
+                        flex: "0 1 auto",
+
+                        minWidth: "90px",
+                      }}
+                    >
+                      {0}
+
+                      <div style={summaryLabelStyle}>{item?.leaveTypeName}</div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div
+                    key={item?.leaveTypeName}
                     style={{
                       ...summaryBoxStyle,
 
-                      border: theme.foundation.primaryColor,
+                      border: `1px solid ${theme.foundation.primaryColor}`,
 
                       color: theme.foundation.primaryColor,
-                    }}
-                  >
-                    {0}
 
-                    <div style={summaryLabelStyle}>{item?.leaveTypeName}</div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div
-                    style={{
-                      ...summaryBoxStyle,
+                      flex: "0 1 auto",
 
-                      border: theme.foundation.primaryColor,
-
-                      color: theme.foundation.primaryColor,
+                      minWidth: "90px",
                     }}
                   >
                     {item?.availableBalance || 0}
@@ -1811,103 +1863,37 @@ const Leave = () => {
                     <div style={summaryLabelStyle}>{item?.leaveTypeName}</div>
                   </div>
                 );
-              }
+              })}
+          </div>
+
+          {/* ==================================================
+      ACTION BUTTONS
+      ================================================== */}
+          <div style={actionContainerStyle}>
+            <Badge badgeContent={futureLeaves?.length} color="primary">
+              <Button type="primary" onClick={() => setLeaveModalOpen(true)}>
+                <FreeCancellationIcon />
+              </Button>
+            </Badge>
+
+            {!isApplyingLeave ? (
+              <Button type="primary" onClick={() => setIsApplyingLeave(true)}>
+                Apply Leave
+              </Button>
+            ) : endDate ? (
               <>
-                {/* Total Leave Days */}
+                <Button variant="secondary" onClick={handleCancel}>
+                  Cancel
+                </Button>
 
-                {/* <div
-                  style={{
-                    ...summaryBoxStyle,
-
-                    border: theme.foundation.primaryColor,
-
-                    color: theme.foundation.primaryColor,
-                  }}
-                >
-                  
-                  
-                
-
-                  <div style={summaryLabelStyle}>Casual Leaves</div>
-                </div>
-
-                <div
-                  style={{
-                    ...summaryBoxStyle,
-
-                    border: theme.foundation.primaryColor,
-
-                    color: theme.foundation.primaryColor,
-                  }}
-                >
-                  
-                  {leaveBalances[2]?.availableBalance || 0}
-                  
-
-                  <div style={summaryLabelStyle}>Sick Leaves</div>
-                </div> */}
-              </>;
-            })}
-        </div>
-
-        {/* ==================================================
-            ACTION BUTTONS
-            ================================================== */}
-
-        <div
-          style={{
-            width: isMobile ? "100%" : "auto",
-
-            display: "flex",
-
-            alignItems: "center",
-
-            justifyContent: "flex-end",
-
-            gap: "10px",
-          }}
-        >
-          <Badge badgeContent={leaves?.length} color="primary">
-            <Button type="primary" onClick={() => setLeaveModalOpen(true)}>
-              <FreeCancellationIcon />
-            </Button>
-          </Badge>
-          {!isApplyingLeave ? (
-            <Button type="primary" onClick={() => setIsApplyingLeave(true)}>
-              Apply Leave
-            </Button>
-          ) : endDate ? (
-            <>
-              <Button type="secondary" onClick={handleCancel}>
+                <Button onClick={handleConfirm}>Confirm</Button>
+              </>
+            ) : (
+              <Button variant="secondary" onClick={handleCancel}>
                 Cancel
               </Button>
-
-              <Button type="primary" onClick={handleConfirm}>
-                Confirm
-              </Button>
-            </>
-          ) : (
-            <Button type="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
-          )}
-          {/* {!isApplyingLeave ? (
-            <Button type="primary" onClick={() => setIsApplyingLeave(true)}>
-              Apply Leave
-            </Button>
-          ) : (
-            <Button type="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
-          )} */}
-          {leaves.length > 0 && (
-            <Button
-              type="primary"
-              onClick={() => handleTestApproveLeave(leaves[0].id)}
-            >
-              Test Manager Approve
-            </Button>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
@@ -2009,7 +1995,7 @@ const Leave = () => {
         theme={theme}
         themeSurface={themeSurface}
         isMobile={isMobile}
-        leaves={leaves}
+        leaves={futureLeaves}
         setLeaves={setLeaves}
         leaveModalOpen={leaveModalOpen}
         setLeaveModalOpen={setLeaveModalOpen}

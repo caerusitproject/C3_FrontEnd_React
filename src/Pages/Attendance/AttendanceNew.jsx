@@ -364,17 +364,19 @@ const AttendanceNew = () => {
           <div
             style={{
               ...boxStyle,
-              backgroundColor: "transparent",
-              //   border: `${isMobile ? "1px" : "2px"} solid ${theme.colors.secondary}`,
+              backgroundColor: "var(--color-surface, transparent)",
+              border: `${isMobile ? "1px" : "2px"} solid ${theme.foundation.primaryColor}`,
               borderRadius: isMobile ? "10px" : "8px",
               padding: isMobile ? "6px 8px" : "8px 12px",
             }}
           >
-            {attendanceSummary?.totalWorkingHours}
+            <p style={{ color: theme.foundation.primaryColor }}>
+              {attendanceSummary?.totalWorkingHours || "0.0"}
+            </p>
             <div
               style={{
                 ...labelStyle,
-                // color: theme.colors.black
+                color: theme.foundation.primaryColor,
               }}
             >
               Total Hours
@@ -383,17 +385,19 @@ const AttendanceNew = () => {
           <div
             style={{
               ...boxStyle,
-              backgroundColor: "transparent",
-              //   border: `${isMobile ? "1px" : "2px"} solid ${theme.colors.success}`,
+              backgroundColor: "var(--color-surface, transparent)",
+              border: `${isMobile ? "1px" : "2px"} solid ${theme.foundation.primaryColor}`,
               borderRadius: isMobile ? "10px" : "8px",
               padding: isMobile ? "6px 8px" : "8px 12px",
             }}
           >
-            {attendanceSummary?.presentDays}
+            <p style={{ color: theme.foundation.primaryColor }}>
+              {attendanceSummary?.presentDays || "0"}
+            </p>
             <div
               style={{
                 ...labelStyle,
-                // color: theme.colors.black
+                color: theme.foundation.primaryColor,
               }}
             >
               Days Present
@@ -402,19 +406,21 @@ const AttendanceNew = () => {
           <div
             style={{
               ...boxStyle,
-              backgroundColor: "transparent",
-              //   border: `${isMobile ? "1px" : "2px"} solid ${theme.colors.error}`,
+              backgroundColor: "var(--color-surface, transparent)",
+              border: `${isMobile ? "1px" : "2px"} solid ${theme.foundation.primaryColor}`,
               borderRadius: isMobile ? "10px" : "8px",
               padding: isMobile ? "6px 8px" : "8px 12px",
             }}
           >
-            {Number(attendanceSummary?.totalWorkingDays) -
-              (Number(attendanceSummary?.presentDays) +
-                Number(attendanceSummary?.holidayDays))}
+            <p style={{ color: theme.foundation.primaryColor }}>
+              {Number(attendanceSummary?.totalWorkingDays) -
+                (Number(attendanceSummary?.presentDays) +
+                  Number(attendanceSummary?.holidayDays)) || "0"}
+            </p>
             <div
               style={{
                 ...labelStyle,
-                //  color: theme.colors.black
+                color: theme.foundation.primaryColor,
               }}
             >
               Days Absent
@@ -541,15 +547,23 @@ const AttendanceNew = () => {
         onNextMonth={() => handleMonthChange(1)}
         isMobile={isMobile}
         buttonStyle={{
-          //   background: `${theme.colors.primary}`,
-          border: "2px solid white",
-          color: "#ffff",
+          background: "var(--color-primary, #1976d2)",
+
+          border: "2px solid var(--color-surface, #fff)",
+
+          color: "var(--color-primary-text, #fff)",
+
           padding: isMobile ? "8px 12px" : "8px 14px",
+
           borderRadius: "6px",
+
           cursor: "pointer",
+
           fontSize: isMobile ? "10px" : "12px",
+
           fontWeight: "bold",
-          transition: "0.3s",
+
+          transition: "background-color 0.2s ease",
         }}
       />
     </div>

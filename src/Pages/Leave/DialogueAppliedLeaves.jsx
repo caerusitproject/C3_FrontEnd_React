@@ -35,18 +35,8 @@ export default function DialogueAppliedLeaves({
 
   setLeaveModalOpen,
 
-  /*
-   * Called when user clicks Edit.
-   * Parent component should handle opening
-   * the date selector.
-   */
   handleEditLeave,
 
-  /*
-   * Kept for compatibility with your existing
-   * component. You can remove this if it is no
-   * longer used anywhere.
-   */
   handleSendConfirm,
 }) {
   /*
@@ -62,42 +52,42 @@ export default function DialogueAppliedLeaves({
 
   /*
    * =====================================================
-   * COLUMN WIDTHS
+   * RESPONSIVE COLUMN WIDTHS
    * =====================================================
    */
   const columnWidths = {
-    startDate: "95px",
-    endDate: "95px",
-    days: "55px",
-    reason: "105px",
-    status: "100px",
-    action: "75px",
+    startDate: "19%",
+    endDate: "18%",
+    days: "11%",
+    reason: "18%",
+    status: "18%",
+    action: "16%",
   };
 
-  /*
-   * =====================================================
-   * TOTAL TABLE WIDTH
-   * =====================================================
-   */
-  const tableWidth = "525px";
+  console.log("leaves inside a pop up___", leaves);
 
   return (
     <Dialog
       open={leaveModalOpen}
       onClose={() => setLeaveModalOpen(false)}
       maxWidth={false}
+      style={{
+        zIndex: 10000,
+      }}
       PaperProps={{
         sx: {
           backgroundColor: "var(--color-surface, #fff)",
-
           color: "var(--color-text-primary, inherit)",
-
           borderRadius: "10px",
 
           width: {
-            xs: "calc(100% - 32px)",
-            sm: "650px",
-            md: "650px",
+            xs: "calc(100% - 24px)",
+            sm: "60vw",
+          },
+
+          maxWidth: {
+            xs: "calc(100% - 24px)",
+            sm: "60vw",
           },
 
           height: {
@@ -105,7 +95,6 @@ export default function DialogueAppliedLeaves({
             sm: "520px",
           },
 
-          maxWidth: "650px",
           maxHeight: "520px",
 
           display: "flex",
@@ -132,16 +121,26 @@ export default function DialogueAppliedLeaves({
       ====================================================== */}
       <DialogContent
         sx={{
-          overflow: "hidden",
+          /*
+           * Prevent horizontal scrolling
+           */
+          overflowX: "hidden",
+
+          /*
+           * Dialog itself does not vertically scroll.
+           * Table body handles vertical scrolling.
+           */
+          overflowY: "hidden",
 
           minHeight: 0,
 
           flex: 1,
 
-          width: {
-            xs: "100%",
-            sm: "590px",
-          },
+          /*
+           * Important for responsive layout
+           */
+          width: "60vw",
+          maxWidth: "70vw",
 
           boxSizing: "border-box",
 
@@ -158,7 +157,6 @@ export default function DialogueAppliedLeaves({
           <div
             style={{
               marginTop: "20px",
-
               color: "var(--color-text-primary)",
             }}
           >
@@ -169,7 +167,11 @@ export default function DialogueAppliedLeaves({
             style={{
               marginTop: "10px",
 
+              /*
+               * Responsive width
+               */
               width: "100%",
+              maxWidth: "100%",
 
               minWidth: 0,
 
@@ -179,6 +181,12 @@ export default function DialogueAppliedLeaves({
               flex: 1,
 
               minHeight: 0,
+
+              /*
+               * Prevent child from creating
+               * horizontal overflow
+               */
+              overflow: "hidden",
             }}
           >
             {/* =================================================
@@ -195,9 +203,18 @@ export default function DialogueAppliedLeaves({
 
                 border: "1px solid var(--color-border, rgba(0,0,0,0.08))",
 
+                /*
+                 * Responsive width
+                 */
                 width: "100%",
+                maxWidth: "100%",
 
+                /*
+                 * Prevent horizontal overflow
+                 */
                 overflow: "hidden",
+
+                boxSizing: "border-box",
               }}
             >
               {/* =================================================
@@ -206,21 +223,25 @@ export default function DialogueAppliedLeaves({
               <TableContainer
                 sx={{
                   width: "100%",
+                  maxWidth: "100%",
 
-                  overflowX: "auto",
+                  /*
+                   * NO horizontal scrolling
+                   */
+                  overflowX: "hidden",
 
                   overflowY: "hidden",
 
-                  "&::-webkit-scrollbar": {
-                    height: 0,
-                  },
+                  boxSizing: "border-box",
                 }}
               >
                 <Table
                   sx={{
-                    width: tableWidth,
-
-                    minWidth: tableWidth,
+                    /*
+                     * Responsive table width
+                     */
+                    width: "100%",
+                    minWidth: 0,
 
                     tableLayout: "fixed",
 
@@ -229,11 +250,19 @@ export default function DialogueAppliedLeaves({
 
                       borderColor: "var(--color-border, rgba(0,0,0,0.08))",
 
+                      /*
+                       * Keep existing behavior
+                       */
                       whiteSpace: "nowrap",
 
                       padding: "8px",
 
                       boxSizing: "border-box",
+
+                      /*
+                       * Prevent cell from expanding table
+                       */
+                      overflow: "hidden",
                     },
                   }}
                 >
@@ -316,23 +345,30 @@ export default function DialogueAppliedLeaves({
               <TableContainer
                 sx={{
                   width: "100%",
-
-                  overflowX: "auto",
-
-                  /*
-                   * Show maximum 2 rows.
-                   */
-                  height: `${Math.min(leaves.length, 2) * 42}px`,
+                  maxWidth: "100%",
 
                   /*
-                   * Enable vertical scrolling
-                   * only when there are more than 2 rows.
+                   * Explicitly disable horizontal scrolling
                    */
-                  overflowY: leaves.length > 2 ? "auto" : "hidden",
+                  overflowX: "hidden",
 
+                  /*
+                   * Show maximum 3 rows
+                   */
+                  height: `${Math.min(leaves.length, 3) * 48}px`,
+
+                  /*
+                   * Vertical scrolling only
+                   */
+                  overflowY: leaves.length > 3 ? "auto" : "hidden",
+
+                  boxSizing: "border-box",
+
+                  /*
+                   * Vertical scrollbar
+                   */
                   "&::-webkit-scrollbar": {
                     width: "7px",
-                    height: "7px",
                   },
 
                   "&::-webkit-scrollbar-thumb": {
@@ -340,13 +376,19 @@ export default function DialogueAppliedLeaves({
 
                     borderRadius: "10px",
                   },
+
+                  "&::-webkit-scrollbar-track": {
+                    background: "transparent",
+                  },
                 }}
               >
                 <Table
                   sx={{
-                    width: tableWidth,
-
-                    minWidth: tableWidth,
+                    /*
+                     * Responsive table
+                     */
+                    width: "100%",
+                    minWidth: 0,
 
                     tableLayout: "fixed",
 
@@ -362,6 +404,12 @@ export default function DialogueAppliedLeaves({
                       height: "40px",
 
                       boxSizing: "border-box",
+
+                      /*
+                       * Prevent cell content from
+                       * increasing table width
+                       */
+                      overflow: "hidden",
                     },
                   }}
                 >
@@ -477,6 +525,18 @@ export default function DialogueAppliedLeaves({
                               backgroundColor: "var(--color-warning-bg)",
 
                               whiteSpace: "nowrap",
+
+                              /*
+                               * Prevent status from
+                               * increasing table width
+                               */
+                              maxWidth: "100%",
+
+                              overflow: "hidden",
+
+                              textOverflow: "ellipsis",
+
+                              boxSizing: "border-box",
                             }}
                           >
                             {leave.status || "Pending"}

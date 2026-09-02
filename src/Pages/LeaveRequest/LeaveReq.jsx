@@ -25,14 +25,16 @@ export default function LeaveReq() {
   const [pendingLeavesReq, setPendingLeavesReq] = useState(null);
   const [page, setPage] = React.useState(1);
   const [leaveRequest, setLeaveRequest] = useState(null);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(5);
 
   const handlePageChange = (event, value) => {
-    setPage(value);
+    setPageIndex(value - 1);
   };
 
   useEffect(() => {
-    dispatch(actions.fetchPendingAllLeaveRequest());
-  }, []);
+    dispatch(actions.fetchPendingAllLeaveRequest(pageIndex, pageSize));
+  }, [dispatch, pageIndex, pageSize]);
 
   useEffect(() => {
     if (allPendingLeaveReq && allPendingLeaveReq.length > 0) {
@@ -52,25 +54,7 @@ export default function LeaveReq() {
     setOpen(true);
   };
 
-  console.log("open modal____", open);
-
-  const data = [
-    {
-      id: 1,
-      title: "Tanmay Kumar Sah Asset Request",
-      issuedDate: "June 12, 2025",
-    },
-    {
-      id: 2,
-      title: "Santosh Kumar Sahoo Asset Request",
-      issuedDate: "June 22, 2025",
-    },
-    {
-      id: 3,
-      title: "Sudeep Yadav Sah Asset Request",
-      issuedDate: "June 20, 2025",
-    },
-  ];
+  console.log("allPendingLeaveReq", allPendingLeaveReq);
 
   return (
     <Box
@@ -101,7 +85,7 @@ export default function LeaveReq() {
         </Typography>
 
         <Pagination
-          page={page}
+          page={pageIndex + 1}
           count={totalPages || 1}
           onChange={handlePageChange}
           variant="outlined"

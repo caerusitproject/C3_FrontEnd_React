@@ -54,15 +54,21 @@ export const fetchleaveRequestManagementService = (empCode) => {
   });
 };
 
-export const getPendingAllleaveRequestManagementService = () => {
+export const getPendingAllleaveRequestManagementService = (
+  pageIndex,
+  pageSize,
+) => {
   return new Promise(async (resolve, reject) => {
     try {
       let response = "";
-      response = await leaveApi.get(`v1/leave-management/team/leave-requests`, {
-        headers: {
-          "X-EMP-ID": 1,
+      response = await leaveApi.get(
+        `v1/leave-management/team/leave-requests?page=${pageIndex}&size=${pageSize}`,
+        {
+          headers: {
+            "X-EMP-ID": 1,
+          },
         },
-      });
+      );
 
       if (response) resolve(response);
     } catch (err) {
@@ -73,6 +79,7 @@ export const getPendingAllleaveRequestManagementService = () => {
 
 export const pendingleavesApprovalRejectManagementService = (
   leaveReqId,
+  remarks,
   approveReject,
 ) => {
   return new Promise(async (resolve, reject) => {
@@ -80,7 +87,7 @@ export const pendingleavesApprovalRejectManagementService = (
       let response = "";
       response = await leaveApi.put(
         `v1/leave-management/${leaveReqId}/${approveReject}`,
-        { remarks: "Default by the manager" },
+        approveReject == "approve" ? {} : { remarks: remarks },
         {
           headers: {
             "X-EMP-ID": 1,

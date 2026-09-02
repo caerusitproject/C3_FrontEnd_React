@@ -54,6 +54,9 @@ export default function ReasonDialoguePopup({
       }}
       maxWidth="sm"
       fullWidth
+      style={{
+        zIndex: 10000,
+      }}
       PaperProps={{
         sx: {
           backgroundColor: "var(--color-surface, #fff)",

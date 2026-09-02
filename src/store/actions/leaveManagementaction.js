@@ -106,10 +106,10 @@ export const getLeaveRequest = (empCode) => {
   };
 };
 
-export const fetchPendingAllLeaveRequest = () => {
+export const fetchPendingAllLeaveRequest = (pageIndex, pageSize) => {
   return (dispatch) => {
     dispatch(globalLoaderOpen());
-    getPendingAllleaveRequestManagementService()
+    getPendingAllleaveRequestManagementService(pageIndex, pageSize)
       .then((res) => {
         dispatch(globalLoaderClose());
         dispatch(storeallPendingLeaveRequest(res?.data?.data));
@@ -138,11 +138,16 @@ export const fetchPendingAllLeaveRequest = () => {
 
 export const ApprovalRejectAllPendingLeaveRequest = (
   leaveReqId,
+  remarks,
   approveReject,
 ) => {
   return (dispatch) => {
     dispatch(globalLoaderOpen());
-    pendingleavesApprovalRejectManagementService(leaveReqId, approveReject)
+    pendingleavesApprovalRejectManagementService(
+      leaveReqId,
+      remarks,
+      approveReject,
+    )
       .then((res) => {
         dispatch(globalLoaderClose());
         dispatch(storeallPendingLeaveRequest(res?.data?.data));
