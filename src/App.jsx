@@ -35,6 +35,9 @@ const AssetManagement = lazy(
 const ProjectMappingTable = lazy(
   () => import("./Pages/ProjectMapping/ProjectMappingTable.jsx"),
 );
+const HolidayConfig = lazy(
+  () => import("./Pages/HolidayConfiguration/HolidayConfig.jsx"),
+);
 
 export default function App() {
   const isAuthenticated = useSelector((state) => state.login.isAuthenticated);
@@ -75,7 +78,10 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route path="/home" element={<Home />} />
               <Route path="/attendance" element={<AttendanceNew />} />
-              {/* <Route path="/profile" element={<Profile />} /> */}
+              <Route
+                path="/holiday-configuration"
+                element={<HolidayConfig />}
+              />
               <Route path="/lms" element={<Leave />} />
               <Route path="/leave-requests" element={<LeaveRequest />} />
               <Route path="/payroll" element={<Payroll />} />

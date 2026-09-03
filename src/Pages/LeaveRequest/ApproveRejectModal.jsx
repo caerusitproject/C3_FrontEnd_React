@@ -12,11 +12,13 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
+
 import * as actions from "../../store/actions";
 
 import { Button } from "../../Components/ui/Button/Button";
 import { useTheme } from "../../context/ThemeContext";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import RemarksDialogue from "./RemarksDialogue";
 
 export default function ApproveRejectModal({
@@ -29,7 +31,12 @@ export default function ApproveRejectModal({
 }) {
   const theme = useTheme();
   const dispatch = useDispatch();
+
   const [remarksOpen, setRemarksOpen] = React.useState(false);
+
+  const pageIndex = useSelector((state) => state.leaveManagement.pageIndex);
+
+  const pageSize = useSelector((state) => state.leaveManagement.pageSize);
 
   const handleReject = () => {
     // onClose();
@@ -42,10 +49,12 @@ export default function ApproveRejectModal({
         leaveRequest?.leaveRequestId,
         "",
         "approve",
+        pageIndex,
+        pageSize,
       ),
     );
 
-    dispatch(actions.fetchPendingAllLeaveRequest());
+    // dispatch(actions.fetchPendingAllLeaveRequest());
     onClose();
   };
 
@@ -63,20 +72,17 @@ export default function ApproveRejectModal({
           borderRadius: {
             xs: 2,
             sm: 3,
-            md: 4,
           },
 
           overflow: "hidden",
 
-          background: theme.foundation.applicationBackground,
-
           width: {
             xs: "calc(100% - 24px)",
             sm: "calc(100% - 48px)",
-            md: "700px",
+            md: "100%",
           },
 
-          maxWidth: "700px",
+          maxWidth: "720px",
 
           margin: {
             xs: "12px",
@@ -85,9 +91,9 @@ export default function ApproveRejectModal({
         },
       }}
     >
-      {/* ==============================
+      {/* =====================================================
           HEADER
-      ============================== */}
+      ====================================================== */}
 
       <DialogTitle
         sx={{
@@ -104,333 +110,534 @@ export default function ApproveRejectModal({
           },
 
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
+          justifyContent: "space-between",
 
-          color: theme.typography.bodyText,
+          backgroundColor: theme.foundation.applicationBackground,
+
+          borderBottom: `1px solid ${theme.foundation.primaryColor}`,
         }}
       >
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
+        {/* Header Left */}
 
-            fontSize: {
-              xs: "20px",
-              sm: "22px",
-              md: "24px",
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+
+            gap: {
+              xs: 1.5,
+              sm: 2,
             },
 
-            color: theme.foundation.primaryColor,
+            minWidth: 0,
           }}
         >
-          Leave Request
-        </Typography>
+          {/* Icon */}
+
+          <Box
+            sx={{
+              width: {
+                xs: 40,
+                sm: 46,
+              },
+
+              height: {
+                xs: 40,
+                sm: 46,
+              },
+
+              flexShrink: 0,
+
+              borderRadius: {
+                xs: "10px",
+                sm: "12px",
+              },
+
+              backgroundColor: theme.foundation.surfaceBackground,
+
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+
+              color: theme.typography.bodyText,
+
+              border: `1px solid ${theme.foundation.primaryColor}`,
+            }}
+          >
+            <EventAvailableRoundedIcon
+              sx={{
+                fontSize: {
+                  xs: 21,
+                  sm: 24,
+                },
+              }}
+            />
+          </Box>
+
+          {/* Header Text */}
+
+          <Box
+            sx={{
+              minWidth: 0,
+            }}
+          >
+            <Typography
+              sx={{
+                fontWeight: 700,
+
+                fontSize: {
+                  xs: "17px",
+                  sm: "18px",
+                  md: "20px",
+                },
+
+                color: theme.typography.bodyText,
+
+                lineHeight: 1.3,
+
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              Leave Request
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 0.5,
+
+                fontSize: {
+                  xs: "12px",
+                  sm: "13px",
+                },
+
+                color: theme.typography.bodyText,
+
+                lineHeight: 1.4,
+
+                display: {
+                  xs: "none",
+                  sm: "block",
+                },
+              }}
+            >
+              Review the leave request details below
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Close Button */}
 
         <IconButton
           onClick={onClose}
           size="small"
           sx={{
-            ml: 1,
+            ml: 2,
+
+            flexShrink: 0,
+
+            width: {
+              xs: 34,
+              sm: 38,
+            },
+
+            height: {
+              xs: 34,
+              sm: 38,
+            },
+
+            backgroundColor: theme.foundation.surfaceBackground,
+
+            border: `1px solid ${theme.foundation.primaryColor}`,
+
+            "&:hover": {
+              backgroundColor: theme.foundation.surfaceBackground,
+            },
           }}
         >
           <CloseIcon
             sx={{
-              color: theme.typography.bodyText,
-
               fontSize: {
-                xs: 20,
-                sm: 22,
-                md: 24,
+                xs: 19,
+                sm: 21,
               },
+
+              color: theme.typography.bodyText,
             }}
           />
         </IconButton>
       </DialogTitle>
 
-      <Divider />
-
-      {/* ==============================
-          BODY
-      ============================== */}
+      {/* =====================================================
+          CONTENT
+      ====================================================== */}
 
       <DialogContent
         sx={{
+          p: 0,
+
+          backgroundColor: theme.foundation.applicationBackground,
+
           width: "100%",
           boxSizing: "border-box",
-
-          px: {
-            xs: 2,
-            sm: 3,
-            md: 4,
-          },
-
-          py: {
-            xs: 2.5,
-            sm: 3,
-            md: 4,
-          },
 
           overflowX: "hidden",
         }}
       >
-        {/* ==============================
-            EMPLOYEE + DURATION
-        ============================== */}
-
         <Box
           sx={{
-            display: "grid",
-
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "1fr 1fr",
-              md: "1fr 1fr",
+            px: {
+              xs: 2,
+              sm: 3,
+              md: 4,
             },
 
-            gap: {
+            py: {
               xs: 3,
-              sm: 4,
-              md: 5,
+              sm: 3.5,
+              md: 4,
             },
           }}
         >
-          {/* ==============================
-              LEFT SECTION
-          ============================== */}
+          {/* =================================================
+              SECTION HEADING
+          ================================================== */}
 
           <Box
             sx={{
-              minWidth: 0,
+              mb: {
+                xs: 2.5,
+                sm: 3,
+              },
             }}
           >
             <Typography
               sx={{
                 fontSize: {
-                  xs: 11,
-                  sm: 12,
+                  xs: "12px",
+                  sm: "13px",
                 },
 
-                color: theme.typography.primaryColor,
+                fontWeight: 700,
+
+                letterSpacing: "0.8px",
 
                 textTransform: "uppercase",
 
-                letterSpacing: 1,
-
-                mb: 1,
+                color: theme.foundation.primaryColor,
               }}
             >
-              Requested By
+              Leave Details
             </Typography>
 
             <Typography
               sx={{
+                mt: 0.5,
+
                 fontSize: {
-                  xs: 17,
-                  sm: 19,
-                  md: 20,
+                  xs: "12px",
+                  sm: "13px",
                 },
 
-                fontWeight: 600,
-
-                color: theme.typography.primaryColor,
-
-                wordBreak: "break-word",
+                color: theme.typography.bodyText,
               }}
             >
-              {leaveRequest?.employeeName || "-"}
+              Review the employee and leave duration information.
             </Typography>
+          </Box>
+
+          {/* =================================================
+              EMPLOYEE + DURATION
+          ================================================== */}
+
+          <Box
+            sx={{
+              display: "grid",
+
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "1fr 1fr",
+              },
+
+              columnGap: {
+                xs: 0,
+                sm: 3,
+              },
+
+              rowGap: {
+                xs: 3,
+                sm: 3,
+              },
+            }}
+          >
+            {/* =================================================
+                REQUESTED BY
+            ================================================== */}
 
             <Box
               sx={{
-                mt: {
-                  xs: 3,
-                  sm: 4,
-                  md: 5,
+                minWidth: 0,
+
+                p: {
+                  xs: 2,
+                  sm: 2.5,
                 },
+
+                borderRadius: 2,
+
+                backgroundColor: theme.foundation.surfaceBackground,
+
+                border: `1px solid ${theme.foundation.primaryColor}`,
               }}
             >
               <Typography
                 sx={{
                   fontSize: {
-                    xs: 11,
-                    sm: 12,
+                    xs: "11px",
+                    sm: "12px",
                   },
 
-                  color: theme.typography.primaryColor,
+                  color: theme.typography.bodyText,
 
                   textTransform: "uppercase",
 
                   letterSpacing: 1,
+
+                  mb: 1,
+                }}
+              >
+                Requested By
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: {
+                    xs: "17px",
+                    sm: "18px",
+                    md: "19px",
+                  },
+
+                  fontWeight: 600,
+
+                  color: theme.typography.bodyText,
+
+                  wordBreak: "break-word",
+
+                  lineHeight: 1.4,
+                }}
+              >
+                {leaveRequest?.employeeName || "-"}
+              </Typography>
+
+              <Typography
+                sx={{
+                  mt: 0.75,
+
+                  fontSize: {
+                    xs: "11px",
+                    sm: "12px",
+                  },
+
+                  color: theme.typography.bodyText,
+
+                  textTransform: "uppercase",
+
+                  letterSpacing: 0.8,
                 }}
               >
                 Software Engineer
               </Typography>
             </Box>
-          </Box>
 
-          {/* ==============================
-              RIGHT SECTION
-          ============================== */}
-
-          <Box
-            sx={{
-              minWidth: 0,
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: {
-                  xs: 11,
-                  sm: 12,
-                },
-
-                color: theme.typography.primaryColor,
-
-                textTransform: "uppercase",
-
-                letterSpacing: 1,
-
-                mb: 1,
-              }}
-            >
-              Duration
-            </Typography>
+            {/* =================================================
+                DURATION
+            ================================================== */}
 
             <Box
               sx={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 0.75,
+                minWidth: 0,
 
-                color: theme.typography.primaryColor,
+                p: {
+                  xs: 2,
+                  sm: 2.5,
+                },
 
-                flexWrap: "wrap",
+                borderRadius: 2,
 
-                wordBreak: "break-word",
+                backgroundColor: theme.foundation.surfaceBackground,
+
+                border: `1px solid ${theme.foundation.primaryColor}`,
               }}
             >
-              <CalendarTodayIcon
-                sx={{
-                  fontSize: {
-                    xs: 15,
-                    sm: 16,
-                  },
-
-                  mt: "3px",
-
-                  flexShrink: 0,
-                }}
-              />
-
               <Typography
                 sx={{
                   fontSize: {
-                    xs: 14,
-                    sm: 16,
-                    md: 17,
+                    xs: "11px",
+                    sm: "12px",
                   },
 
-                  fontWeight: 600,
+                  color: theme.typography.bodyText,
+
+                  textTransform: "uppercase",
+
+                  letterSpacing: 1,
+
+                  mb: 1,
+                }}
+              >
+                Duration
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+
+                  alignItems: "flex-start",
+
+                  gap: 1,
+
+                  minWidth: 0,
 
                   color: theme.typography.primaryColor,
+                }}
+              >
+                <CalendarTodayIcon
+                  sx={{
+                    fontSize: {
+                      xs: 16,
+                      sm: 18,
+                    },
 
-                  lineHeight: 1.6,
+                    mt: "3px",
+
+                    flexShrink: 0,
+
+                    color: theme.foundation.primaryColor,
+                  }}
+                />
+
+                <Typography
+                  sx={{
+                    fontSize: {
+                      xs: "14px",
+                      sm: "15px",
+                      md: "16px",
+                    },
+
+                    fontWeight: 600,
+
+                    color: theme.typography.bodyText,
+
+                    lineHeight: 1.6,
+
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {leaveRequest?.fromDate || "-"} -{" "}
+                  {leaveRequest?.toDate || "-"} ({leaveRequest?.totalDays || 0}{" "}
+                  days)
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* =================================================
+              JUSTIFICATION
+          ================================================== */}
+
+          <Box
+            sx={{
+              mt: {
+                xs: 3.5,
+                sm: 4,
+              },
+            }}
+          >
+            <Box
+              sx={{
+                mb: {
+                  xs: 1.5,
+                  sm: 2,
+                },
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: {
+                    xs: "12px",
+                    sm: "13px",
+                  },
+
+                  fontWeight: 700,
+
+                  letterSpacing: "0.8px",
+
+                  textTransform: "uppercase",
+
+                  color: theme.foundation.primaryColor,
+                }}
+              >
+                Justification
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                p: {
+                  xs: 2,
+                  sm: 2.5,
+                },
+
+                borderRadius: 2,
+
+                backgroundColor: theme.foundation.surfaceBackground,
+
+                borderLeft: {
+                  xs: `3px solid ${theme.foundation.primaryColor}`,
+                  sm: `4px solid ${theme.foundation.primaryColor}`,
+                },
+
+                borderTop: `1px solid ${theme.foundation.primaryColor}`,
+                borderRight: `1px solid ${theme.foundation.primaryColor}`,
+                borderBottom: `1px solid ${theme.foundation.primaryColor}`,
+
+                maxWidth: "100%",
+
+                overflowWrap: "break-word",
+              }}
+            >
+              <Typography
+                sx={{
+                  lineHeight: {
+                    xs: 1.6,
+                    sm: 1.8,
+                  },
+
+                  fontSize: {
+                    xs: "14px",
+                    sm: "15px",
+                    md: "16px",
+                  },
+
+                  color: theme.typography.bodyText,
 
                   wordBreak: "break-word",
                 }}
               >
-                {leaveRequest?.fromDate || "-"} - {leaveRequest?.toDate || "-"}{" "}
-                ({leaveRequest?.totalDays || 0} days)
+                {leaveRequest?.message || "Blank"}
               </Typography>
             </Box>
           </Box>
         </Box>
-
-        {/* ==============================
-            JUSTIFICATION
-        ============================== */}
-
-        <Box
-          sx={{
-            mt: {
-              xs: 3.5,
-              sm: 4,
-              md: 5,
-            },
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: {
-                xs: 11,
-                sm: 12,
-              },
-
-              color: theme.typography.primaryColor,
-
-              textTransform: "uppercase",
-
-              letterSpacing: 1,
-
-              mb: {
-                xs: 1.5,
-                sm: 2,
-              },
-            }}
-          >
-            Justification
-          </Typography>
-
-          <Box
-            sx={{
-              pl: {
-                xs: 1.5,
-                sm: 2,
-              },
-
-              pr: {
-                xs: 1,
-                sm: 2,
-              },
-
-              borderLeft: {
-                xs: `3px solid ${theme.foundation.primaryColor}`,
-                sm: `4px solid ${theme.foundation.primaryColor}`,
-              },
-
-              maxWidth: "100%",
-
-              overflowWrap: "break-word",
-            }}
-          >
-            <Typography
-              sx={{
-                lineHeight: {
-                  xs: 1.6,
-                  sm: 1.8,
-                },
-
-                fontSize: {
-                  xs: 14,
-                  sm: 15,
-                  md: 16,
-                },
-
-                color: theme.typography.primaryColor,
-
-                wordBreak: "break-word",
-              }}
-            >
-              {leaveRequest?.reason || "Blank"}
-            </Typography>
-          </Box>
-        </Box>
       </DialogContent>
 
-      {/* ==============================
+      {/* =====================================================
           FOOTER
-      ============================== */}
+      ====================================================== */}
+
+      <Divider />
 
       <DialogActions
         sx={{
@@ -450,6 +657,8 @@ export default function ApproveRejectModal({
             xs: 1.5,
             sm: 2,
           },
+
+          backgroundColor: theme.foundation.applicationBackground,
 
           justifyContent: "flex-end",
 
@@ -472,6 +681,10 @@ export default function ApproveRejectModal({
 
         <Button onClick={handleApprove}>Approve</Button>
       </DialogActions>
+
+      {/* =====================================================
+          REMARKS DIALOG
+      ====================================================== */}
 
       <RemarksDialogue
         open={remarksOpen}

@@ -8,6 +8,7 @@ import * as actions from "../../store/actions";
 import ApproveRejectModal from "./ApproveRejectModal";
 // import { TablePagination } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
+import { storePaginateIndexSize } from "../../store/slices/leaveManagementSlice";
 
 export default function LeaveReq() {
   const dispatch = useDispatch();
@@ -19,7 +20,6 @@ export default function LeaveReq() {
     (state) => state.leaveManagement.totalPendingLeaves,
   );
   const totalPages = useSelector((state) => state.leaveManagement.totalPages);
-
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [pendingLeavesReq, setPendingLeavesReq] = useState(null);
@@ -33,6 +33,7 @@ export default function LeaveReq() {
   };
 
   useEffect(() => {
+    dispatch(storePaginateIndexSize({ pageIndex, pageSize }));
     dispatch(actions.fetchPendingAllLeaveRequest(pageIndex, pageSize));
   }, [dispatch, pageIndex, pageSize]);
 

@@ -140,6 +140,8 @@ export const ApprovalRejectAllPendingLeaveRequest = (
   leaveReqId,
   remarks,
   approveReject,
+  pageIndex,
+  pageSize,
 ) => {
   return (dispatch) => {
     dispatch(globalLoaderOpen());
@@ -150,7 +152,7 @@ export const ApprovalRejectAllPendingLeaveRequest = (
     )
       .then((res) => {
         dispatch(globalLoaderClose());
-        dispatch(storeallPendingLeaveRequest(res?.data?.data));
+        dispatch(fetchPendingAllLeaveRequest(pageIndex, pageSize));
         dispatch(
           showAlert({
             type: "success",

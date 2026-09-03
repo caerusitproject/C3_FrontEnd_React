@@ -14,6 +14,9 @@ import {
   DialogContent,
   DialogTitle,
   Tooltip,
+  Box,
+  Typography,
+  Divider,
 } from "@mui/material";
 
 import Button from "../../Components/ui/Button/Button";
@@ -22,6 +25,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import AirlineSeatReclineExtraIcon from "@mui/icons-material/AirlineSeatReclineExtra";
 import ClearIcon from "@mui/icons-material/Clear";
+import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 export default function DialogueAppliedLeaves({
   theme,
@@ -39,22 +44,18 @@ export default function DialogueAppliedLeaves({
 
   handleSendConfirm,
 }) {
-  /*
-   * =====================================================
-   * EDIT LEAVE
-   * =====================================================
-   */
+  /* =====================================================
+     EDIT LEAVE
+  ====================================================== */
   const handleEditClick = (leave) => {
     if (handleEditLeave) {
       handleEditLeave(leave);
     }
   };
 
-  /*
-   * =====================================================
-   * RESPONSIVE COLUMN WIDTHS
-   * =====================================================
-   */
+  /* =====================================================
+     COLUMN WIDTHS
+  ====================================================== */
   const columnWidths = {
     startDate: "19%",
     endDate: "18%",
@@ -70,37 +71,47 @@ export default function DialogueAppliedLeaves({
     <Dialog
       open={leaveModalOpen}
       onClose={() => setLeaveModalOpen(false)}
-      maxWidth={false}
-      style={{
+      fullWidth
+      maxWidth="md"
+      sx={{
         zIndex: 10000,
       }}
       PaperProps={{
         sx: {
-          backgroundColor: "var(--color-surface, #fff)",
-          color: "var(--color-text-primary, inherit)",
-          borderRadius: "10px",
+          borderRadius: {
+            xs: 2,
+            sm: 3,
+          },
+
+          overflow: "hidden",
 
           width: {
             xs: "calc(100% - 24px)",
-            sm: "60vw",
+            sm: "calc(100% - 48px)",
+            md: "100%",
           },
 
-          maxWidth: {
-            xs: "calc(100% - 24px)",
-            sm: "60vw",
-          },
+          maxWidth: "820px",
 
           height: {
-            xs: "500px",
-            sm: "520px",
+            xs: "calc(100vh - 48px)",
+            sm: "560px",
           },
 
-          maxHeight: "520px",
+          maxHeight: {
+            xs: "calc(100vh - 48px)",
+            sm: "560px",
+          },
+
+          margin: {
+            xs: "12px",
+            sm: "24px",
+          },
 
           display: "flex",
           flexDirection: "column",
 
-          overflow: "hidden",
+          backgroundColor: theme?.foundation?.applicationBackground || "#fff",
         },
       }}
     >
@@ -110,10 +121,181 @@ export default function DialogueAppliedLeaves({
       <DialogTitle
         sx={{
           flexShrink: 0,
-          pb: 1,
+
+          px: {
+            xs: 2,
+            sm: 3,
+            md: 4,
+          },
+
+          py: {
+            xs: 2,
+            sm: 2.5,
+            md: 3,
+          },
+
+          backgroundColor: theme?.foundation?.applicationBackground || "#fff",
+
+          borderBottom: `1px solid ${
+            theme?.foundation?.primaryColor || "rgba(0,0,0,0.12)"
+          }`,
+
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+
+          gap: 2,
         }}
       >
-        Applied Leaves
+        {/* LEFT SIDE */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: {
+              xs: 1.25,
+              sm: 1.5,
+            },
+
+            minWidth: 0,
+          }}
+        >
+          {/* HEADER ICON */}
+          <Box
+            sx={{
+              width: {
+                xs: 40,
+                sm: 46,
+              },
+
+              height: {
+                xs: 40,
+                sm: 46,
+              },
+
+              flexShrink: 0,
+
+              borderRadius: 2,
+
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+
+              backgroundColor:
+                theme?.foundation?.surfaceBackground || "rgba(0,0,0,0.04)",
+
+              border: `1px solid ${
+                theme?.foundation?.primaryColor || "rgba(0,0,0,0.12)"
+              }`,
+            }}
+          >
+            <EventNoteRoundedIcon
+              sx={{
+                fontSize: {
+                  xs: 21,
+                  sm: 24,
+                },
+
+                color: theme?.foundation?.primaryColor || "inherit",
+              }}
+            />
+          </Box>
+
+          {/* TITLE */}
+          <Box
+            sx={{
+              minWidth: 0,
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: {
+                  xs: "17px",
+                  sm: "19px",
+                  md: "20px",
+                },
+
+                fontWeight: 700,
+
+                lineHeight: 1.2,
+
+                color: theme?.typography?.bodyText || "inherit",
+
+                whiteSpace: "nowrap",
+
+                overflow: "hidden",
+
+                textOverflow: "ellipsis",
+              }}
+            >
+              Applied Leaves
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 0.5,
+
+                fontSize: {
+                  xs: "12px",
+                  sm: "13px",
+                },
+
+                color: theme?.typography?.bodyText || "text.secondary",
+
+                display: {
+                  xs: "none",
+                  sm: "block",
+                },
+              }}
+            >
+              View and manage your applied leave requests
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* CLOSE BUTTON */}
+        <IconButton
+          onClick={() => setLeaveModalOpen(false)}
+          size="small"
+          sx={{
+            width: {
+              xs: 34,
+              sm: 38,
+            },
+
+            height: {
+              xs: 34,
+              sm: 38,
+            },
+
+            flexShrink: 0,
+
+            borderRadius: 1.5,
+
+            border: `1px solid ${
+              theme?.foundation?.primaryColor || "rgba(0,0,0,0.12)"
+            }`,
+
+            backgroundColor:
+              theme?.foundation?.surfaceBackground || "rgba(0,0,0,0.04)",
+
+            color: theme?.typography?.bodyText || "inherit",
+
+            "&:hover": {
+              backgroundColor:
+                theme?.foundation?.surfaceBackground || "rgba(0,0,0,0.08)",
+            },
+          }}
+        >
+          <CloseRoundedIcon
+            sx={{
+              fontSize: {
+                xs: 19,
+                sm: 21,
+              },
+            }}
+          />
+        </IconButton>
       </DialogTitle>
 
       {/* =====================================================
@@ -121,100 +303,159 @@ export default function DialogueAppliedLeaves({
       ====================================================== */}
       <DialogContent
         sx={{
-          /*
-           * Prevent horizontal scrolling
-           */
+          p: 0,
+
+          backgroundColor: theme?.foundation?.applicationBackground || "#fff",
+
           overflowX: "hidden",
 
-          /*
-           * Dialog itself does not vertically scroll.
-           * Table body handles vertical scrolling.
-           */
           overflowY: "hidden",
 
           minHeight: 0,
 
           flex: 1,
 
-          /*
-           * Important for responsive layout
-           */
-          width: "60vw",
-          maxWidth: "70vw",
-
-          boxSizing: "border-box",
-
-          pt: 1,
-
           display: "flex",
           flexDirection: "column",
         }}
       >
-        {/* =====================================================
-            NO LEAVES
-        ====================================================== */}
-        {!leaves || leaves.length === 0 ? (
-          <div
-            style={{
-              marginTop: "20px",
-              color: "var(--color-text-primary)",
+        {/* CONTENT WRAPPER */}
+        <Box
+          sx={{
+            px: {
+              xs: 2,
+              sm: 3,
+              md: 4,
+            },
+
+            py: {
+              xs: 2,
+              sm: 2.5,
+              md: 3,
+            },
+
+            minHeight: 0,
+
+            flex: 1,
+
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* =====================================================
+              SECTION HEADING
+          ====================================================== */}
+          <Box
+            sx={{
+              mb: {
+                xs: 1.5,
+                sm: 2,
+              },
+
+              flexShrink: 0,
             }}
           >
-            No Leaves Applied Yet
-          </div>
-        ) : (
-          <div
-            style={{
-              marginTop: "10px",
-
-              /*
-               * Responsive width
-               */
-              width: "100%",
-              maxWidth: "100%",
-
-              minWidth: 0,
-
-              display: "flex",
-              flexDirection: "column",
-
-              flex: 1,
-
-              minHeight: 0,
-
-              /*
-               * Prevent child from creating
-               * horizontal overflow
-               */
-              overflow: "hidden",
-            }}
-          >
-            {/* =================================================
-                TABLE PAPER
-            ================================================== */}
-            <Paper
+            <Typography
               sx={{
-                borderRadius: theme?.borderRadius?.large || "8px",
+                fontSize: {
+                  xs: "12px",
+                  sm: "13px",
+                },
 
-                boxShadow:
-                  theme?.shadows?.medium || "0 2px 8px rgba(0,0,0,0.08)",
+                fontWeight: 700,
 
-                color: "var(--color-text-primary, inherit)",
+                letterSpacing: "0.08em",
 
-                border: "1px solid var(--color-border, rgba(0,0,0,0.08))",
+                textTransform: "uppercase",
 
-                /*
-                 * Responsive width
-                 */
-                width: "100%",
-                maxWidth: "100%",
+                color: theme?.foundation?.primaryColor || "inherit",
 
-                /*
-                 * Prevent horizontal overflow
-                 */
+                mb: 0.5,
+              }}
+            >
+              Leave Requests
+            </Typography>
+
+            <Typography
+              sx={{
+                fontSize: {
+                  xs: "12px",
+                  sm: "13px",
+                },
+
+                color: theme?.typography?.bodyText || "text.secondary",
+              }}
+            >
+              Review your submitted leave requests and their current status.
+            </Typography>
+          </Box>
+
+          {/* =====================================================
+              NO LEAVES
+          ====================================================== */}
+          {!leaves || leaves.length === 0 ? (
+            <Box
+              sx={{
+                flex: 1,
+
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+
+                minHeight: 180,
+
+                borderRadius: 2,
+
+                backgroundColor:
+                  theme?.foundation?.surfaceBackground || "rgba(0,0,0,0.02)",
+
+                border: `1px solid ${
+                  theme?.foundation?.primaryColor || "rgba(0,0,0,0.08)"
+                }`,
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: {
+                    xs: "13px",
+                    sm: "14px",
+                  },
+
+                  color: theme?.typography?.bodyText || "text.secondary",
+
+                  textAlign: "center",
+                }}
+              >
+                No Leaves Applied Yet
+              </Typography>
+            </Box>
+          ) : (
+            /* =====================================================
+                TABLE SECTION
+            ====================================================== */
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+
+                backgroundColor: theme?.foundation?.surfaceBackground || "#fff",
+
+                border: `1px solid ${
+                  theme?.foundation?.primaryColor || "rgba(0,0,0,0.08)"
+                }`,
+
                 overflow: "hidden",
 
-                boxSizing: "border-box",
+                width: "100%",
+
+                minWidth: 0,
+
+                flex: 1,
+
+                minHeight: 0,
+
+                display: "flex",
+                flexDirection: "column",
               }}
             >
               {/* =================================================
@@ -223,103 +464,72 @@ export default function DialogueAppliedLeaves({
               <TableContainer
                 sx={{
                   width: "100%",
-                  maxWidth: "100%",
 
-                  /*
-                   * NO horizontal scrolling
-                   */
                   overflowX: "hidden",
 
                   overflowY: "hidden",
 
-                  boxSizing: "border-box",
+                  flexShrink: 0,
                 }}
               >
                 <Table
                   sx={{
-                    /*
-                     * Responsive table width
-                     */
                     width: "100%",
+
                     minWidth: 0,
 
                     tableLayout: "fixed",
 
                     "& .MuiTableCell-root": {
-                      color: "var(--color-text-primary, inherit)",
+                      color: theme?.typography?.primaryColor || "inherit",
 
-                      borderColor: "var(--color-border, rgba(0,0,0,0.08))",
+                      borderColor:
+                        theme?.foundation?.primaryColor || "rgba(0,0,0,0.08)",
 
-                      /*
-                       * Keep existing behavior
-                       */
                       whiteSpace: "nowrap",
 
-                      padding: "8px",
+                      padding: {
+                        xs: "7px 5px",
+                        sm: "8px",
+                      },
 
                       boxSizing: "border-box",
 
-                      /*
-                       * Prevent cell from expanding table
-                       */
                       overflow: "hidden",
+
+                      fontSize: {
+                        xs: "11px",
+                        sm: "12px",
+                        md: "13px",
+                      },
                     },
                   }}
                 >
-                  {/* =================================================
-                      COLUMN WIDTHS
-                  ================================================== */}
                   <colgroup>
-                    <col
-                      style={{
-                        width: columnWidths.startDate,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.endDate,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.days,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.reason,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.status,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.action,
-                      }}
-                    />
+                    <col style={{ width: columnWidths.startDate }} />
+                    <col style={{ width: columnWidths.endDate }} />
+                    <col style={{ width: columnWidths.days }} />
+                    <col style={{ width: columnWidths.reason }} />
+                    <col style={{ width: columnWidths.status }} />
+                    <col style={{ width: columnWidths.action }} />
                   </colgroup>
 
-                  {/* =================================================
-                      HEADER
-                  ================================================== */}
                   <TableHead>
                     <TableRow
                       sx={{
                         backgroundColor:
-                          "var(--color-primary-light, rgba(0,0,0,0.04))",
+                          theme?.foundation?.applicationBackground ||
+                          "rgba(0,0,0,0.04)",
 
-                        height: "40px",
+                        height: {
+                          xs: "42px",
+                          sm: "44px",
+                        },
 
                         "& .MuiTableCell-root": {
-                          fontWeight: 600,
+                          fontWeight: 700,
+
+                          color: theme?.typography?.bodyText || "inherit",
                         },
                       }}
                     >
@@ -345,34 +555,26 @@ export default function DialogueAppliedLeaves({
               <TableContainer
                 sx={{
                   width: "100%",
-                  maxWidth: "100%",
 
-                  /*
-                   * Explicitly disable horizontal scrolling
-                   */
+                  minWidth: 0,
+
                   overflowX: "hidden",
 
-                  /*
-                   * Show maximum 3 rows
-                   */
-                  height: `${Math.min(leaves.length, 3) * 48}px`,
-
-                  /*
-                   * Vertical scrolling only
-                   */
                   overflowY: leaves.length > 3 ? "auto" : "hidden",
+
+                  flex: 1,
+
+                  minHeight: 0,
 
                   boxSizing: "border-box",
 
-                  /*
-                   * Vertical scrollbar
-                   */
                   "&::-webkit-scrollbar": {
                     width: "7px",
                   },
 
                   "&::-webkit-scrollbar-thumb": {
-                    backgroundColor: "var(--color-border, rgba(0,0,0,0.25))",
+                    backgroundColor:
+                      theme?.foundation?.primaryColor || "rgba(0,0,0,0.25)",
 
                     borderRadius: "10px",
                   },
@@ -384,152 +586,152 @@ export default function DialogueAppliedLeaves({
               >
                 <Table
                   sx={{
-                    /*
-                     * Responsive table
-                     */
                     width: "100%",
+
                     minWidth: 0,
 
                     tableLayout: "fixed",
 
                     "& .MuiTableCell-root": {
-                      color: "var(--color-text-primary, inherit)",
+                      color: theme?.typography?.bodyText || "inherit",
 
-                      borderColor: "var(--color-border, rgba(0,0,0,0.08))",
+                      borderColor:
+                        theme?.foundation?.primaryColor || "rgba(0,0,0,0.08)",
 
                       whiteSpace: "nowrap",
 
-                      padding: "8px",
+                      padding: {
+                        xs: "7px 5px",
+                        sm: "8px",
+                      },
 
-                      height: "40px",
+                      height: {
+                        xs: "42px",
+                        sm: "44px",
+                      },
 
                       boxSizing: "border-box",
 
-                      /*
-                       * Prevent cell content from
-                       * increasing table width
-                       */
                       overflow: "hidden",
+
+                      fontSize: {
+                        xs: "11px",
+                        sm: "12px",
+                        md: "13px",
+                      },
                     },
                   }}
                 >
-                  {/* =================================================
-                      SAME COLUMN WIDTHS AS HEADER
-                  ================================================== */}
                   <colgroup>
-                    <col
-                      style={{
-                        width: columnWidths.startDate,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.endDate,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.days,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.reason,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.status,
-                      }}
-                    />
-
-                    <col
-                      style={{
-                        width: columnWidths.action,
-                      }}
-                    />
+                    <col style={{ width: columnWidths.startDate }} />
+                    <col style={{ width: columnWidths.endDate }} />
+                    <col style={{ width: columnWidths.days }} />
+                    <col style={{ width: columnWidths.reason }} />
+                    <col style={{ width: columnWidths.status }} />
+                    <col style={{ width: columnWidths.action }} />
                   </colgroup>
 
-                  {/* =================================================
-                      TABLE BODY
-                  ================================================== */}
                   <TableBody>
                     {leaves.map((leave) => (
                       <TableRow
                         key={leave.id}
                         hover
                         sx={{
-                          height: "40px",
+                          height: {
+                            xs: "42px",
+                            sm: "44px",
+                          },
+
+                          "&:last-child td": {
+                            borderBottom: 0,
+                          },
                         }}
                       >
-                        {/* =========================
-                            START DATE
-                        ========================== */}
+                        {/* START DATE */}
                         <TableCell align="left">{leave.start || "-"}</TableCell>
 
-                        {/* =========================
-                            END DATE
-                        ========================== */}
+                        {/* END DATE */}
                         <TableCell align="left">{leave.end || "-"}</TableCell>
 
-                        {/* =========================
-                            DAYS
-                        ========================== */}
+                        {/* DAYS */}
                         <TableCell align="center">{leave.days || 0}</TableCell>
 
-                        {/* =========================
-                            REASON
-                        ========================== */}
+                        {/* REASON */}
                         <TableCell align="center">
-                          <Tooltip title={leave.reason || "No reason provided"}>
-                            <AirlineSeatReclineExtraIcon
+                          <Tooltip
+                            title={leave?.message || "No reason provided"}
+                            slotProps={{
+                              popper: {
+                                sx: {
+                                  zIndex: 10001,
+                                },
+                              },
+                            }}
+                          >
+                            <IconButton
+                              size="small"
                               sx={{
-                                display: "block",
+                                width: 30,
+                                height: 30,
 
-                                margin: "0 auto",
+                                color:
+                                  theme?.foundation?.primaryColor || "inherit",
 
-                                fontSize: "20px",
-
-                                color: "var(--color-text-secondary)",
+                                "&:hover": {
+                                  backgroundColor:
+                                    theme?.foundation?.applicationBackground ||
+                                    "rgba(0,0,0,0.05)",
+                                },
                               }}
-                            />
+                            >
+                              <AirlineSeatReclineExtraIcon
+                                sx={{
+                                  fontSize: 19,
+                                }}
+                              />
+                            </IconButton>
                           </Tooltip>
                         </TableCell>
 
-                        {/* =========================
-                            STATUS
-                        ========================== */}
+                        {/* STATUS */}
                         <TableCell align="center">
-                          <span
-                            style={{
+                          <Box
+                            component="span"
+                            sx={{
                               display: "inline-flex",
 
                               alignItems: "center",
 
                               justifyContent: "center",
 
-                              padding: "4px 10px",
+                              padding: {
+                                xs: "3px 7px",
+                                sm: "4px 10px",
+                              },
 
                               borderRadius: "999px",
 
-                              fontSize: "12px",
+                              fontSize: {
+                                xs: "10px",
+                                sm: "11px",
+                                md: "12px",
+                              },
 
                               fontWeight: 600,
 
-                              color: "var(--color-warning-text)",
+                              color: theme?.typography?.bodyText || "inherit",
 
-                              backgroundColor: "var(--color-warning-bg)",
+                              backgroundColor:
+                                theme?.foundation?.applicationBackground ||
+                                "rgba(0,0,0,0.04)",
+
+                              border: `1px solid ${
+                                theme?.foundation?.primaryColor ||
+                                "rgba(0,0,0,0.12)"
+                              }`,
 
                               whiteSpace: "nowrap",
 
-                              /*
-                               * Prevent status from
-                               * increasing table width
-                               */
                               maxWidth: "100%",
 
                               overflow: "hidden",
@@ -540,34 +742,38 @@ export default function DialogueAppliedLeaves({
                             }}
                           >
                             {leave.status || "Pending"}
-                          </span>
+                          </Box>
                         </TableCell>
 
-                        {/* =========================
-                            EDIT ACTION
-                        ========================== */}
+                        {/* ACTION */}
                         <TableCell align="center">
                           <Tooltip title="Modify Leave">
                             <IconButton
                               onClick={() => handleEditClick(leave)}
                               size="small"
                               sx={{
-                                color: "var(--color-primary)",
+                                width: 30,
+                                height: 30,
 
-                                padding: "4px",
+                                color:
+                                  theme?.foundation?.primaryColor || "inherit",
 
                                 "&:hover": {
-                                  backgroundColor: "var(--color-primary-light)",
+                                  backgroundColor:
+                                    theme?.foundation?.applicationBackground ||
+                                    "rgba(0,0,0,0.05)",
                                 },
                               }}
                             >
-                              {leave?.status == "Pending" ||
-                              leave?.status == "pending" ? (
+                              {leave?.status === "Pending" ||
+                              leave?.status === "pending" ? (
                                 <EditIcon fontSize="small" />
-                              ) : leave?.status == "rejected" ||
-                                leave?.status == "Rejected" ? (
+                              ) : leave?.status === "rejected" ||
+                                leave?.status === "Rejected" ? (
                                 <ClearIcon
-                                  sx={{ color: "red" }}
+                                  sx={{
+                                    color: "red",
+                                  }}
                                   fontSize="small"
                                 />
                               ) : (
@@ -582,26 +788,52 @@ export default function DialogueAppliedLeaves({
                 </Table>
               </TableContainer>
             </Paper>
-          </div>
-        )}
+          )}
+        </Box>
       </DialogContent>
 
       {/* =====================================================
           FOOTER
       ====================================================== */}
+      <Divider />
+
       <DialogActions
         sx={{
           flexShrink: 0,
 
-          pt: 1,
+          px: {
+            xs: 2,
+            sm: 3,
+            md: 4,
+          },
 
-          padding: "8px 24px 16px",
+          py: {
+            xs: 1.5,
+            sm: 2,
+          },
+
+          backgroundColor: theme?.foundation?.applicationBackground || "#fff",
+
+          flexDirection: {
+            xs: "column-reverse",
+            sm: "row",
+          },
+
+          gap: {
+            xs: 1,
+            sm: 1.5,
+          },
         }}
       >
         <Button
           onClick={() => setLeaveModalOpen(false)}
           sx={{
-            color: "var(--color-text-primary, inherit)",
+            color: theme?.typography?.primaryColor || "inherit",
+
+            width: {
+              xs: "100%",
+              sm: "auto",
+            },
           }}
         >
           Close

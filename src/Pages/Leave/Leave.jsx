@@ -143,7 +143,7 @@ const Leave = () => {
     }
 
     return holidaysList
-      .filter(
+      ?.filter(
         (holiday) =>
           holiday?.activeStatusCode === "ACTIVE" && holiday?.holidayDate,
       )
@@ -803,7 +803,7 @@ const Leave = () => {
      * =========================================================
      */
     const holidayEvents = holidaysList
-      .filter(
+      ?.filter(
         (holiday) =>
           holiday?.activeStatusCode === "ACTIVE" && holiday?.holidayDate,
       )
