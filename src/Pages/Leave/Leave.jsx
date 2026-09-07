@@ -802,16 +802,18 @@ const Leave = () => {
      * HOLIDAYS
      * =========================================================
      */
-    const holidayEvents = holidaysList
-      ?.filter(
-        (holiday) =>
-          holiday?.activeStatusCode === "ACTIVE" && holiday?.holidayDate,
-      )
-      .map((holiday) => ({
-        date: holiday.holidayDate,
-        type: "holiday",
-        label: holiday.holidayName || "Holiday",
-      }));
+    const holidayEvents =
+      holidaysList ||
+      []
+        ?.filter(
+          (holiday) =>
+            holiday?.activeStatusCode === "ACTIVE" && holiday?.holidayDate,
+        )
+        .map((holiday) => ({
+          date: holiday.holidayDate,
+          type: "holiday",
+          label: holiday.holidayName || "Holiday",
+        }));
 
     return [...leaveEvents, ...holidayEvents];
   }, [leaves, editingLeaveId, holidaysList, todayStr]);

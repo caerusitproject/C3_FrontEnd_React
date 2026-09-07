@@ -707,6 +707,9 @@ export default function ReasonDialoguePopup({
                 <Select
                   size="small"
                   value={leaveType}
+                  MenuProps={{
+                    disablePortal: true,
+                  }}
                   onChange={(e) => {
                     setLeaveType(e.target.value);
                   }}

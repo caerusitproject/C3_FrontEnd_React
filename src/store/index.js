@@ -8,6 +8,7 @@ import assetRequestReducer from "./slices/assetRequestSlice";
 import assetManagementReducer from "./slices/assetManagementSlice";
 import leaveManagementReducer from "./slices/leaveManagementSlice";
 import attendanceManagementReducer from "./slices/attendanceSlice";
+import payrollReducer from "./slices/payrollSlice";
 import holidayReducer from "./slices/holidaySlice";
 
 export const store = configureStore({
@@ -21,6 +22,7 @@ export const store = configureStore({
     assetManagement: assetManagementReducer,
     leaveManagement: leaveManagementReducer,
     attendanceManagement: attendanceManagementReducer,
+    payroll: payrollReducer,
     holiday: holidayReducer,
   },
 });

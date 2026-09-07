@@ -557,6 +557,11 @@ export default function DialogueAppliedLeaves({
                   width: "100%",
 
                   minWidth: 0,
+                  maxHeight: {
+                    xs: "180px", // ~4 rows on mobile
+                    sm: "190px",
+                    md: "200px",
+                  },
 
                   overflowX: "hidden",
 
@@ -587,7 +592,6 @@ export default function DialogueAppliedLeaves({
                 <Table
                   sx={{
                     width: "100%",
-
                     minWidth: 0,
 
                     tableLayout: "fixed",
@@ -722,9 +726,12 @@ export default function DialogueAppliedLeaves({
                               color: theme?.typography?.bodyText || "inherit",
 
                               backgroundColor:
-                                theme?.foundation?.applicationBackground ||
-                                "rgba(0,0,0,0.04)",
-
+                                leave?.status == "Approved"
+                                  ? "rgba(13, 231, 60, 0.04)"
+                                  : leave?.status == "Rejected"
+                                    ? "rgba(202, 9, 9, 0.04)"
+                                    : theme?.foundation?.applicationBackground,
+                              // theme?.foundation?.applicationBackground ||
                               border: `1px solid ${
                                 theme?.foundation?.primaryColor ||
                                 "rgba(0,0,0,0.12)"

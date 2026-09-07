@@ -42,11 +42,11 @@ const AddorEditholiday = ({
     (state) => state.holiday?.paginationIndex,
   );
   const paginationSize = useSelector((state) => state.holiday?.paginationSize);
-
   const [formData, setFormData] = useState({
     holidayName: "",
     holidayDate: "",
     holidayTypeCode: "",
+    year: new Date().getFullYear(),
   });
 
   React.useEffect(() => {
@@ -124,6 +124,7 @@ const AddorEditholiday = ({
       holidayName: formData.holidayName,
       holidayDate: formData.holidayDate,
       holidayTypeCode: formData.holidayTypeCode,
+      // year:formData.year
     };
 
     if (editMode) {
@@ -157,6 +158,7 @@ const AddorEditholiday = ({
   return (
     <Dialog
       open={open}
+      // open={true}
       onClose={() => {
         onClose();
         reset();
@@ -271,6 +273,19 @@ const AddorEditholiday = ({
                     No holiday types available
                   </MenuItem>
                 )}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth size="small">
+              <InputLabel>YEAR</InputLabel>
+              <Select
+                value={formData.year}
+                label="YEAR"
+                onChange={(e) => handleChange("year", e.target.value)}
+              >
+                <MenuItem value="2026">2026</MenuItem>
+                <MenuItem value="2027">2027</MenuItem>
+                <MenuItem value="2028">2028</MenuItem>
               </Select>
             </FormControl>
           </Box>

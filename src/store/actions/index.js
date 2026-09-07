@@ -9,4 +9,5 @@ export * from "./assetRequestAction";
 export * from "./leaveManagementaction";
 export * from "./attendanceAction";
 export * from "./holidayConfigurationAction";
+export * from "./payrollAction";
 export { showAlert, hideAlert } from "../slices/alertSlice";

@@ -17,6 +17,17 @@ import { openConfirmationDialogue } from "../../store/slices/assetManagementSlic
 import AddorEditholiday from "./AddorEditholiday";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ConfirmDialog from "../ConfirmationDialogue";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 
 export default function AssetManagementTable() {
   const theme = useTheme();
@@ -27,6 +38,7 @@ export default function AssetManagementTable() {
   const [holidaySetList, setHolidaySetList] = React.useState(null);
   const [editMode, setEditMode] = React.useState(false);
   const [holidayObj, setSetholidayObj] = React.useState(null);
+  const [year, setYear] = React.useState(new Date().getFullYear());
   //   const [selectAssetObj, setSelectAssetObj] = React.useState(null);
   const [holidayId, setHolidayId] = React.useState(null);
   const [actionType, setActionType] = React.useState(null);
@@ -38,6 +50,7 @@ export default function AssetManagementTable() {
 
   React.useEffect(() => {
     if (holidayList?.length > 0) {
+      console.log("holiday list___", holidayList);
       const sortedList = [...holidayList].sort(
         (a, b) => a.holidayId - b.holidayId,
       );
@@ -52,13 +65,23 @@ export default function AssetManagementTable() {
         pagination?.pageSize,
       ),
     );
-    dispatch(
-      actions.fetchAllHolidaysLeaves(
-        pagination?.pageIndex,
-        pagination?.pageSize,
-        currentYear,
-      ),
-    );
+    if (year) {
+      dispatch(
+        actions.fetchAllHolidaysLeaves(
+          pagination?.pageIndex,
+          pagination?.pageSize,
+          year,
+        ),
+      );
+    } else {
+      dispatch(
+        actions.fetchAllHolidaysLeaves(
+          pagination?.pageIndex,
+          pagination?.pageSize,
+          currentYear,
+        ),
+      );
+    }
   }, [dispatch, pagination.pageIndex, pagination.pageSize]);
 
   React.useEffect(() => {
@@ -615,18 +638,49 @@ export default function AssetManagementTable() {
             </select>
           </div>
 
-          <div>
-            <Button
-              onClick={handleAddMapping}
-              style={{
-                padding: "12px 22px",
-                borderRadius: "10px",
-                fontWeight: 700,
-                boxShadow: `0 10px 24px ${theme.foundation.primaryColor}40`,
-              }}
-            >
-              + Add Holiday
-            </Button>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px",
+              width: "20%",
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Year</InputLabel>
+                <Select
+                  value={year}
+                  label="Year"
+                  onChange={(e) => {
+                    dispatch(
+                      actions.fetchAllHolidaysLeaves(
+                        0,
+                        pagination?.pageSize,
+                        e.target.value,
+                      ),
+                    );
+                  }}
+                >
+                  <MenuItem value="2026">2026</MenuItem>
+                  <MenuItem value="2027">2027</MenuItem>
+                  <MenuItem value="2028">2028</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            <div>
+              <Button
+                onClick={handleAddMapping}
+                style={{
+                  padding: "12px 22px",
+                  borderRadius: "10px",
+                  fontWeight: 700,
+                  boxShadow: `0 10px 24px ${theme.foundation.primaryColor}40`,
+                }}
+              >
+                + Add Holiday
+              </Button>
+            </div>
           </div>
         </Box>
 

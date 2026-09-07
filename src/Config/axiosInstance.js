@@ -35,6 +35,14 @@ const superAdminApi = axios.create({
   },
 });
 
+const payrollApi = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL_PAYROLL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 /* ============================================================
    REQUEST INTERCEPTOR
    Attach access token to BOTH api and leaveApi
@@ -96,6 +104,10 @@ leaveApi.interceptors.request.use(attachAccessToken, (error) =>
 );
 
 superAdminApi.interceptors.request.use(attachAccessToken, (error) =>
+  Promise.reject(error),
+);
+
+payrollApi.interceptors.request.use(attachAccessToken, (error) =>
   Promise.reject(error),
 );
 
@@ -315,6 +327,89 @@ superAdminApi.interceptors.response.use(
   },
 );
 
+payrollApi.interceptors.response.use(
+  (response) => response,
+
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (originalRequest?.skipAuth) {
+      return Promise.reject(error);
+    }
+
+    if (
+      error.response?.status === 401 ||
+      (error.response?.status === 404 && !originalRequest._retry)
+    ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve,
+            reject,
+          });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+
+            return api(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = localStorage.getItem("refresh-token");
+
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/auth/refresh`,
+          {
+            refreshToken,
+          },
+        );
+
+        const newAccessToken = response?.data?.accessToken;
+
+        localStorage.setItem("access-token", newAccessToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        processQueue(null, newAccessToken);
+
+        return api(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+
+        if (
+          refreshError.response?.status === 401 ||
+          refreshError.response?.status === 404
+        ) {
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("refresh-token");
+
+          store.dispatch(logout());
+
+          store.dispatch(
+            showAlert({
+              type: "error",
+              title: "Session Expired",
+              message: "Your session has expired. Please login again.",
+            }),
+          );
+
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
 /* ============================================================
    RESPONSE INTERCEPTOR
    leaveApi
@@ -404,4 +499,4 @@ leaveApi.interceptors.response.use(
   },
 );
 
-export { api, leaveApi, attendanceApi, superAdminApi };
+export { api, leaveApi, attendanceApi, superAdminApi, payrollApi };

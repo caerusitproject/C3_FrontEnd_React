@@ -20,49 +20,51 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-
+import * as actions from "../../store/actions";
 import { useThemeContext } from "../../context/ThemeContext";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import { useDispatch, useSelector } from "react-redux";
+import { clearPayroll } from "../../store/slices/payrollSlice";
 
 /* =========================================================
    SAMPLE DATA
    Replace this with API data later
 ========================================================= */
-
-const earningsData = [
+const earningFields = [
   {
     id: 1,
     name: "Basic Salary",
-    amount: 398080,
+    field: "basicSalary",
   },
   {
     id: 2,
     name: "Dearness Allowance",
-    amount: 195040,
+    field: "dearnessAllowance",
   },
   {
     id: 3,
     name: "House Rent Allowance",
-    amount: 95040,
+    field: "houseRentAllowance",
   },
   {
     id: 4,
     name: "City Compensation Allowance",
-    amount: 94760,
+    field: "cityCompensationAllowance",
   },
   {
     id: 5,
     name: "Conveyance Allowance",
-    amount: 5280,
+    field: "conveyanceAllowance",
   },
   {
     id: 6,
     name: "Medical Allowance",
-    amount: 15000,
+    field: "medicalAllowance",
   },
   {
     id: 7,
     name: "Retention Bonus (Yearly)",
-    amount: 582800,
+    field: "retentionBonus",
   },
 ];
 
@@ -70,29 +72,94 @@ const deductionsData = [
   {
     id: 1,
     name: "Provident Fund (Employee PF)",
-    amount: 47770,
+    field: "providentFund",
   },
   {
     id: 2,
     name: "Professional Tax",
-    amount: 2400,
+    field: "professionalTax",
   },
   {
     id: 3,
     name: "Income Tax (TDS)",
-    amount: null,
+    field: "incomeTax",
   },
   {
     id: 4,
     name: "ESI",
-    amount: null,
+    field: null,
   },
   {
     id: 5,
     name: "Other Deductions",
-    amount: null,
+    field: null,
   },
 ];
+// const earningsData = [
+//   {
+//     id: 1,
+//     name: "Basic Salary",
+//     amount: 398080,
+//   },
+//   {
+//     id: 2,
+//     name: "Dearness Allowance",
+//     amount: 195040,
+//   },
+//   {
+//     id: 3,
+//     name: "House Rent Allowance",
+//     amount: 95040,
+//   },
+//   {
+//     id: 4,
+//     name: "City Compensation Allowance",
+//     amount: 94760,
+//   },
+//   {
+//     id: 5,
+//     name: "Conveyance Allowance",
+//     amount: 5280,
+//   },
+//   {
+//     id: 6,
+//     name: "Medical Allowance",
+//     amount: 15000,
+//   },
+//   {
+//     id: 7,
+//     name: "Retention Bonus (Yearly)",
+//     amount: 582800,
+//   },
+// ];
+
+// const deductionsData = [
+//   {
+//     id: 1,
+//     name: "Provident Fund (Employee PF)",
+//     amount: 47770,
+//   },
+//   {
+//     id: 2,
+//     name: "Professional Tax",
+//     amount: 2400,
+//   },
+//   {
+//     id: 3,
+//     name: "Income Tax (TDS)",
+//     amount: null,
+//   },
+//   {
+//     id: 4,
+//     name: "ESI",
+//     amount: null,
+//   },
+//   {
+//     id: 5,
+//     name: "Other Deductions",
+//     amount: null,
+//   },
+// ];
 
 const salarySlipsData = [
   {
@@ -106,6 +173,24 @@ const salarySlipsData = [
     month: "January 2026",
     processedDate: "Dec 30, 2025",
     fileName: "salary-slip-january-2026.pdf",
+  },
+  {
+    id: 5,
+    month: "March 2026",
+    processedDate: "Dec 30, 2025",
+    fileName: "salary-slip-march-2026.pdf",
+  },
+  {
+    id: 6,
+    month: "April 2026",
+    processedDate: "Dec 30, 2025",
+    fileName: "salary-slip-april-2026.pdf",
+  },
+  {
+    id: 7,
+    month: "May 2026",
+    processedDate: "Dec 30, 2025",
+    fileName: "salary-slip-may-2026.pdf",
   },
   {
     id: 3,
@@ -133,20 +218,52 @@ const formatAmount = (amount) => {
   return new Intl.NumberFormat("en-IN").format(amount);
 };
 
+// function formatIndianCurrency(amount) {
+//   return new Intl.NumberFormat("en-IN", {
+//     maximumFractionDigits: 2,
+//   }).format(amount);
+// }
+
 /* =========================================================
    COMPONENT
 ========================================================= */
 
 const Payroll = () => {
+  const payroll = useSelector((state) => state.payroll.payrollRequest);
+  const dispatch = useDispatch();
+  const { loggedInUser } = useSelector((state) => state.login);
   const { theme } = useThemeContext();
 
   const [selectedYear, setSelectedYear] = useState("2026");
+
+  React.useEffect(() => {
+    if (!loggedInUser?.empId) return;
+
+    dispatch(actions.getPayrollPerEmployeeId(loggedInUser?.empId || ""));
+
+    return () => {
+      dispatch(clearPayroll());
+    };
+  }, [dispatch, loggedInUser?.empId]);
+
+  const earningsData = earningFields.map((earning) => ({
+    id: earning.id,
+    name: earning.name,
+    amount: payroll?.[earning.field] ?? 0,
+  }));
+
+  const deductionData = deductionsData.map((deduction) => ({
+    id: deduction.id,
+    name: deduction.name,
+    amount: payroll?.[deduction.field] ?? 0,
+  }));
 
   /* =========================================================
      THEME COLORS
   ========================================================= */
 
   console.log("themes__", theme.foundation);
+  console.log("payroll___", payroll);
 
   const colors = useMemo(
     () => ({
@@ -364,7 +481,7 @@ const Payroll = () => {
                     fontWeight: 700,
                   }}
                 >
-                  −
+                  <CurrencyRupeeIcon sx={{ fontSize: 15 }} />
                 </Box>
 
                 <Typography
@@ -397,7 +514,7 @@ const Payroll = () => {
             {/* Column Body */}
 
             <Box sx={{ width: "100%" }}>
-              {earningsData.map((item) => (
+              {earningsData?.map((item) => (
                 <Box
                   key={item.id}
                   sx={{
@@ -518,7 +635,7 @@ const Payroll = () => {
             {/* Column Body */}
 
             <Box sx={{ width: "100%" }}>
-              {deductionsData.map((item) => (
+              {deductionData?.map((item) => (
                 <Box
                   key={item.id}
                   sx={{
@@ -602,7 +719,7 @@ const Payroll = () => {
               color: colors.primary,
             }}
           >
-            ₹{formatAmount(ctc)}
+            ₹{formatAmount(payroll?.grossCtc || 0)}
           </Typography>
         </Box>
       </Paper>
@@ -747,7 +864,7 @@ const Payroll = () => {
               Approximately two salary slips visible at once.
               User can vertically scroll for more.
             */
-            maxHeight: 150,
+            maxHeight: 210,
             overflowY: "auto",
             pr: 0.25,
 
