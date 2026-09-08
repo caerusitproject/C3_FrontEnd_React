@@ -139,7 +139,6 @@ export const updateHolidayList = (
 export const deleteHolidayList = (
   holidayId,
   setPagination,
-  payload,
   paginationIndex,
   paginationSize,
 ) => {

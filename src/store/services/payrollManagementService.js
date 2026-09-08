@@ -2,13 +2,13 @@ import { payrollApi } from "../../Config/axiosInstance";
 
 // fetchAllProjectMappingService
 
-export const fetchPayrollManagementService = (employeeId) => {
+export const fetchPayrollManagementService = (employeeId, effectiveDate) => {
   return new Promise(async (resolve, reject) => {
     try {
       let response = "";
       if (employeeId) {
         response = await payrollApi.get(
-          `/v1/payroll/salary-structures/employee/${employeeId}/current`,
+          `/v1/salary-structures/employee/${employeeId}/current?effectiveDate=${effectiveDate}`,
           {
             "Content-Type": "application/json",
           },

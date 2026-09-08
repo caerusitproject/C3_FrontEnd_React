@@ -10,10 +10,10 @@ import {
 } from "../slices/payrollSlice";
 import { globalLoaderOpen, globalLoaderClose } from "../slices/globalSlice";
 
-export const getPayrollPerEmployeeId = (employeeId) => {
+export const getPayrollPerEmployeeId = (employeeId, effectiveDate) => {
   return (dispatch) => {
     dispatch(globalLoaderOpen());
-    fetchPayrollManagementService(employeeId)
+    fetchPayrollManagementService(employeeId, effectiveDate)
       .then((res) => {
         dispatch(globalLoaderClose());
         dispatch(storeAllpayrollRequest(res?.data?.data));

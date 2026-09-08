@@ -46,15 +46,17 @@ export default function AssetManagementTable() {
     pageIndex: 0,
     pageSize: 5,
   });
-  const currentYear = new Date().getFullYear();
+  // const currentYear = new Date().getFullYear();
 
   React.useEffect(() => {
-    if (holidayList?.length > 0) {
+    if (holidayList && holidayList?.length > 0) {
       console.log("holiday list___", holidayList);
       const sortedList = [...holidayList].sort(
         (a, b) => a.holidayId - b.holidayId,
       );
       setHolidaySetList(sortedList);
+    } else {
+      setHolidaySetList([]);
     }
   }, [holidayList]);
 
@@ -71,14 +73,6 @@ export default function AssetManagementTable() {
           pagination?.pageIndex,
           pagination?.pageSize,
           year,
-        ),
-      );
-    } else {
-      dispatch(
-        actions.fetchAllHolidaysLeaves(
-          pagination?.pageIndex,
-          pagination?.pageSize,
-          currentYear,
         ),
       );
     }
@@ -578,7 +572,14 @@ export default function AssetManagementTable() {
 
   const deleteOrPhaseOuttheProject = () => {
     if (actionType == "delete") {
-      dispatch(actions.deleteHolidayList(holidayId, setPagination));
+      dispatch(
+        actions.deleteHolidayList(
+          holidayId,
+          setPagination,
+          pagination?.pageIndex,
+          pagination?.pageSize,
+        ),
+      );
     } else {
       return;
     }
@@ -653,6 +654,7 @@ export default function AssetManagementTable() {
                   value={year}
                   label="Year"
                   onChange={(e) => {
+                    setYear(e.target.value);
                     dispatch(
                       actions.fetchAllHolidaysLeaves(
                         0,

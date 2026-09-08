@@ -25,6 +25,7 @@ import { useThemeContext } from "../../context/ThemeContext";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import { useDispatch, useSelector } from "react-redux";
 import { clearPayroll } from "../../store/slices/payrollSlice";
+import moment from "moment";
 
 /* =========================================================
    SAMPLE DATA
@@ -238,8 +239,10 @@ const Payroll = () => {
 
   React.useEffect(() => {
     if (!loggedInUser?.empId) return;
-
-    dispatch(actions.getPayrollPerEmployeeId(loggedInUser?.empId || ""));
+    let effectiveDate = moment(new Date()).format("YYYY-MM-DD");
+    dispatch(
+      actions.getPayrollPerEmployeeId(loggedInUser?.empId || "", effectiveDate),
+    );
 
     return () => {
       dispatch(clearPayroll());
@@ -415,7 +418,7 @@ const Payroll = () => {
                 m: 0,
                 fontSize: 17,
                 fontWeight: 700,
-                color: colors.textPrimary,
+                color: theme.typography.bodyText,
                 letterSpacing: "-0.2px",
               }}
             >
@@ -544,7 +547,7 @@ const Payroll = () => {
                       whiteSpace: "nowrap",
                       fontSize: 13,
                       fontWeight: 500,
-                      color: colors.textPrimary,
+                      color: theme.typography.bodyText,
                     }}
                   >
                     {item.name}
@@ -555,7 +558,7 @@ const Payroll = () => {
                       textAlign: "right",
                       fontSize: 13,
                       fontWeight: 500,
-                      color: colors.textPrimary,
+                      color: theme.typography.bodyText,
                     }}
                   >
                     {formatAmount(item.amount)}
@@ -665,7 +668,7 @@ const Payroll = () => {
                       whiteSpace: "nowrap",
                       fontSize: 13,
                       fontWeight: 500,
-                      color: item.amount ? colors.textPrimary : "#64748B",
+                      color: theme.typography.bodyText,
                     }}
                   >
                     {item.name}
@@ -676,7 +679,7 @@ const Payroll = () => {
                       textAlign: "right",
                       fontSize: 13,
                       fontWeight: 500,
-                      color: item.amount ? colors.textPrimary : "#94A3B8",
+                      color: theme.typography.bodyText,
                     }}
                   >
                     {formatAmount(item.amount)}
@@ -706,7 +709,7 @@ const Payroll = () => {
             sx={{
               fontSize: 13,
               fontWeight: 700,
-              color: "#57534E",
+              color: theme.typography.bodyText,
             }}
           >
             COST TO THE COMPANY (CTC)
@@ -781,7 +784,7 @@ const Payroll = () => {
                 m: 0,
                 fontSize: 17,
                 fontWeight: 700,
-                color: colors.textPrimary,
+                color: theme.typography.bodyText,
               }}
             >
               Salary Slips
@@ -794,7 +797,7 @@ const Payroll = () => {
             <Typography
               sx={{
                 fontSize: 13,
-                color: "#64748B",
+                color: theme.typography.bodyText,
               }}
             >
               Filter by Year:
@@ -809,7 +812,7 @@ const Payroll = () => {
                   height: 34,
                   borderRadius: "7px",
                   backgroundColor: colors.surfaceBackground,
-                  color: colors.textPrimary,
+                  color: theme.typography.bodyText,
                   fontSize: 13,
                   fontWeight: 500,
 
@@ -958,7 +961,7 @@ const Payroll = () => {
                         whiteSpace: "nowrap",
                         fontSize: 13,
                         fontWeight: 700,
-                        color: colors.textPrimary,
+                        color: theme.typography.bodyText,
                       }}
                     >
                       {slip.month}
