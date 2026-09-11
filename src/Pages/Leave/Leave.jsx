@@ -1817,6 +1817,11 @@ const Leave = () => {
       ================================================== */}
         <div style={summaryContainerStyle}>
           <div style={leaveBalanceContainerStyle}>
+            {leaveBalances && leaveBalances.length == 0 && (
+              <p style={{ color: theme.typography.bodyText }}>
+                Backend error Balance not fetched
+              </p>
+            )}
             {leaveBalances &&
               leaveBalances.map((item) => {
                 if (

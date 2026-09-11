@@ -1,12 +1,15 @@
 import {
   fetchPayrollManagementService,
-  fetchAssetRequestByIdService,
-  fetchAssetRequestApprovalByIdService,
+  viewSalarySlipByYearService,
+  salarySlipDownloadService,
+  salarySlipPreviewService,
+  handleSalarySlipDownloadService,
 } from "../services/payrollManagementService";
 import { showAlert } from "../slices/alertSlice";
 import {
   storeAllpayrollRequest,
-  storeAssetRequestById,
+  storeAllSalarySlips,
+  storeSalarySlipPreview,
 } from "../slices/payrollSlice";
 import { globalLoaderOpen, globalLoaderClose } from "../slices/globalSlice";
 
@@ -40,61 +43,91 @@ export const getPayrollPerEmployeeId = (employeeId, effectiveDate) => {
   };
 };
 
-// export const fetchAssetRequestById = (assetId) => {
-//   return (dispatch) => {
-//     dispatch(globalLoaderOpen());
-//     fetchAssetRequestByIdService(assetId)
-//       .then((res) => {
-//         dispatch(globalLoaderClose());
-//         dispatch(storeAssetRequestById(res?.data?.data));
-//         dispatch(
-//           showAlert({
-//             type: "success",
-//             title: "Fetched Asset Request Id Successfully",
-//           }),
-//         );
-//         console.log("employee details___", res);
-//       })
-//       .catch((err) => {
-//         dispatch(globalLoaderClose());
-//         dispatch(
-//           showAlert({
-//             type: "error",
-//             title: err?.error || "Asset Request Id Fetch Failed",
-//             message: err?.message || "Asset Request Id API failed",
-//           }),
-//         );
+export const viewSalaraySlipByYear = (employeeId, year) => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    viewSalarySlipByYearService(employeeId, year)
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(storeAllSalarySlips(res?.data?.data));
+        dispatch(
+          showAlert({
+            type: "success",
+            title: "Fetched Salary Slips Id Successfully",
+          }),
+        );
+        console.log("employee details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Salary Slips Fetch Failed",
+            message: err?.message || "Salary Slips API failed",
+          }),
+        );
 
-//         console.log("error_message", err?.message);
-//       });
-//   };
-// };
+        console.log("error_message", err?.message);
+      });
+  };
+};
 
-// export const fetchAssetRequestApprovalById = (assetObj) => {
-//   return (dispatch) => {
-//     dispatch(globalLoaderOpen());
-//     fetchAssetRequestApprovalByIdService(assetObj)
-//       .then((res) => {
-//         dispatch(globalLoaderClose());
-//         dispatch(
-//           showAlert({
-//             type: "success",
-//             title: "Fetched Asset Request Approval Id Successfully",
-//           }),
-//         );
-//         console.log("employee details___", res);
-//       })
-//       .catch((err) => {
-//         dispatch(globalLoaderClose());
-//         dispatch(
-//           showAlert({
-//             type: "error",
-//             title: err?.error || "Asset Request Id Approval Fetch Failed",
-//             message: err?.message || "Asset Request Id Approval API failed",
-//           }),
-//         );
+export const handleSalarySlipDownloadById = (salarySlipId) => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    handleSalarySlipDownloadService(salarySlipId)
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "success",
+            title: "Fetched Asset Request Approval Id Successfully",
+          }),
+        );
+        console.log("employee details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Asset Request Id Approval Fetch Failed",
+            message: err?.message || "Asset Request Id Approval API failed",
+          }),
+        );
 
-//         console.log("error_message", err?.message);
-//       });
-//   };
-// };
+        console.log("error_message", err?.message);
+      });
+  };
+};
+
+export const salarySlipPreview = (salarySlipId) => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    salarySlipPreviewService(salarySlipId)
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(storeSalarySlipPreview(res?.data?.data));
+        dispatch(
+          showAlert({
+            type: "success",
+            title: "Fetched Asset Request Approval Id Successfully",
+          }),
+        );
+        console.log("employee details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Asset Request Id Approval Fetch Failed",
+            message: err?.message || "Asset Request Id Approval API failed",
+          }),
+        );
+
+        console.log("error_message", err?.message);
+      });
+  };
+};

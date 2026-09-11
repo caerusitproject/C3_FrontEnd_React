@@ -231,6 +231,8 @@ const formatAmount = (amount) => {
 
 const Payroll = () => {
   const payroll = useSelector((state) => state.payroll.payrollRequest);
+  const allSalarySlips = useSelector((state) => state.payroll.allSalarySlips);
+  // allSalarySlips
   const dispatch = useDispatch();
   const { loggedInUser } = useSelector((state) => state.login);
   const { theme } = useThemeContext();
@@ -238,16 +240,26 @@ const Payroll = () => {
   const [selectedYear, setSelectedYear] = useState("2026");
 
   React.useEffect(() => {
-    if (!loggedInUser?.empId) return;
+    if (!loggedInUser?.employeeId) return;
     let effectiveDate = moment(new Date()).format("YYYY-MM-DD");
     dispatch(
-      actions.getPayrollPerEmployeeId(loggedInUser?.empId || "", effectiveDate),
+      actions.getPayrollPerEmployeeId(
+        loggedInUser?.employeeId || "",
+        effectiveDate,
+      ),
     );
 
     return () => {
       dispatch(clearPayroll());
     };
-  }, [dispatch, loggedInUser?.empId]);
+  }, [dispatch, loggedInUser?.employeeId]);
+
+  React.useEffect(() => {
+    if (!loggedInUser?.employeeId) return;
+    dispatch(
+      actions.viewSalaraySlipByYear(loggedInUser?.employeeId, selectedYear),
+    );
+  }, [dispatch, selectedYear, loggedInUser?.employeeId]);
 
   const earningsData = earningFields.map((earning) => ({
     id: earning.id,
@@ -266,7 +278,7 @@ const Payroll = () => {
   ========================================================= */
 
   console.log("themes__", theme.foundation);
-  console.log("payroll___", payroll);
+  console.log("payroll___", payroll, allSalarySlips);
 
   const colors = useMemo(
     () => ({
@@ -319,19 +331,9 @@ const Payroll = () => {
      HANDLERS
   ========================================================= */
 
-  const handleDownload = (slip) => {
-    /*
-      Replace this with your API/download logic.
-
-      Example:
-
-      window.open(
-        `/api/payroll/salary-slip/${slip.id}/download`,
-        "_blank"
-      );
-    */
-
-    console.log("Downloading:", slip.fileName);
+  const handleDownload = (slipId) => {
+    dispatch(actions.handleSalarySlipDownloadById(slipId));
+    // console.log("Downloading:", slip.fileName);
   };
 
   const handleView = (slip) => {
@@ -883,8 +885,8 @@ const Payroll = () => {
             },
           }}
         >
-          {filteredSlips.length > 0 ? (
-            filteredSlips.map((slip) => (
+          {allSalarySlips.length > 0 ? (
+            allSalarySlips.map((slip) => (
               <Paper
                 key={slip.id}
                 elevation={0}
@@ -964,7 +966,7 @@ const Payroll = () => {
                         color: theme.typography.bodyText,
                       }}
                     >
-                      {slip.month}
+                      {moment(slip.periodStart).format("MMMM YYYY")}
                     </Typography>
 
                     <Typography
@@ -973,7 +975,8 @@ const Payroll = () => {
                         color: "#94A3B8",
                       }}
                     >
-                      Processed on {slip.processedDate}
+                      Processed on{" "}
+                      {moment(slip.generatedAt).format("YYYY-MM-DD")}
                     </Typography>
                   </Box>
                 </Stack>
@@ -1026,7 +1029,7 @@ const Payroll = () => {
 
                   <Button
                     type="button"
-                    onClick={() => handleDownload(slip)}
+                    onClick={() => handleDownload(slip?.salarySlipId)}
                     variant="outlined"
                     startIcon={<DownloadOutlined />}
                     sx={{
