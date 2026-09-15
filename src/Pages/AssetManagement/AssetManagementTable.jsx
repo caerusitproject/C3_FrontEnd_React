@@ -17,6 +17,7 @@ import { openConfirmationDialogue } from "../../store/slices/assetManagementSlic
 import AddassetManagemnet from "./AddassetManagemnet";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ConfirmDialog from "../ConfirmationDialogue";
+import QuickAssetTagging from "./QuickAssignDialogue";
 
 export default function AssetManagementTable() {
   const theme = useTheme();
@@ -28,8 +29,10 @@ export default function AssetManagementTable() {
   const countProjectMappings = useSelector(
     (state) => state.assetManagement?.countAssetManagement,
   );
+  const employeeList = useSelector((state) => state.employee?.employeeList);
   const [activeTab, setActiveTab] = React.useState(0);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [openTagging, setOpenTagging] = React.useState(false);
   const [editMode, setEditMode] = React.useState(false);
   const [selectAssetObj, setSelectAssetObj] = React.useState(null);
   const [assetID, setAssetID] = React.useState(null);
@@ -44,7 +47,11 @@ export default function AssetManagementTable() {
       actions.fetchAssetManagement(pagination?.pageIndex, pagination?.pageSize),
     );
   }, [dispatch, pagination.pageIndex, pagination.pageSize]);
-  console.log("assetMange___", allProjectMapping);
+
+  React.useEffect(() => {
+    dispatch(actions.fetchAllActiveEmployees());
+  }, []);
+  console.log("assetMange___", allProjectMapping, employeeList);
 
   const dummyData = [
     {
@@ -148,7 +155,11 @@ export default function AssetManagementTable() {
   const columns = React.useMemo(
     () => [
       { accessorKey: "assetId", header: "ID" },
-      { accessorKey: "categoryCodeValueId", header: "Category" },
+      {
+        accessorKey: "categoryCodeValueId",
+        header: "Category",
+        Cell: ({ cell }) => cell.getValue()?.displayName ?? "-",
+      },
       {
         accessorKey: "serialNumber",
         header: "Serial",
@@ -157,7 +168,11 @@ export default function AssetManagementTable() {
       // { accessorKey: "projectStatus.dispalyName", header: "Assigned To" },
       { accessorKey: "amcExpiry", header: "Amc Exp" },
       { accessorKey: "eolDate", header: "EOL Date" },
-      { accessorKey: "assetStatusCodeValueId", header: "Status" },
+      {
+        accessorKey: "assetStatusCodeValueId",
+        header: "Status",
+        Cell: ({ cell }) => cell.getValue()?.displayName ?? "-",
+      },
       {
         accessorKey: "actions",
         header: "Actions",
@@ -261,7 +276,10 @@ export default function AssetManagementTable() {
 
   const table = useMaterialReactTable({
     columns,
-    data: allProjectMapping ?? [],
+    data:
+      allProjectMapping && allProjectMapping.length > 0
+        ? allProjectMapping
+        : [],
 
     // -------------------------
     // Pagination
@@ -539,6 +557,10 @@ export default function AssetManagementTable() {
     }
   };
 
+  const handleTagAssets = (payload) => {
+    console.log("quick assign____", payload);
+  };
+
   return (
     <ThemeProvider theme={muiTheme}>
       <Card
@@ -548,8 +570,9 @@ export default function AssetManagementTable() {
         }}
       >
         {/* Title */}
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between" }}>
           <Text variant="h3">Asset Management</Text>
+          <Button onClick={() => setOpenTagging(true)}>Quick Assign</Button>
         </Box>
 
         {/* Navigation Row */}
@@ -621,7 +644,15 @@ export default function AssetManagementTable() {
             assetID={assetID}
             setAssetID={setAssetID}
           />
+
           <ConfirmDialog agreedAction={deleteOrPhaseOuttheProject} />
+          <QuickAssetTagging
+            open={openTagging}
+            onClose={() => setOpenTagging(false)}
+            employee={employeeList}
+            assets={allProjectMapping}
+            onSubmit={handleTagAssets}
+          />
           {/* <AddMappingModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}

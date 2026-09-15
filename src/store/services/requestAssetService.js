@@ -1,11 +1,11 @@
-import { api } from "../../Config/axiosInstance";
+import { api, assetManagementApi } from "../../Config/axiosInstance";
 
 export const requestAssetDashService = () => {
   return new Promise(async (resolve, reject) => {
     try {
       let response = "";
 
-      response = await api.get(`v1/dashboard`, {
+      response = await assetManagementApi.get(`v1/dashboard`, {
         "Content-Type": "application/json",
       });
       if (response) resolve(response);
@@ -19,7 +19,7 @@ export const saveAssetRequestService = (assets) => {
   return new Promise(async (resolve, reject) => {
     try {
       let response = "";
-      response = await api.post(`/v1/asset-requests`, assets, {
+      response = await assetManagementApi.post(`/v1/asset-requests`, assets, {
         "Content-Type": "application/json",
       });
 

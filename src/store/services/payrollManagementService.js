@@ -8,7 +8,7 @@ export const fetchPayrollManagementService = (employeeId, effectiveDate) => {
       let response = "";
       if (employeeId) {
         response = await payrollApi.get(
-          `/v1/salary-structures/employee/${employeeId}/current?effectiveDate=${effectiveDate}`,
+          `/v1/payroll-structures/employee/${employeeId}`,
           {
             "Content-Type": "application/json",
           },

@@ -1,11 +1,14 @@
-import { api } from "../../Config/axiosInstance";
+import {
+  assetManagementApi,
+  employeeManagementApi,
+} from "../../Config/axiosInstance";
 
 let token = localStorage.getItem("access-token");
 
 export const fetchEmployeeService = (empCode, role) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let response = await api.get(
+      let response = await assetManagementApi.get(
         `employees/profile-details?empCode=${empCode}`,
         {
           headers: {
@@ -24,7 +27,7 @@ export const fetchEmployeeService = (empCode, role) => {
 export const updateEmployeeService = (empCode, role, empObj) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let response = await api.put(
+      let response = await assetManagementApi.put(
         `employees/update?empCode=${empCode}`,
         empObj,
         // {
@@ -34,6 +37,17 @@ export const updateEmployeeService = (empCode, role, empObj) => {
         //   },
         // },
       );
+      if (response) resolve(response);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const allEmployeeList = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = await employeeManagementApi.get(`/employees/active`);
       if (response) resolve(response);
     } catch (err) {
       reject(err);

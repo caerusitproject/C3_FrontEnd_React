@@ -49,16 +49,19 @@ const AddAssetManagement = ({
     eolDate: "",
   });
 
+  console.log("asset management___", selectAssetObj);
+
   React.useEffect(() => {
     if (selectAssetObj) {
       setFormData({
         assetCode: selectAssetObj?.assetCode || "",
         assetName: selectAssetObj.assetName || "",
         serialNumber: selectAssetObj.serialNumber || "",
-        categoryId: selectAssetObj.categoryCodeValueId || "",
+        categoryId: selectAssetObj.categoryCodeValueId?.codeValueId || "",
         vendor: selectAssetObj.vendorName || "",
-        statusId: selectAssetObj?.assetStatusCodeValueId || "",
-        conditionId: selectAssetObj?.assetConditionCodeValueId || "",
+        statusId: selectAssetObj?.assetStatusCodeValueId?.codeValueId || "",
+        conditionId:
+          selectAssetObj?.assetConditionCodeValueId?.codeValueId || "",
         remarks: selectAssetObj.remarks || "",
         purchaseDate: selectAssetObj.purchaseDate || "",
         warrantyExpiry: selectAssetObj.warrantyExpiry || "",
@@ -416,10 +419,10 @@ const AddAssetManagement = ({
                 label="CONDITION ID"
                 onChange={(e) => handleChange("conditionId", e.target.value)}
               >
-                <MenuItem value="1201">1201 (Excellent)</MenuItem>
-                <MenuItem value="1202">1202 (Good)</MenuItem>
-                <MenuItem value="1203">1203 (Fair)</MenuItem>
-                <MenuItem value="1402">1402 (Fair)</MenuItem>
+                <MenuItem value="1201">Pending</MenuItem>
+                <MenuItem value="1402">Good</MenuItem>
+                <MenuItem value="1401">New</MenuItem>
+                <MenuItem value="1304">Repair</MenuItem>
               </Select>
             </FormControl>
 
@@ -430,10 +433,10 @@ const AddAssetManagement = ({
                 label="STATUS ID"
                 onChange={(e) => handleChange("statusId", e.target.value)}
               >
-                <MenuItem value="1101">1101 (Assigned)</MenuItem>
-                <MenuItem value="1102">1102 (Available)</MenuItem>
-                <MenuItem value="1103">1103 (Repair)</MenuItem>
-                <MenuItem value="1302">1302 (Repair)</MenuItem>
+                <MenuItem value="1001">IT Asset</MenuItem>
+                <MenuItem value="1302">Allocated</MenuItem>
+                <MenuItem value="1201">Pending</MenuItem>
+                <MenuItem value="1101">New Request</MenuItem>
               </Select>
             </FormControl>
 
@@ -444,9 +447,9 @@ const AddAssetManagement = ({
                 label="CATEGORY ID"
                 onChange={(e) => handleChange("categoryId", e.target.value)}
               >
-                <MenuItem value="1">1</MenuItem>
-                <MenuItem value="102">102</MenuItem>
-                <MenuItem value="103">103</MenuItem>
+                <MenuItem value="1001">IT Asset</MenuItem>
+                {/* <MenuItem value="102">102</MenuItem>
+                <MenuItem value="103">103</MenuItem> */}
               </Select>
             </FormControl>
             {/* Remarks - Full Width */}

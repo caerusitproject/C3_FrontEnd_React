@@ -1,4 +1,5 @@
 import { api } from "../../Config/axiosInstance";
+import { assetManagementApi } from "../../Config/axiosInstance";
 
 // fetchAllProjectMappingService
 
@@ -7,9 +8,12 @@ export const fetchAssetRequestService = (page, size) => {
     try {
       let response = "";
 
-      response = await api.get(`/v1/asset-requests?page=${page}&size=${size}`, {
-        "Content-Type": "application/json",
-      });
+      response = await assetManagementApi.get(
+        `/v1/asset-requests?page=${page}&size=${size}`,
+        {
+          "Content-Type": "application/json",
+        },
+      );
 
       if (response) resolve(response);
     } catch (err) {
@@ -23,7 +27,7 @@ export const fetchAssetRequestByIdService = (assetId) => {
     try {
       let response = "";
 
-      response = await api.get(`/v1/asset-requests/${assetId}`, {
+      response = await assetManagementApi.get(`/v1/asset-requests/${assetId}`, {
         "Content-Type": "application/json",
       });
 
@@ -39,9 +43,13 @@ export const fetchAssetRequestApprovalByIdService = (assetObj) => {
     try {
       let response = "";
 
-      response = await api.post(`/v1/asset-request-approvals`, assetObj, {
-        "Content-Type": "application/json",
-      });
+      response = await assetManagementApi.post(
+        `/v1/asset-request-approvals`,
+        assetObj,
+        {
+          "Content-Type": "application/json",
+        },
+      );
 
       if (response) resolve(response);
     } catch (err) {

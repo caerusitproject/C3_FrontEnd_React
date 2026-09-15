@@ -26,6 +26,8 @@ import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import { useDispatch, useSelector } from "react-redux";
 import { clearPayroll } from "../../store/slices/payrollSlice";
 import moment from "moment";
+import { payrollApi } from "../../Config/axiosInstance";
+import SalarySlipModal from "./SalarySlipModal";
 
 /* =========================================================
    SAMPLE DATA
@@ -232,12 +234,15 @@ const formatAmount = (amount) => {
 const Payroll = () => {
   const payroll = useSelector((state) => state.payroll.payrollRequest);
   const allSalarySlips = useSelector((state) => state.payroll.allSalarySlips);
+  const salaryPreview = useSelector((state) => state.payroll.salaryPreview);
   // allSalarySlips
   const dispatch = useDispatch();
   const { loggedInUser } = useSelector((state) => state.login);
   const { theme } = useThemeContext();
 
   const [selectedYear, setSelectedYear] = useState("2026");
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [salarySlipOpen, setSalarySlipOpen] = useState(false);
 
   React.useEffect(() => {
     if (!loggedInUser?.employeeId) return;
@@ -261,16 +266,24 @@ const Payroll = () => {
     );
   }, [dispatch, selectedYear, loggedInUser?.employeeId]);
 
-  const earningsData = earningFields.map((earning) => ({
-    id: earning.id,
-    name: earning.name,
-    amount: payroll?.[earning.field] ?? 0,
+  React.useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
+
+  const earningsData = payroll?.earnings.map((earning, index) => ({
+    id: index + 1,
+    name: earning.componentCode.replaceAll("_", " "),
+    amount: earning?.monthlyAmount ?? 0,
   }));
 
-  const deductionData = deductionsData.map((deduction) => ({
-    id: deduction.id,
-    name: deduction.name,
-    amount: payroll?.[deduction.field] ?? 0,
+  const deductionData = payroll?.deductions.map((deduction, index) => ({
+    id: index + 1,
+    name: deduction.componentCode.replaceAll("_", " "),
+    amount: deduction?.monthlyAmount ?? 0,
   }));
 
   /* =========================================================
@@ -278,7 +291,7 @@ const Payroll = () => {
   ========================================================= */
 
   console.log("themes__", theme.foundation);
-  console.log("payroll___", payroll, allSalarySlips);
+  console.log("payroll___", earningsData, allSalarySlips);
 
   const colors = useMemo(
     () => ({
@@ -315,17 +328,17 @@ const Payroll = () => {
     slip.month.includes(selectedYear),
   );
 
-  const totalEarnings = earningsData.reduce(
-    (total, item) => total + item.amount,
-    0,
-  );
+  // const totalEarnings = payroll?.earningsData.reduce(
+  //   (total, item) => total + item.amount,
+  //   0,
+  // );
 
   const totalDeductions = deductionsData.reduce(
     (total, item) => total + (item.amount || 0),
     0,
   );
 
-  const ctc = totalEarnings;
+  // const ctc = totalEarnings;
 
   /* =========================================================
      HANDLERS
@@ -336,12 +349,61 @@ const Payroll = () => {
     // console.log("Downloading:", slip.fileName);
   };
 
-  const handleView = (slip) => {
-    /*
-      Replace this with your PDF viewer/navigation logic.
-    */
+  const handleView = async (slipId) => {
+    // Open tab immediately while this is still inside the click event
+    const newTab = window.open("", "_blank");
 
-    console.log("Viewing:", slip.fileName);
+    if (!newTab) {
+      console.error("Popup blocked by browser");
+      return;
+    }
+
+    try {
+      // Optional loading message
+      newTab.document.write(`
+      <html>
+        <head>
+          <title>Salary Slip</title>
+        </head>
+        <body style="
+          margin: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          font-family: Arial, sans-serif;
+        ">
+          Loading salary slip...
+        </body>
+      </html>
+    `);
+      newTab.document.close();
+
+      const response = await payrollApi.get(
+        `/v1/salary-slips/${slipId}/download`,
+        {
+          responseType: "blob",
+        },
+      );
+
+      const blob = new Blob([response.data], {
+        type: "application/pdf",
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      // Navigate the already-opened tab to the PDF
+      newTab.location.href = url;
+
+      // Cleanup after some time
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 60000);
+    } catch (error) {
+      console.error("Failed to load PDF:", error);
+
+      newTab.close();
+    }
   };
 
   return (
@@ -519,54 +581,59 @@ const Payroll = () => {
             {/* Column Body */}
 
             <Box sx={{ width: "100%" }}>
-              {earningsData?.map((item) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    minHeight: 41,
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "minmax(0, 1fr) 100px",
-                      sm: "minmax(0, 1fr) 120px",
-                    },
-                    alignItems: "center",
-                    px: {
-                      xs: 1.25,
-                      sm: 1.75,
-                    },
-                    borderBottom: "1px solid rgba(148, 163, 184, 0.13)",
-
-                    "&:last-child": {
-                      borderBottom: "none",
-                    },
-                  }}
-                >
-                  <Typography
+              {earningsData &&
+                earningsData.length > 0 &&
+                earningsData?.map((item) => (
+                  <Box
+                    key={item.id}
                     sx={{
-                      minWidth: 0,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: theme.typography.bodyText,
+                      minHeight: 41,
+                      display: "grid",
+                      gridTemplateColumns: {
+                        xs: "minmax(0, 1fr) 100px",
+                        sm: "minmax(0, 1fr) 120px",
+                      },
+                      alignItems: "center",
+                      px: {
+                        xs: 1.25,
+                        sm: 1.75,
+                      },
+                      borderBottom: "1px solid rgba(148, 163, 184, 0.13)",
+
+                      "&:last-child": {
+                        borderBottom: "none",
+                      },
                     }}
                   >
-                    {item.name}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        minWidth: 0,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: theme.typography.bodyText,
+                      }}
+                    >
+                      {item.name}
+                    </Typography>
 
-                  <Typography
-                    sx={{
-                      textAlign: "right",
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: theme.typography.bodyText,
-                    }}
-                  >
-                    {formatAmount(item.amount)}
-                  </Typography>
-                </Box>
-              ))}
+                    <Typography
+                      sx={{
+                        textAlign: "right",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: theme.typography.bodyText,
+                      }}
+                    >
+                      {formatAmount(item.amount)}
+                    </Typography>
+                  </Box>
+                ))}
+              {earningsData?.length == 0 && (
+                <p>No Earnings found for this employee</p>
+              )}
             </Box>
           </Box>
 
@@ -640,54 +707,59 @@ const Payroll = () => {
             {/* Column Body */}
 
             <Box sx={{ width: "100%" }}>
-              {deductionData?.map((item) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    minHeight: 41,
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "minmax(0, 1fr) 100px",
-                      sm: "minmax(0, 1fr) 120px",
-                    },
-                    alignItems: "center",
-                    px: {
-                      xs: 1.25,
-                      sm: 1.75,
-                    },
-                    borderBottom: "1px solid rgba(148, 163, 184, 0.13)",
-
-                    "&:last-child": {
-                      borderBottom: "none",
-                    },
-                  }}
-                >
-                  <Typography
+              {deductionData &&
+                deductionData.length > 0 &&
+                deductionData?.map((item) => (
+                  <Box
+                    key={item.id}
                     sx={{
-                      minWidth: 0,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: theme.typography.bodyText,
+                      minHeight: 41,
+                      display: "grid",
+                      gridTemplateColumns: {
+                        xs: "minmax(0, 1fr) 100px",
+                        sm: "minmax(0, 1fr) 120px",
+                      },
+                      alignItems: "center",
+                      px: {
+                        xs: 1.25,
+                        sm: 1.75,
+                      },
+                      borderBottom: "1px solid rgba(148, 163, 184, 0.13)",
+
+                      "&:last-child": {
+                        borderBottom: "none",
+                      },
                     }}
                   >
-                    {item.name}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        minWidth: 0,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: theme.typography.bodyText,
+                      }}
+                    >
+                      {item.name}
+                    </Typography>
 
-                  <Typography
-                    sx={{
-                      textAlign: "right",
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: theme.typography.bodyText,
-                    }}
-                  >
-                    {formatAmount(item.amount)}
-                  </Typography>
-                </Box>
-              ))}
+                    <Typography
+                      sx={{
+                        textAlign: "right",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: theme.typography.bodyText,
+                      }}
+                    >
+                      {formatAmount(item.amount)}
+                    </Typography>
+                  </Box>
+                ))}
+              {deductionData?.length == 0 && (
+                <p>No Deductions found for this employee</p>
+              )}
             </Box>
           </Box>
         </Box>
@@ -999,7 +1071,9 @@ const Payroll = () => {
 
                   <IconButton
                     type="button"
-                    onClick={() => handleView(slip)}
+                    onClick={() => {
+                      handleView(slip?.salarySlipId);
+                    }}
                     title="View salary slip"
                     size="small"
                     sx={{
@@ -1117,6 +1191,22 @@ const Payroll = () => {
             </Box>
           )}
         </Box>
+        {/* {pdfUrl && (
+          <iframe
+            src={pdfUrl}
+            width="100%"
+            height="600px"
+            title="Salary Slip"
+            style={{
+              border: "none",
+            }}
+          />
+        )} */}
+        {/* <SalarySlipModal
+          open={salarySlipOpen}
+          onClose={() => setSalarySlipOpen(false)}
+          salarySlip={salaryPreview}
+        /> */}
       </Box>
     </Box>
   );

@@ -3,6 +3,7 @@ import {
   addAssetManagementService,
   updateAssetManagementService,
   deleteAssetManagementService,
+  quickAssignAssetTaggingService,
 } from "../services/assetManagementService";
 import { showAlert } from "../slices/alertSlice";
 import { storeAssetManagement } from "../slices/assetManagementSlice";
@@ -128,6 +129,34 @@ export const deleteAssetManagement = (assetId) => {
             type: "error",
             title: err?.error || "Delete Asset Failed",
             message: err?.message || "Deleted message failed failed",
+          }),
+        );
+
+        console.log("error_message", err?.message);
+      });
+  };
+};
+
+export const quickAssignAssetManagement = (payload) => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    quickAssignAssetTaggingService(payload)
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "success",
+            title: "Quick Assigned Successfully",
+          }),
+        );
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Quick Assigned Failed",
+            message: err?.message || "Quick Assigned failed failed",
           }),
         );
 

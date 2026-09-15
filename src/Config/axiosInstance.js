@@ -43,6 +43,22 @@ const payrollApi = axios.create({
   },
 });
 
+const assetManagementApi = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL_ASSET_MANAGEMENT,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+const employeeManagementApi = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL_EMPLOYEE,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 /* ============================================================
    REQUEST INTERCEPTOR
    Attach access token to BOTH api and leaveApi
@@ -111,6 +127,10 @@ payrollApi.interceptors.request.use(attachAccessToken, (error) =>
   Promise.reject(error),
 );
 
+assetManagementApi.interceptors.request.use(attachAccessToken, (error) =>
+  Promise.reject(error),
+);
+
 attendanceApi.interceptors.request.use(
   async (config) => {
     let attendanceToken = localStorage.getItem("attendance-access-token");
@@ -129,6 +149,27 @@ attendanceApi.interceptors.request.use(
   },
   (error) => Promise.reject(error),
 );
+
+employeeManagementApi.interceptors.request.use(
+  async (config) => {
+    let attendanceToken = localStorage.getItem("attendance-access-token");
+
+    if (!attendanceToken) {
+      attendanceToken = await getAttendanceAccessToken();
+    }
+
+    if (attendanceToken) {
+      config.headers = config.headers || {};
+
+      config.headers.Authorization = `Bearer ${attendanceToken}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+// assetManagementApi
 
 /* ============================================================
    TOKEN REFRESH
@@ -498,5 +539,180 @@ leaveApi.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+employeeManagementApi.interceptors.response.use(
+  (response) => response,
 
-export { api, leaveApi, attendanceApi, superAdminApi, payrollApi };
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (originalRequest?.skipAuth) {
+      return Promise.reject(error);
+    }
+
+    if (
+      error.response?.status === 401 ||
+      (error.response?.status === 404 && !originalRequest._retry)
+    ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve,
+            reject,
+          });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+
+            return leaveApi(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = localStorage.getItem("refresh-token");
+
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/auth/refresh`,
+          {
+            refreshToken,
+          },
+        );
+
+        const newAccessToken = response?.data?.accessToken;
+
+        localStorage.setItem("access-token", newAccessToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        processQueue(null, newAccessToken);
+
+        return leaveApi(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+
+        if (
+          refreshError.response?.status === 401 ||
+          refreshError.response?.status === 404
+        ) {
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("refresh-token");
+
+          store.dispatch(logout());
+
+          store.dispatch(
+            showAlert({
+              type: "error",
+              title: "Session Expired",
+              message: "Your session has expired. Please login again.",
+            }),
+          );
+
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+assetManagementApi.interceptors.response.use(
+  (response) => response,
+
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (originalRequest?.skipAuth) {
+      return Promise.reject(error);
+    }
+
+    if (
+      error.response?.status === 401 ||
+      (error.response?.status === 404 && !originalRequest._retry)
+    ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve,
+            reject,
+          });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+
+            return leaveApi(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = localStorage.getItem("refresh-token");
+
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/auth/refresh`,
+          {
+            refreshToken,
+          },
+        );
+
+        const newAccessToken = response?.data?.accessToken;
+
+        localStorage.setItem("access-token", newAccessToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        processQueue(null, newAccessToken);
+
+        return leaveApi(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+
+        if (
+          refreshError.response?.status === 401 ||
+          refreshError.response?.status === 404
+        ) {
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("refresh-token");
+
+          store.dispatch(logout());
+
+          store.dispatch(
+            showAlert({
+              type: "error",
+              title: "Session Expired",
+              message: "Your session has expired. Please login again.",
+            }),
+          );
+
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+export {
+  api,
+  leaveApi,
+  attendanceApi,
+  superAdminApi,
+  payrollApi,
+  assetManagementApi,
+  employeeManagementApi,
+};

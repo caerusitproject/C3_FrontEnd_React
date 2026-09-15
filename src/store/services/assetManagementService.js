@@ -1,4 +1,5 @@
 import { api } from "../../Config/axiosInstance";
+import { assetManagementApi } from "../../Config/axiosInstance";
 
 // fetchAllProjectMappingService
 
@@ -7,12 +8,16 @@ export const fetchAssetManagementService = (pageIndex, pageSize) => {
     try {
       let response = "";
       if (pageIndex.toString() && pageSize.toString()) {
-        response = await api.get(
+        response = await assetManagementApi.get(
           `/v1/assets?page=${pageIndex}&size=${pageSize}`,
           {
             "Content-Type": "application/json",
           },
         );
+      } else {
+        response = await assetManagementApi.get(`/v1/assets`, {
+          "Content-Type": "application/json",
+        });
       }
       if (response) resolve(response);
     } catch (err) {
@@ -26,9 +31,13 @@ export const addAssetManagementService = (selectedAssetManagement) => {
     try {
       let response = "";
 
-      response = await api.post(`/v1/assets`, selectedAssetManagement, {
-        "Content-Type": "application/json",
-      });
+      response = await assetManagementApi.post(
+        `/v1/assets`,
+        selectedAssetManagement,
+        {
+          "Content-Type": "application/json",
+        },
+      );
 
       if (response) resolve(response);
     } catch (err) {
@@ -45,7 +54,7 @@ export const updateAssetManagementService = (
     try {
       let response = "";
 
-      response = await api.put(
+      response = await assetManagementApi.put(
         `/v1/assets/${assetId}`,
         selectedAssetManagement,
         {
@@ -65,9 +74,29 @@ export const deleteAssetManagementService = (assetId) => {
     try {
       let response = "";
 
-      response = await api.delete(`/v1/assets/${assetId}`, {
+      response = await assetManagementApi.delete(`/v1/assets/${assetId}`, {
         "Content-Type": "application/json",
       });
+
+      if (response) resolve(response);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const quickAssignAssetTaggingService = (payload) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let response = "";
+
+      response = await assetManagementApi.post(
+        `/v1/assets/quick-assign`,
+        payload,
+        {
+          "Content-Type": "application/json",
+        },
+      );
 
       if (response) resolve(response);
     } catch (err) {

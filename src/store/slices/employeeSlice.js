@@ -3,6 +3,7 @@ import GlobalLoader from "../../Components/ui/Loader/GlobalLoader";
 
 const initialState = {
   employeeProfile: {},
+  employeeList: [],
 };
 
 export const employeeSlice = createSlice({
@@ -12,9 +13,13 @@ export const employeeSlice = createSlice({
     fetchEmplyeePro: (state, action) => {
       state.employeeProfile = action.payload;
     },
+    storeEmployeeList: (state, action) => {
+      state.employeeList = action.payload;
+    },
   },
+  //
 });
 
-export const { fetchEmplyeePro } = employeeSlice.actions;
+export const { fetchEmplyeePro, storeEmployeeList } = employeeSlice.actions;
 
 export default employeeSlice.reducer;

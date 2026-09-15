@@ -112,7 +112,7 @@ export const salarySlipPreview = (salarySlipId) => {
         dispatch(
           showAlert({
             type: "success",
-            title: "Fetched Asset Request Approval Id Successfully",
+            title: "Fetched Salary Slip Successfully",
           }),
         );
         console.log("employee details___", res);
@@ -122,8 +122,8 @@ export const salarySlipPreview = (salarySlipId) => {
         dispatch(
           showAlert({
             type: "error",
-            title: err?.error || "Asset Request Id Approval Fetch Failed",
-            message: err?.message || "Asset Request Id Approval API failed",
+            title: err?.error || "Salary Slip Fetch Failed",
+            message: err?.message || "Salary Slip API failed",
           }),
         );
 

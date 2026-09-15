@@ -1,8 +1,9 @@
 import {
   fetchEmployeeService,
   updateEmployeeService,
+  allEmployeeList,
 } from "../services/employeeService";
-import { fetchEmplyeePro } from "../slices/employeeSlice";
+import { fetchEmplyeePro, storeEmployeeList } from "../slices/employeeSlice";
 import { showAlert } from "../slices/alertSlice";
 import { globalLoaderOpen, globalLoaderClose } from "../slices/globalSlice";
 
@@ -46,6 +47,37 @@ export const updateEmployeeProfile = (empCode, role, employeeProfileObj) => {
       .then((res) => {
         dispatch(globalLoaderClose());
         dispatch(fetchEmployeeProfile(empCode, role));
+        dispatch(
+          showAlert({
+            type: "success",
+            title: "Profile updated Successfully",
+          }),
+        );
+        console.log("employee details___", res);
+      })
+      .catch((err) => {
+        dispatch(globalLoaderClose());
+
+        dispatch(
+          showAlert({
+            type: "error",
+            title: err?.error || "Profile Fetch Failed",
+            message: err?.message || "Employee API failed",
+          }),
+        );
+
+        console.log("error_message", err?.message);
+      });
+  };
+};
+
+export const fetchAllActiveEmployees = () => {
+  return (dispatch) => {
+    dispatch(globalLoaderOpen());
+    allEmployeeList()
+      .then((res) => {
+        dispatch(globalLoaderClose());
+        dispatch(storeEmployeeList(res?.data));
         dispatch(
           showAlert({
             type: "success",
